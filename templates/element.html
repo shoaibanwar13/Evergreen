@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yearly Monthly Sales Chart</title>
+    <!-- Include ApexCharts -->
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+</head>
+<body>
+    <div id="chart"></div>
+
+    
+</body>
+</html>
+{% load static %}
+<head>
+<title>{{request.user.username}}|Vendor</title>
+</head>
+<div class="col-span-12 mt-8">
+<!-- component -->
+<link rel="stylesheet" href="https://demos.creative-tim.com/notus-js/assets/styles/tailwind.css">
+<link rel="stylesheet" href="https://demos.creative-tim.com/notus-js/assets/vendor/@fortawesome/fontawesome-free/css/all.min.css">
+<div id="overlay" class="overlay">
+  <div class="loader">
+      <img src="{% static 'img/logo1.png' %}" alt="Loading...">
+  </div>
+</div>
+<section class=" py-1 ">
+<div class="w-full lg:w-8/12 px-4 mx-auto mt-6">
+<div class="relative flex flex-col min-w-0 break-words w-full mb-6 shadow-lg rounded-lg   border-0">
+ <div class="rounded-t bg-white mb-0 px-6 py-6">
+   <div class="text-center flex justify-between">
+     
+     <h6 class="text-green-500 text-xl font-bold">
+       Add Daily Production Entery
+     </h6>
+     <a href="/" class="flex items-center">
+         <img src="{% for compydetail in compydetail %}{{compydetail.logo.url}}{% endfor %}" class="h-9 mr-3 sm:h-9" style="height: 75px;" alt="Landwind Logo">
+          
+     </a>
+     
+   </div>
+   <h6 class="text-blueGray-600   font-bold">
+     Note:<b class="text-red-500">*</b> Field Are Compulsery To Fill
+   </h6>
+    
+    
+ </div>
+ <div class="flex-auto px-4 lg:px-10 py-10 pt-0">
+  <form action="{% url 'AddPurchase' %}" method="post" id="clientForm" enctype="multipart/form-data">
+     {% csrf_token %}
+     <h6 class="text-green-500 text-sm mt-3 mb-6 font-bold uppercase">
+       Production  Information
+     </h6>
+     <div class="flex flex-wrap">
+       <div class="w-full lg:w-6/12 px-4">
+         <div class="relative w-full mb-3">
+           <label class="block uppercase text-blueGray-600 text-xs font-bold mb-2" htmlfor="grid-password">
+            Puroduction Product Name<b class="text-red-500">*</b>
+           </label>
+           <select name="Puroduction_Product_Name" id="accountType2" class="border-0 px-3 py-3 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150 text-xs text-green-500 font-bold mb-2 " required>
+            <option class="text-xs font-bold mb-2" value="KG">Kg</option>
+              </select>
+         </div>
+       </div>
+       <div class="w-full lg:w-6/12 px-4">
+         <div class="relative w-full mb-3">
+           <label class="block uppercase text-blueGray-600 text-xs font-bold mb-2" htmlfor="grid-password">
+            Production Place <b class="text-red-500">*</b>
+           </label>
+           <input type="text" name="Production_Place"  class="border-0 px-3 py-3 placeholder-green-300 text-green-500 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" placeholder="Supplier Name" required >
+         </div>
+       </div>
+  
+       <div class="w-full lg:w-6/12 px-4">
+         <div class="relative w-full mb-3">
+           <label class="block uppercase text-blueGray-600 text-xs font-bold mb-2" htmlfor="grid-password">
+            City<b class="text-red-500">*</b>
+           </label>
+           <input type="text" name="city" class="border-0 px-3 py-3 placeholder-green-300 text-green-500 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" required placeholder="City" 
+           >
+          
+         </div>
+       </div>
+       <div class="w-full lg:w-6/12 px-4">
+        <div class="relative w-full mb-3">
+          <label class="block uppercase text-blueGray-600 text-xs font-bold mb-2" htmlfor="grid-password">
+            Total_Production_Item<b class="text-red-500">*</b>
+          </label>
+          <input type="text" name="Total_Production_Item" class="border-0 px-3 py-3 placeholder-green-300 text-green-500 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" required placeholder="Total Production Item(BALES)" 
+          >
+         
+        </div>
+      </div>
+     </div>
+
+     <hr class="mt-6 border-b-1 border-green-500">
+
+     <h6 class="text-green-500 text-sm mt-3 mb-6 font-bold uppercase">
+       Production Team Information
+     </h6>
+     <div class="flex flex-wrap">
+       <div class="w-full lg:w-12/12 px-4">
+         <div class="relative w-full mb-3">
+           <label class="block uppercase text-blueGray-600 text-xs font-bold mb-2" htmlfor="grid-password">
+            Production Team Name<b class="text-red-500">*</b>
+           </label>
+           
+           <input type="text" name="Production_Team_Name"
+           hx-get="{% url 'check_product_name' %}" hx-trigger="input" hx-target="#product-exists-message"
+           
+           class="border-0 px-3 py-3 placeholder-green-300 text-green-500 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" required placeholder="Product Name">
+           <div id="product-exists-message" class="text-red-500 text-sm mt-2"></div>
+          </div>
+       </div>
+       <div class="w-full lg:w-4/12 px-6 ">
+        <div class="relative w-full mb-3">
+          <label class="block uppercase text-blueGray-600 text-xs font-bold mb-2" for="purchase-bill-image">
+            Purchase Bill <b class="text-red-500">*</b>
+          </label>
+          <div class="flex items-center justify-center w-full">
+            <label class="flex flex-col items-center px-3 py-4 bg-white text-blue rounded-lg shadow-lg tracking-wide uppercase border border-blue cursor-pointer hover:bg-green-500 hover:text-white">
+              <svg class="w-6 h-6" fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path d="M12 2a5.2 5.2 0 015.2 5.2 4.2 4.2 0 01-.02.424 7.001 7.001 0 013.89 6.276l.03.604A5.2 5.2 0 0116 20.1H8a5.2 5.2 0 01-5.1-5.2l.003-.184A7.001 7.001 0 016.89 7.624 4.2 4.2 0 016.87 7.2 5.2 5.2 0 0112 2zm0 2a3.2 3.2 0 00-3.2 3.2 2.2 2.2 0 00.047.396 6.99 6.99 0 00-3.46 5.765L5.4 15A3.2 3.2 0 008 18.1h8a3.2 3.2 0 002.6-3.1l-.002-.13a6.99 6.99 0 00-3.461-5.765 2.2 2.2 0 00.047-.396A3.2 3.2 0 0012 4zm0 6a4 4 0 110 8 4 4 0 010-8zm0 2a2 2 0 100 4 2 2 0 000-4z"/>
+              </svg>
+              <span id="file-chosen" class="mt-2 text-base leading-normal">Upload Bill</span>
+              <input type="file" name="Purchase_Screenshot" id="purchase-bill-image" class="hidden" accept="image/*" required onchange="updateFileName()">
+            </label>
+          </div>
+        </div>
+      </div>
+      
+        <div class="w-full lg:w-6/12 px-4">
+        <div class="relative w-full mb-3">
+            <label class="block uppercase text-blueGray-600 text-xs font-bold mb-2" for="accountType2">
+             UoM/UNIT<b class="text-red-500">*</b>
+            </label>
+            <select name="UoM" id="accountType2" class="border-0 px-3 py-3 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150 text-xs text-green-500 font-bold mb-2 " required>
+                <option class="text-xs font-bold mb-2" value="KG">Kg</option>
+                <option class="text-xs font-bold mb-2" value="Mun">Mun</option>
+                  </select>
+        </div>
+    </div>
+    
+    
+     </div>
+
+     <hr class="mt-6 border-b-1 border-green-300">
+
+     <h6 class="text-green-500 text-sm mt-3 mb-6 font-bold uppercase">
+        Product Purchase Calculation
+       </h6>
+       <div class="flex flex-wrap">
+        <div class="w-full lg:w-4/12 px-4">
+          <div class="relative w-full mb-3">
+            <label class="block uppercase text-blueGray-600 text-xs font-bold mb-2" for="quantity">
+              Quantity <b class="text-red-500">*</b>
+            </label>
+            <input type="number" name="Total_Production_Item" id="quantity" class="border-0 px-3 py-3 placeholder-green-300 text-green-500 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" required placeholder="Quantity" oninput="calculateTotal()" step="0.01">
+          </div>
+        </div>
+        <div class="w-full lg:w-4/12 px-4">
+          <div class="relative w-full mb-3">
+            <label class="block uppercase text-blueGray-600 text-xs font-bold mb-2" for="purchase-price">
+              Purchase Price <b class="text-red-500">*</b>
+            </label>
+            <input type="number" name="Purchase_Price" id="purchase-price" class="border-0 px-3 py-3 placeholder-green-300 text-green-500 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" required placeholder="Purchase Price" oninput="calculateTotal()" step="0.01">
+          </div>
+        </div>
+        <div class="w-full lg:w-4/12 px-4">
+          <div class="relative w-full mb-3">
+            <label class="block uppercase text-blueGray-600 text-xs font-bold mb-2" for="total-amount">
+              Total Amount <b class="text-red-500">*</b>
+            </label>
+            <input type="number" name="Amount" id="total-amount" class="border-0 px-3 py-3 placeholder-green-300 text-green-500 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" required placeholder="Total Amount" readonly>
+          </div>
+        </div>
+        
+        
+         
+         
+          
+     </div>         
+      <hr class="mt-6 border-b-1 border-green-300">
+       <br>
+
+       
+<button type="submit" id="submit-button" class="bg-green-500 text-white active:bg-pink-600 font-bold uppercase text-xs px-4 py-2 rounded shadow hover:shadow-md outline-none focus:outline-none mr-1 ease-linear transition-all duration-150" type="button">
+         Add Client 
+       </button>
+   </form>
+ </div>
+</div>
+
+</div>
+</section>
+
+  
+</div>
+<script>
+  function updateFileName() {
+    const input = document.getElementById('purchase-bill-image');
+    const fileName = input.files.length > 0 ? input.files[0].name : 'Select an image';
+    document.getElementById('file-chosen').textContent = fileName;
+  }
+</script>
+<script>
+  function calculateTotal() {
+    const quantity = parseFloat(document.getElementById('quantity').value);
+    const purchasePrice = parseFloat(document.getElementById('purchase-price').value);
+    const totalAmount = document.getElementById('total-amount');
+
+    if (!isNaN(quantity) && !isNaN(purchasePrice)) {
+      const total = quantity * purchasePrice;
+      totalAmount.value = total.toFixed(2);
+    } else {
+      totalAmount.value = '';
+    }
+  }
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+<script>
+function data() {
+
+return {
+
+isSideMenuOpen: false,
+toggleSideMenu() {
+this.isSideMenuOpen = !this.isSideMenuOpen
+},
+closeSideMenu() {
+this.isSideMenuOpen = false
+},
+isNotificationsMenuOpen: false,
+toggleNotificationsMenu() {
+this.isNotificationsMenuOpen = !this.isNotificationsMenuOpen
+},
+closeNotificationsMenu() {
+this.isNotificationsMenuOpen = false
+},
+isProfileMenuOpen: false,
+toggleProfileMenu() {
+this.isProfileMenuOpen = !this.isProfileMenuOpen
+},
+closeProfileMenu() {
+this.isProfileMenuOpen = false
+},
+isPagesMenuOpen: false,
+togglePagesMenu() {
+this.isPagesMenuOpen = !this.isPagesMenuOpen
+},
+
+}
+}
+</script>
+ <script>
+  document.getElementById('clientForm').addEventListener('submit', function(event) {
+      event.preventDefault(); // Prevent the default form submission
+
+      var form = this;
+
+      // Perform form validation
+      if (form.checkValidity()) {
+          // All fields are filled correctly
+          document.getElementById('overlay').style.display = 'block';
+
+          // Simulate form submission with a delay
+          setTimeout(function() {
+              // Hide the loader after submission is done
+              document.getElementById('overlay').style.display = 'none';
+              form.submit(); // Submit the form
+          }, 2000); // Simulate a delay of 2 seconds for submission
+      } else {
+          alert('Please fill in all required fields.');
+      }
+  });
+
+  document.getElementById('allowCredit').addEventListener('change', function() {
+      var creditLimitDiv = document.getElementById('creditLimitDiv');
+      if (this.checked) {
+          creditLimitDiv.style.display = 'block';
+      } else {
+          creditLimitDiv.style.display = 'none';
+      }
+  });
+</script>
+<script>
+  document.addEventListener('htmx:afterOnLoad', function(evt) {
+      if (evt.detail.target.id === 'product-exists-message') {
+          const response = JSON.parse(evt.detail.xhr.responseText);
+          const submitButton = document.getElementById('submit-button');
+          if (response.exists) {
+              submitButton.style.display = 'none';
+              document.getElementById('product-exists-message').innerText = 'Product name already exists.';
+          } else {
+              submitButton.style.display = 'block';
+              document.getElementById('product-exists-message').innerText = '';
+          }
+      }
+  });
+</script>
+ 
+
+
+
+{% load static %}
+<head>
+<title>{{request.user.username}}|Vendor</title>
+</head>
+<div class="col-span-12 mt-8">
+<!-- component -->
+<link rel="stylesheet" href="https://demos.creative-tim.com/notus-js/assets/styles/tailwind.css">
+<link rel="stylesheet" href="https://demos.creative-tim.com/notus-js/assets/vendor/@fortawesome/fontawesome-free/css/all.min.css">
+<div class="col-span-12 mt-8">
+  <header class="bg-green-500 p-4 rounded-full">
+    <div class="container mx-auto flex justify-between items-center">
+        <div class="text-white text-xl font-bold">
+          <i class="fas fa-industry"></i>  Enter Daily Production Detail
+        </div>
+        
+    </div>
+</header>
+  <div id="loader-overlay">
+      <div class="loader"></div>
+  </div>
+<section class=" py-1 ">
+  <div class="w-full lg:w-9/10 px-4 mx-auto mt-6">
+    <div class="relative flex flex-col min-w-0 break-words w-full mb-6 shadow-lg rounded-lg border-0">
+      <div class="rounded-t bg-white mb-0 px-4 py-6">
+        <!-- Title -->
+        <h6 class="text-blueGray-600 text-sm mt-3 mb-6 font-bold uppercase">Production Information</h6>
+      </div>
+      <div class="flex-auto px-4 lg:px-6 py-6 pt-0">
+        <form action="{% url 'AddDailyProduction' %}" method="post" id="AddDailyProduction" enctype="multipart/form-data">
+          {% csrf_token %}
+          
+          <!-- Production Information Section -->
+          <div class="flex flex-wrap mb-6">
+            <div class="w-full lg:w-6/12 px-2">
+              <div class="relative w-full mb-3">
+                <label class="block uppercase text-black text-xs font-bold mb-2" for="Production_Product_Name">
+                  <i class="fas fa-cog"></i> Production Product Name <b class="text-red-500">*</b>
+                </label>
+                <select name="Production_Product_Name" id="Production_Product_Name" class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" required>
+                  {% for  Products in  Products  %}
+                <option value="{{Products.Manufacturing_Product_Name}}">{{Products.Manufacturing_Product_Name}}</option>
+                {% endfor %}
+                </select>
+              </div>
+            </div>
+            <div class="w-full lg:w-6/12 px-2">
+              <div class="relative w-full mb-3">
+                <label class="block uppercase text-black text-xs font-bold mb-2" for="Production_Place">
+                  <i class="fas fa-map-marker-alt"></i> Production Place <b class="text-red-500">*</b>
+                </label>
+                <input type="text" name="Production_Place" class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" required placeholder="Production Place">
+              </div>
+            </div>
+            <div class="w-full lg:w-6/12 px-2">
+              <div class="relative w-full mb-3">
+                <label class="block uppercase text-black text-xs font-bold mb-2" for="City">
+                  <i class="fas fa-city"></i> City <b class="text-red-500">*</b>
+                </label>
+                <input type="text" name="City" class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" required placeholder="City">
+              </div>
+            </div>
+            <div class="w-full lg:w-6/12 px-2">
+              <div class="relative w-full mb-3">
+                <label class="block uppercase text-black text-xs font-bold mb-2" for="Total_Production_Item">
+                  <i class="fas fa-box"></i> Total Production Item (BALES) <b class="text-red-500">*</b>
+                </label>
+                <input type="number" name="Total_Production_Item" class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" required placeholder="Total Production Item">
+              </div>
+            </div>
+          </div>
+          <hr class="mt-6 border-b-1 border-black">
+          <div class="rounded-t bg-white mb-0 px-4 py-6">
+            <!-- Title -->
+            <h6 class="text-blueGray-600 text-sm mt-3 mb-6 font-bold uppercase">Production Team & Expenses</h6>
+          </div>
+          <!-- Production Team Information Section -->
+          <div class="flex flex-wrap mb-6">
+            <div class="w-full lg:w-6/12 px-2">
+              <div class="relative w-full mb-3">
+                <label class="block uppercase text-black text-xs font-bold mb-2" for="Production_Team_Name">
+                  <i class="fas fa-users"></i> Production Team Name <b class="text-red-500">*</b>
+                </label>
+                <input type="text" name="Production_Team_Name" class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" required placeholder="Production Team Name">
+              </div>
+            </div>
+            
+            <div class="w-full lg:w-6/12 px-2">
+              <div class="relative w-full mb-3">
+                <label class="block uppercase text-black text-xs font-bold mb-2" for="Total_Expense_Amount">
+                  <i class="fas fa-money-bill-wave"></i> Production Expense Amount <b class="text-red-500">*</b>
+                </label>
+                <input type="text" name="Total_Expense_Amount" class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" required placeholder="Production Expense Amount">
+              </div>
+            </div>
+            <div class="w-full lg:w-6/2 px-2">
+              <div class="relative w-full mb-3">
+                <label class="block uppercase text-black text-xs font-bold mb-2" for="Production_and_Expense_Proof_Screenshot">
+                  <i class="fas fa-receipt"></i> Production & Expense Slip <b class="text-red-500">*</b>
+                </label>
+                <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
+                  <div class="space-y-1 text-center">
+                    <!-- File Input -->
+                    <input type="file" name="Production_and_Expense_Proof_Screenshot" id="Production_and_Expense_Proof_Screenshot" class="sr-only">
+                    <label for="Production_and_Expense_Proof_Screenshot" class="cursor-pointer bg-white rounded-md py-2 px-4 inline-flex items-center justify-center text-sm font-medium text-gray-700 border border-gray-300 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                      <i class="fas fa-upload mr-2"></i> Upload File
+                    </label>
+                    <!-- Selected File Display -->
+                    <p id="file-name" class="text-xs text-gray-500"></p>
+                  </div>
+                </div>
+            <div class="w-full lg:w-6/12 px-2 mt-6">
+              <div class="relative w-full mb-3">
+                <label class="block uppercase text-black text-xs font-bold mb-2" for="Remarks_of_Expense">
+                  <i class="fas fa-comment-alt"></i> Production Expense Remark <b class="text-red-500">*</b>
+                </label>
+                <textarea name="Remarks_of_Expense" rows="3" class="border-0 px-3 py-3  placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" required placeholder="Production Expense Remark" ></textarea>
+              </div>
+            </div>
+            <hr class="mt-6 border-b-1 border-black"> 
+            <div class="rounded-t bg-white mb-0 px-4 py-6">
+              <!-- Title -->
+              <h6 class="text-blueGray-600 text-sm mt-3 mb-6 font-bold uppercase">Production Status</h6>
+            </div>
+            <div class="w-full lg:w-6/12 px-2">
+              <div class="relative w-full mb-3">
+                <label class="block uppercase text-black text-xs font-bold mb-2" for="Settlement">
+                  <i class="fas fa-check-circle"></i> Production Completed? <b class="text-red-500">*</b>
+                </label>
+                <select name="Settlement" id="Settlement" class="border-0 px-3 py-3 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" required  >
+                  <option value="incomplete">Incomplete</option>
+                  <option value="complete">Complete</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Submit Button -->
+          <div class="flex justify-center">
+            <button type="submit" id="submit-button" class="w-full bg-green-500 text-white py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+              <i class="fas fa-plus"></i> Add Production
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  
+</section>
+
+  
+</div>
+<script>
+  function updateFileName() {
+    const input = document.getElementById('purchase-bill-image');
+    const fileName = input.files.length > 0 ? input.files[0].name : 'Select an image';
+    document.getElementById('file-chosen').textContent = fileName;
+  }
+</script>
+<script>
+  function calculateTotal() {
+    const quantity = parseFloat(document.getElementById('quantity').value);
+    const purchasePrice = parseFloat(document.getElementById('purchase-price').value);
+    const totalAmount = document.getElementById('total-amount');
+
+    if (!isNaN(quantity) && !isNaN(purchasePrice)) {
+      const total = quantity * purchasePrice;
+      totalAmount.value = total.toFixed(2);
+    } else {
+      totalAmount.value = '';
+    }
+  }
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+<script>
+function data() {
+
+return {
+
+isSideMenuOpen: false,
+toggleSideMenu() {
+this.isSideMenuOpen = !this.isSideMenuOpen
+},
+closeSideMenu() {
+this.isSideMenuOpen = false
+},
+isNotificationsMenuOpen: false,
+toggleNotificationsMenu() {
+this.isNotificationsMenuOpen = !this.isNotificationsMenuOpen
+},
+closeNotificationsMenu() {
+this.isNotificationsMenuOpen = false
+},
+isProfileMenuOpen: false,
+toggleProfileMenu() {
+this.isProfileMenuOpen = !this.isProfileMenuOpen
+},
+closeProfileMenu() {
+this.isProfileMenuOpen = false
+},
+isPagesMenuOpen: false,
+togglePagesMenu() {
+this.isPagesMenuOpen = !this.isPagesMenuOpen
+},
+
+}
+}
+</script>
+ 
+<script>
+  document.addEventListener('htmx:afterOnLoad', function(evt) {
+      if (evt.detail.target.id === 'product-exists-message') {
+          const response = JSON.parse(evt.detail.xhr.responseText);
+          const submitButton = document.getElementById('submit-button');
+          if (response.exists) {
+              submitButton.style.display = 'none';
+              document.getElementById('product-exists-message').innerText = 'Product name already exists.';
+          } else {
+              submitButton.style.display = 'block';
+              document.getElementById('product-exists-message').innerText = '';
+          }
+      }
+  });
+</script>
+<script>
+  document.getElementById('AddDailyProduction').addEventListener('submit', function() {
+      document.getElementById('loader-overlay').style.display = 'flex';
+  });
+
+  window.addEventListener('load', function() {
+      document.getElementById('loader-overlay').style.display = 'none';
+  });
+</script>
+
+
+
+
+<div class="col-span-12 mt-8">
+  <div class="col-span-12 mt-5">
+    <div class="grid gap-2 grid-cols-1 lg:grid-cols-1">
+        <div class="bg-white p-4 shadow-lg rounded-lg">
+            <h1 class="font-bold text-base">My Stock</h1>
+            <div class="mt-4">
+                <div class="flex flex-col">
+                    <div class="-my-2 overflow-x-auto">
+                        <div class="py-2 align-middle inline-block min-w-full">
+                            <div
+                                class="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg bg-white">
+                                <table class="min-w-full divide-y divide-gray-200">
+                                    <thead>
+                                        
+                                        <tr>
+                                            <th
+                                                class="px-6 py-3 bg-gray-50 text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                                                <div class="flex cursor-pointer">
+                                                    <span class="mr-2">Manufacture Purchase </span>
+                                                </div>
+                                            </th>
+                                            <th
+                                                class="px-6 py-3 bg-gray-50 text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                                                <div class="flex cursor-pointer">
+                                                    <span class="mr-2">Item/Balles</span>
+                                                </div>
+                                            </th>
+                                            <th
+                                                class="px-6 py-3 bg-gray-50 text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                                                <div class="flex cursor-pointer">
+                                                    <span class="mr-2">Supplier Name</span>
+                                                </div>
+                                            </th>
+                                            <th
+                                                class="px-6 py-3 bg-gray-50 text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                                                <div class="flex cursor-pointer">
+                                                    <span class="mr-2">Place Of Supply</span>
+                                                </div>
+                                            </th>
+                                            <th
+                                            class="px-6 py-3 bg-gray-50 text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                                            <div class="flex cursor-pointer">
+                                                <span class="mr-2">Weight</span>
+                                            </div>
+                                        </th>
+                                        <th
+                                        class="px-6 py-3 bg-gray-50 text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                                        <div class="flex cursor-pointer">
+                                            <span class="mr-2">Total Purchase Price</span>
+                                        </div>
+                                    </th>
+                                    <th
+                                        class="px-6 py-3 bg-gray-50 text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                                        <div class="flex cursor-pointer">
+                                            <span class="mr-2">Total Sale Amount</span>
+                                        </div>
+                                    </th>
+                                    <th
+                                    class="px-6 py-3 bg-gray-50 text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                                    <div class="flex cursor-pointer">
+                                        <span class="mr-2">Profit</span>
+                                    </div>
+                                </th>
+                                <th
+                                    class="px-6 py-3 bg-gray-50 text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                                    <div class="flex cursor-pointer">
+                                        <span class="mr-2">Lose</span>
+                                    </div>
+                                </th>
+                                <th
+                                    class="px-6 py-3 bg-gray-50 text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                                    <div class="flex cursor-pointer">
+                                        <span class="mr-2">Complete Production</span>
+                                    </div> 
+                                </th>
+                            </th>
+                            <th
+                                class="px-6 py-3 bg-gray-50 text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                                <div class="flex cursor-pointer">
+                                    <span class="mr-2">Out Of Stock</span>
+                                </div>
+                            </th>
+                            <th
+                                class="px-6 py-3 bg-gray-50 text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                                <div class="flex cursor-pointer">
+                                    <span class="mr-2">Date</span>
+                                </div>
+                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="bg-white divide-y divide-gray-200">
+                                        {% if results %}
+                                        {% for myproduct in results %}
+                                        
+                                        
+                                        <tr>
+                                            <td
+                                                class="px-6 py-4 whitespace-no-wrap text-sm leading-5">
+                                                <p>{{myproduct.Manufacturing_Product_Name}}</p>
+                                                <p class="text-xs text-gray-400">{{myproduct.City}}
+                                                </p>
+                                            </td>
+                                            <td
+                                                class="px-6 py-4 whitespace-no-wrap text-sm leading-5">
+                                                <p>{{myproduct.Total_Production_Items}} </p>
+                                            </td>
+                                            <td
+                                                class="px-6 py-4 whitespace-no-wrap text-sm leading-5">
+                                                <div class="flex text-green-500">
+                                                     
+                                                    <p>{{myproduct.Supplier_Name}}</p>
+                                                </div>
+                                            </td>
+                                            <td
+                                                class="px-6 py-4 whitespace-no-wrap text-sm leading-5">
+                                                <div class="flex space-x-4">
+                                                    <a href="#" class="text-blue-500 hover:text-blue-600">
+                                                     
+                                                    <p>{{myproduct.Place_Of_Supply}}</p>
+                                                    </a>
+                                                     
+                                                </div>
+                                            </td>
+                                            <td
+                                                class="px-6 py-4 whitespace-no-wrap text-sm leading-5">
+                                                <div class="flex space-x-4">
+                                                    <a href="#" class="text-accent hover:text-accent">
+                                                     
+                                                    <p>{{myproduct.Weight}}</p>
+                                                    </a>
+                                                     
+                                                </div>
+                                            </td>
+                                            <td
+                                                class="px-6 py-4 whitespace-no-wrap text-sm leading-5">
+                                                <div class="flex space-x-4">
+                                                    <a href="#" class="text-accent hover:text-accent">
+                                                     
+                                                    <p>{{myproduct.Total_Purchase_Price}}</p>
+                                                    </a>
+                                                     
+                                                </div>
+                                            </td>
+                                            <td
+                                                class="px-6 py-4 whitespace-no-wrap text-sm leading-5">
+                                                <div class="flex space-x-4">
+                                                    <a href="#" class="text-accent hover:text-accent">
+                                                     
+                                                    <p>{{myproduct.Total_Sale_Amount}}</p>
+                                                    </a>
+                                                     
+                                                </div>
+                                            </td>
+                                            <td
+                                                class="px-6 py-4 whitespace-no-wrap text-sm leading-5">
+                                                <div class="flex space-x-4">
+                                                    <a href="#" class="text-accent hover:text-accent">
+                                                     
+                                                    <p>{{myproduct.Profit}}</p>
+                                                    </a>
+                                                     
+                                                </div>
+                                            </td>
+                                            <td
+                                                class="px-6 py-4 whitespace-no-wrap text-sm leading-5">
+                                                <div class="flex space-x-4">
+                                                    <a href="#" class="text-accent hover:text-accent">
+                                                     
+                                                    <p>{{myproduct.Lose}}</p>
+                                                    </a>
+                                                     
+                                                </div>
+                                            </td>
+                                            <td
+                                                class="px-6 py-4 whitespace-no-wrap text-sm leading-5">
+                                                <div class="flex space-x-4">
+                                                    <a href="#" class="text-accent hover:text-accent ">
+                                                     {% if  Complete_Production %}
+                                                    <p  class="text-green-500">Yes</p>
+                                                    {% else %}
+                                                    <p class="text-blue-500 hover:text-blue-600">In Process</p>
+                                                    {% endif %}
+                                                    </a>
+                                                     
+                                                </div>
+                                            </td>
+                                            <td
+                                                class="px-6 py-4 whitespace-no-wrap text-sm leading-5">
+                                                <div class="flex space-x-4">
+                                                    <a href="#" class="text-accent hover:text-accent">
+                                                     
+                                                        <a href="#" class="text-accent hover:text-accent ">
+                                                            {% if  Complete_Production %}
+                                                           <p  class="text-green-500">Yes</p>
+                                                           {% else %}
+                                                           <p class="text-blue-500 hover:text-blue-600">No</p>
+                                                           {% endif %}
+                                                           
+                                                    </a>
+                                                     
+                                                </div>
+                                            </td>
+                                            <td
+                                                class="px-6 py-4 whitespace-no-wrap text-sm leading-5">
+                                                <div class="flex space-x-4">
+                                                    <a href="#" class="text-accent hover:text-accent">
+                                                     
+                                                    <p>{{myproduct.date}}</p>
+                                                    </a>
+                                                     
+                                                </div>
+                                            </td>
+                                            
+                                        </tr>
+                                        {% endfor %}
+                                        {% else %}
+                                        <p class="text-red-300">No Record Found</p>
+                                        {% endif %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+</div>

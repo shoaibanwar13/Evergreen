@@ -1,0 +1,225 @@
+<head>
+  <title>{{request.user.username}}|Vendor</title>
+  </head>
+  <div class="col-span-12 mt-8">
+  <!-- component -->
+  <link rel="stylesheet" href="https://demos.creative-tim.com/notus-js/assets/styles/tailwind.css">
+  <link rel="stylesheet" href="https://demos.creative-tim.com/notus-js/assets/vendor/@fortawesome/fontawesome-free/css/all.min.css">
+  <div class="col-span-12 mt-8">
+    <header class="bg-green-500 p-4 rounded-full">
+      <div class="container mx-auto flex justify-between items-center">
+          <div class="text-white text-xl font-bold">
+            <i class="fas fa-industry"></i>  Enter Daily Production Detail
+          </div>
+          
+      </div>
+  </header>
+    <div id="loader-overlay">
+        <div class="loader"></div>
+    </div>
+  <section class=" py-1 ">
+    <div class="w-full lg:w-9/10 px-4 mx-auto mt-6">
+      <div class="relative flex flex-col min-w-0 break-words w-full mb-6 shadow-lg rounded-lg border-0">
+        <div class="rounded-t bg-white mb-0 px-4 py-6">
+          <!-- Title -->
+          <h6 class="text-blueGray-600 text-sm mt-3 mb-6 font-bold uppercase">Production Information</h6>
+        </div>
+        <div class="flex-auto px-4 lg:px-6 py-6 pt-0">
+          <form action="{% url 'AddDailyProduction' %}" method="post" id="AddDailyProduction" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <!-- Production Information Section -->
+            <div class="flex flex-wrap mb-6">
+              <div class="w-full lg:w-6/12 px-2">
+                <div class="relative w-full mb-3">
+                  <label class="block uppercase text-black text-xs font-bold mb-2" for="Production_Product_Name">
+                    <i class="fas fa-cog"></i> Production Product Name <b class="text-red-500">*</b>
+                  </label>
+                  <select name="Production_Product_Name" id="Production_Product_Name" class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" required>
+                    {% for  Products in  Products  %}
+                  <option value="{{Products.Manufacturing_Product_Name}}">{{Products.Manufacturing_Product_Name}}</option>
+                  {% endfor %}
+                  </select>
+                </div>
+              </div>
+              <div class="w-full lg:w-6/12 px-2">
+                <div class="relative w-full mb-3">
+                  <label class="block uppercase text-black text-xs font-bold mb-2" for="Production_Place">
+                    <i class="fas fa-map-marker-alt"></i> Production Place <b class="text-red-500">*</b>
+                  </label>
+                  <input type="text" name="Production_Place" class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" required placeholder="Production Place">
+                </div>
+              </div>
+              <div class="w-full lg:w-6/12 px-2">
+                <div class="relative w-full mb-3">
+                  <label class="block uppercase text-black text-xs font-bold mb-2" for="City">
+                    <i class="fas fa-city"></i> City <b class="text-red-500">*</b>
+                  </label>
+                  <input type="text" name="City" class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" required placeholder="City">
+                </div>
+              </div>
+              <div class="w-full lg:w-6/12 px-2">
+                <div class="relative w-full mb-3">
+                  <label class="block uppercase text-black text-xs font-bold mb-2" for="Total_Production_Item">
+                    <i class="fas fa-box"></i> Total Production Item (BALES) <b class="text-red-500">*</b>
+                  </label>
+                  <input type="number" name="Total_Production_Item" class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" required placeholder="Total Production Item">
+                </div>
+              </div>
+            </div>
+            <hr class="mt-6 border-b-1 border-black">
+            <div class="rounded-t bg-white mb-0 px-4 py-6">
+              <!-- Title -->
+              <h6 class="text-blueGray-600 text-sm mt-3 mb-6 font-bold uppercase">Production Team & Expenses</h6>
+            </div>
+            <!-- Production Team Information Section -->
+            <div class="flex flex-wrap mb-6">
+              <div class="w-full lg:w-6/12 px-2">
+                <div class="relative w-full mb-3">
+                  <label class="block uppercase text-black text-xs font-bold mb-2" for="Production_Team_Name">
+                    <i class="fas fa-users"></i> Production Team Name <b class="text-red-500">*</b>
+                  </label>
+                  <input type="text" name="Production_Team_Name" class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" required placeholder="Production Team Name">
+                </div>
+              </div>
+              
+              <div class="w-full lg:w-6/12 px-2">
+                <div class="relative w-full mb-3">
+                  <label class="block uppercase text-black text-xs font-bold mb-2" for="Total_Expense_Amount">
+                    <i class="fas fa-money-bill-wave"></i> Production Expense Amount <b class="text-red-500">*</b>
+                  </label>
+                  <input type="text" name="Total_Expense_Amount" class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" required placeholder="Production Expense Amount">
+                </div>
+              </div>
+              <div class="w-full lg:w-6/2 px-2">
+                <div class="relative w-full mb-3">
+                    <label class="block uppercase text-black text-xs font-bold mb-2" for="Production_and_Expense_Proof_Screenshot">
+                        <i class="fas fa-receipt"></i> Production & Expense Slip <b class="text-red-500">*</b>
+                    </label>
+                    <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
+                        <div class="space-y-1 text-center">
+                            <!-- File Input -->
+                            <input type="file" name="Production_and_Expense_Proof_Screenshot" id="Production_and_Expense_Proof_Screenshot" class="sr-only">
+                            <label for="Production_and_Expense_Proof_Screenshot" class="cursor-pointer bg-white rounded-md py-2 px-4 inline-flex items-center justify-center text-sm font-medium text-gray-700 border border-gray-300 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                <i class="fas fa-upload mr-2"></i> Upload File
+                            </label>
+                            <!-- Selected File Display -->
+                            <span id="file-name" class="ml-2 text-sm text-gray-600"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            
+             <div class="w-full lg:w-6/12 px-2 ">
+                <div class="relative w-full mb-3">
+                  <label class="block uppercase text-black text-xs font-bold mb-2" for="Remarks_of_Expense">
+                    <i class="fas fa-comment-alt"></i> Production Expense Remark <b class="text-red-500">*</b>
+                  </label>
+                  <textarea name="Remarks_of_Expense" rows="1" class="border-0 px-3 py-3  placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" required placeholder="Production Expense Remark" ></textarea>
+                </div>
+              </div>
+              
+              
+              <div class="w-full lg:w-6/12 px-2">
+                <div class="relative w-full mb-3">
+                  <label class="block uppercase text-black text-xs font-bold mb-2" for="Settlement">
+                    <i class="fas fa-check-circle"></i> Production Completed? <b class="text-red-500">*</b>
+                  </label>
+                  <select name="Settlement" id="Settlement" class="border-0 px-3 py-3 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" required  >
+                    <option value="incomplete">Incomplete</option>
+                    <option value="complete">Complete</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Submit Button -->
+            <div class="flex justify-center">
+              <button type="submit" id="submit-button" class="w-full bg-green-500 text-white py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                <i class="fas fa-plus"></i> Add Production
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    
+  </section>
+  
+    
+  </div>
+ 
+  
+  <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+  <script>
+  function data() {
+  
+  return {
+  
+  isSideMenuOpen: false,
+  toggleSideMenu() {
+  this.isSideMenuOpen = !this.isSideMenuOpen
+  },
+  closeSideMenu() {
+  this.isSideMenuOpen = false
+  },
+  isNotificationsMenuOpen: false,
+  toggleNotificationsMenu() {
+  this.isNotificationsMenuOpen = !this.isNotificationsMenuOpen
+  },
+  closeNotificationsMenu() {
+  this.isNotificationsMenuOpen = false
+  },
+  isProfileMenuOpen: false,
+  toggleProfileMenu() {
+  this.isProfileMenuOpen = !this.isProfileMenuOpen
+  },
+  closeProfileMenu() {
+  this.isProfileMenuOpen = false
+  },
+  isPagesMenuOpen: false,
+  togglePagesMenu() {
+  this.isPagesMenuOpen = !this.isPagesMenuOpen
+  },
+  
+  }
+  }
+  </script>
+   
+  <script>
+    document.addEventListener('htmx:afterOnLoad', function(evt) {
+        if (evt.detail.target.id === 'product-exists-message') {
+            const response = JSON.parse(evt.detail.xhr.responseText);
+            const submitButton = document.getElementById('submit-button');
+            if (response.exists) {
+                submitButton.style.display = 'none';
+                document.getElementById('product-exists-message').innerText = 'Product name already exists.';
+            } else {
+                submitButton.style.display = 'block';
+                document.getElementById('product-exists-message').innerText = '';
+            }
+        }
+    });
+  </script>
+  <script>
+    document.getElementById('AddDailyProduction').addEventListener('submit', function() {
+        document.getElementById('loader-overlay').style.display = 'flex';
+    });
+  
+    window.addEventListener('load', function() {
+        document.getElementById('loader-overlay').style.display = 'none';
+    });
+  </script>
+  <script>
+    // Function to update file name display
+    document.getElementById('Production_and_Expense_Proof_Screenshot').addEventListener('change', function() {
+        var input = this;
+        var fileName = input.files[0].name;
+        document.getElementById('file-name').textContent = fileName;
+    });
+    </script>
+  
+  
+  
+  

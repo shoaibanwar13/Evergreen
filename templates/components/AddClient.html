@@ -1,0 +1,298 @@
+{% load static %}
+<head>
+  <title>Add Client</title>
+
+  
+</head>
+<div class="col-span-12 mt-8">
+  <div id="loader-overlay">
+      <div class="loader"></div>
+  </div>
+<div class="col-span-12 mt-8">
+ 
+<!-- component -->
+<link rel="stylesheet" href="https://demos.creative-tim.com/notus-js/assets/styles/tailwind.css">
+<link rel="stylesheet" href="https://demos.creative-tim.com/notus-js/assets/vendor/@fortawesome/fontawesome-free/css/all.min.css">
+
+<div class="col-span-12 mt-8">
+<section class="py-1">
+  <header class="bg-green-500 p-4 rounded-full">
+    <div class="container mx-auto flex justify-between items-center">
+        <div class="text-white text-xl font-bold">
+            <i class="fas fa-user-circle mr-2"></i>Register New Client
+        </div>
+        
+    </div>
+</header>
+  <div class="w-full lg:w-9/10 px-4 mx-auto mt-6">
+    <div class="relative flex flex-col min-w-0 break-words w-full mb-6 shadow-lg rounded-lg border-0">
+      <div class="rounded-t bg-white mb-0 px-4 py-6">
+         
+         
+      </div>
+      <div class="flex-auto px-4 lg:px-6 py-6 pt-0">
+        <form action="{% url 'Addclient' %}" method="post" id="AddClientForm">
+            {% csrf_token %}
+            <h6 class="text-blueGray-600  text-sm mt-3 mb-6 font-bold uppercase">Personal Information</h6>
+            <div class="flex flex-wrap">
+                <div class="w-full lg:w-6/12 px-2">
+                    <div class="relative w-full mb-3">
+                        <label class="block uppercase text-black text-xs font-bold mb-2" for="fullname">
+                            <i class="fas fa-user"></i> Full Name<b class="text-red-500">*</b>
+                        </label>
+                        <input type="text" name="fullname" class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" required placeholder="Client Full Name">
+                    </div>
+                </div>
+                <div class="w-full lg:w-6/12 px-2">
+                    <div class="relative w-full mb-3">
+                        <label class="block uppercase text-black text-xs font-bold mb-2" for="email">
+                            <i class="fas fa-envelope"></i> Email address
+                        </label>
+                        <input type="email" name="email" class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" placeholder="E-mail">
+                    </div>
+                </div>
+                <div class="w-full lg:w-6/12 px-2">
+                    <div class="relative w-full mb-3">
+                        <label class="block uppercase text-black text-xs font-bold mb-2" for="WhatsAppNo">
+                          <i class="fab fa-whatsapp"></i> WhatsApp No.<b class="text-red-500">*</b>
+                        </label>
+                        <input type="number" name="WhatsAppNo" class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" required placeholder="WhatsApp Number" hx-post="{% url 'Client_Whatsapp_filter' %}" hx-trigger="change" hx-target="#validation1" hx-swap="innerHTML">
+                        <div id="validation1" style="color: red;"></div>
+                    </div>
+                </div>
+                <div class="w-full lg:w-6/12 px-2">
+                    <div class="relative w-full mb-3">
+                        <label class="block uppercase text-black text-xs font-bold mb-2" for="mnumber">
+                            <i class="fas fa-mobile-alt"></i> Mobile/Phone No.<b class="text-red-500">*</b>
+                        </label>
+                        <input type="number" name="mnumber" class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" required placeholder="Mobile Number" hx-post="{% url 'Client_mobileno_filter' %}" hx-trigger="change" hx-target="#validation2" hx-swap="innerHTML">
+                        <div id="validation2" style="color: red;"></div>
+                    </div>
+                </div>
+            </div>
+    
+            <hr class="mt-6 border-b-1 border-black">
+    
+            <h6 class="text-blueGray-600  text-sm mt-3 mb-6 font-bold uppercase">Location Information</h6>
+            <div class="flex flex-wrap">
+                <div class="w-full px-2">
+                    <div class="relative w-full mb-3">
+                        <label class="block uppercase text-black text-xs font-bold mb-2" for="address">
+                            <i class="fas fa-map-marker-alt"></i> Address<b class="text-red-500">*</b>
+                        </label>
+                        <input type="text" name="address" class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" required placeholder="Full Address">
+                    </div>
+                </div>
+                <div class="w-full lg:w-4/12 px-2">
+                    <div class="relative w-full mb-3">
+                        <label class="block uppercase text-black text-xs font-bold mb-2" for="city">
+                            <i class="fas fa-city"></i> City<b class="text-red-500">*</b>
+                        </label>
+                        <input type="text" name="city" class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" required placeholder="City">
+                    </div>
+                </div>
+                <div class="w-full lg:w-4/12 px-2">
+                    <div class="relative w-full mb-3">
+                        <label class="block uppercase text-black text-xs font-bold mb-2" for="state">
+                            <i class="fas fa-flag"></i> State<b class="text-red-500">*</b>
+                        </label>
+                        <input type="text" name="state" class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" required placeholder="State">
+                    </div>
+                </div>
+                <div class="w-full lg:w-4/12 px-2">
+                    <div class="relative w-full mb-3">
+                        <label class="block uppercase text-black text-xs font-bold mb-2" for="bname">
+                            <i class="fas fa-briefcase"></i> Business Name
+                        </label>
+                        <input type="text" name="bname" class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" placeholder="Business Name">
+                    </div>
+                </div>
+            </div>
+    
+            <hr class="mt-6 border-b-1 border-black">
+    
+            <h6 class="text-blueGray-600  text-sm mt-3 mb-6 font-bold uppercase">Account Information</h6>
+            <div class="flex flex-wrap">
+                <div class="w-full lg:w-6/12 px-2">
+                    <div class="relative w-full mb-3">
+                        <label class="block uppercase text-black text-xs font-bold mb-2" for="accountType2">
+                            <i class="fas fa-university"></i> Account Type
+                        </label>
+                        <select name="accountType" id="accountType2" class="border-0 px-3 py-3 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150 text-xs text-black font-bold mb-2">
+                            <option class="text-xs font-bold mb-2" value="Debit">Debit</option>
+                            <option class="text-xs font-bold mb-2" value="Credit">Credit</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="w-full lg:w-6/12 px-2">
+                    <div class="relative w-full mb-3">
+                        <label class="block uppercase text-black text-xs font-bold mb-2" for="openbalance">
+                            <i class="fas fa-balance-scale"></i> Opening Balance
+                        </label>
+                        <input type="number" name="openbalance" class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" placeholder="Opening Balance" value="0.00">
+                    </div>
+                </div>
+                <div class="w-full lg:w-6/12 px-2">
+                    <div class="relative w-full mb-3">
+                        <label class="block uppercase text-black text-xs font-bold mb-2">
+                            <input type="checkbox" name="allowCredit" id="allowCredit" class="mr-2 leading-tight">
+                            <span class="text-sm"><i class="fas fa-credit-card"></i> Allow Credit</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="w-full lg:w-6/12 px-2" id="creditLimitDiv" style="display: none;">
+                    <div class="relative w-full mb-3">
+                        <label class="block uppercase text-black text-xs font-bold mb-2" for="creditLimit">
+                            <i class="fas fa-chart-line"></i> Credit Limit
+                        </label>
+                        <input type="number" name="creditLimit" id="creditLimit" class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" placeholder="Credit Limit" value="0.00">
+                    </div>
+                </div>
+            </div>
+    
+            <hr class="mt-6 border-b-1 border-black">
+            <br>
+            <button type="submit" id="submit-button" class="w-full bg-green-500 text-white py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium hover:bg-green-600 focus:outline-none focus:ring-indigo-500 focus:border-green-500 focus:ring-offset-2 focus:ring-indigo-500">
+                <i class="fas fa-plus"></i> Add Client
+            </button>
+        </form>
+    </div>
+    
+    
+    
+    </div>
+  </div>
+</section>
+</div>
+<script>
+  document.getElementById('allowCredit').addEventListener('change', function() {
+    document.getElementById('creditLimitDiv').style.display = this.checked ? 'block' : 'none';
+  });
+</script>
+
+  
+</div>
+
+<script>
+ document.addEventListener('DOMContentLoaded', (event) => {
+     const allowCreditCheckbox = document.getElementById('allowCredit');
+     const creditLimitDiv = document.getElementById('creditLimitDiv');
+
+     allowCreditCheckbox.addEventListener('change', function() {
+         if (this.checked) {
+             creditLimitDiv.style.display = 'block';
+         } else {
+             creditLimitDiv.style.display = 'none';
+         }
+     });
+ });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+<script>
+function data() {
+
+return {
+
+isSideMenuOpen: false,
+toggleSideMenu() {
+this.isSideMenuOpen = !this.isSideMenuOpen
+},
+closeSideMenu() {
+this.isSideMenuOpen = false
+},
+isNotificationsMenuOpen: false,
+toggleNotificationsMenu() {
+this.isNotificationsMenuOpen = !this.isNotificationsMenuOpen
+},
+closeNotificationsMenu() {
+this.isNotificationsMenuOpen = false
+},
+isProfileMenuOpen: false,
+toggleProfileMenu() {
+this.isProfileMenuOpen = !this.isProfileMenuOpen
+},
+closeProfileMenu() {
+this.isProfileMenuOpen = false
+},
+isPagesMenuOpen: false,
+togglePagesMenu() {
+this.isPagesMenuOpen = !this.isPagesMenuOpen
+},
+
+}
+}
+</script>
+<script>
+  document.addEventListener('htmx:afterOnLoad', function(evt) {
+      if (evt.detail.target.id === 'validation1') {
+          const response = JSON.parse(evt.detail.xhr.responseText);
+          const submitButton = document.getElementById('submit-button');
+          if (response.exists) {
+              submitButton.style.display = 'none';
+              document.getElementById('validation1').innerText = 'WhatsApp number already exists.';
+          } else {
+              submitButton.style.display = 'block';
+              document.getElementById('validation1').innerText = '';
+          }
+      }
+  });
+</script>
+<script>
+  document.addEventListener('htmx:afterOnLoad', function(evt) {
+      if (evt.detail.target.id === 'validation2') {
+          const response = JSON.parse(evt.detail.xhr.responseText);
+          const submitButton = document.getElementById('submit-button');
+          if (response.exists) {
+              submitButton.style.display = 'none';
+              document.getElementById('validation2').innerText = 'Mobile/Phone number already exists.';
+          } else {
+              submitButton.style.display = 'block';
+              document.getElementById('validation2').innerText = '';
+          }
+      }
+  });
+</script>
+<script>
+  document.getElementById('clientForm').addEventListener('submit', function(event) {
+      event.preventDefault(); // Prevent the default form submission
+
+      var form = this;
+
+      // Perform form validation
+      if (form.checkValidity()) {
+          // All fields are filled correctly
+          document.getElementById('overlay').style.display = 'block';
+
+          // Simulate form submission with a delay
+          setTimeout(function() {
+              // Hide the loader after submission is done
+              document.getElementById('overlay').style.display = 'none';
+              form.submit(); // Submit the form
+          }, 2000); // Simulate a delay of 2 seconds for submission
+      } else {
+          alert('Please fill in all required fields.');
+      }
+  });
+
+  document.getElementById('allowCredit').addEventListener('change', function() {
+      var creditLimitDiv = document.getElementById('creditLimitDiv');
+      if (this.checked) {
+          creditLimitDiv.style.display = 'block';
+      } else {
+          creditLimitDiv.style.display = 'none';
+      }
+  });
+</script>
+<script>
+  document.getElementById('AddClientForm').addEventListener('submit', function() {
+      document.getElementById('loader-overlay').style.display = 'flex';
+  });
+
+  window.addEventListener('load', function() {
+      document.getElementById('loader-overlay').style.display = 'none';
+  });
+</script>
+
+
+
