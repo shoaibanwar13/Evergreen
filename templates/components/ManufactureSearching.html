@@ -88,9 +88,15 @@
                                                   <th
                                                       class="px-6 py-3 bg-gray-50 text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
                                                       <div class="flex cursor-pointer">
-                                                          <span class="mr-2">Item/Balles</span>
+                                                          <span class="mr-2">Available Item/Balles </span>
                                                       </div>
                                                   </th>
+                                                  <th
+                                                  class="px-6 py-3 bg-gray-50 text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                                                  <div class="flex cursor-pointer">
+                                                      <span class="mr-2">Production Item/Balles</span>
+                                                  </div>
+                                              </th>
                                                   <th
                                                       class="px-6 py-3 bg-gray-50 text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
                                                       <div class="flex cursor-pointer">
@@ -106,7 +112,13 @@
                                                   <th
                                                   class="px-6 py-3 bg-gray-50 text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
                                                   <div class="flex cursor-pointer">
-                                                      <span class="mr-2">Weight</span>
+                                                      <span class="mr-2">Available Weight</span>
+                                                  </div>
+                                              </th>
+                                              <th
+                                                  class="px-6 py-3 bg-gray-50 text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                                                  <div class="flex cursor-pointer">
+                                                      <span class="mr-2">Purchase Weight</span>
                                                   </div>
                                               </th>
                                               <th
@@ -130,15 +142,10 @@
                                           <th
                                           class="px-6 py-3 bg-gray-50 text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
                                           <div class="flex cursor-pointer">
-                                              <span class="mr-2">Profit</span>
+                                              <span class="mr-2">Profit/Lose</span>
                                           </div>
                                       </th>
-                                      <th
-                                          class="px-6 py-3 bg-gray-50 text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
-                                          <div class="flex cursor-pointer">
-                                              <span class="mr-2">Lose</span>
-                                          </div>
-                                      </th>
+                                   
                                       <th
                                           class="px-6 py-3 bg-gray-50 text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
                                           <div class="flex cursor-pointer">
@@ -175,7 +182,11 @@
                                                   <td
                                                       class="px-6 py-4 whitespace-no-wrap text-sm leading-5">
                                                       <p>{{myproduct.Total_Production_Items}} </p>
-                                                  </td>
+                                                  </td> 
+                                                  <td
+                                                  class="px-6 py-4 whitespace-no-wrap text-sm leading-5">
+                                                  <p>{{myproduct.Manufacture_Balles}} </p>
+                                              </td>
                                                   <td
                                                       class="px-6 py-4 whitespace-no-wrap text-sm leading-5">
                                                       <div class="flex text-green-500">
@@ -203,6 +214,16 @@
                                                            
                                                       </div>
                                                   </td>
+                                                  <td
+                                                  class="px-6 py-4 whitespace-no-wrap text-sm leading-5">
+                                                  <div class="flex space-x-4">
+                                                      <a href="#" class="text-accent hover:text-accent">
+                                                       
+                                                      <p>{{myproduct.Manufacture_Weight}}</p>
+                                                      </a>
+                                                       
+                                                  </div>
+                                              </td>
                                                   <td
                                                       class="px-6 py-4 whitespace-no-wrap text-sm leading-5">
                                                       <div class="flex space-x-4">
@@ -238,22 +259,12 @@
                                                       <div class="flex space-x-4">
                                                           <a href="#" class="text-accent hover:text-accent">
                                                            
-                                                          <p>{{myproduct.Profit}}</p>
+                                                          <p>{{myproduct.Profit_OR_Lose}}</p>
                                                           </a>
                                                            
                                                       </div>
                                                   </td>
-                                                  <td
-                                                      class="px-6 py-4 whitespace-no-wrap text-sm leading-5">
-                                                      <div class="flex space-x-4">
-                                                          <a href="#" class="text-accent hover:text-accent">
-                                                           
-                                                          <p>{{myproduct.Lose}}</p>
-                                                          </a>
-                                                           
-                                                      </div>
-                                                  </td>
-                                                  <td
+                                                 <td
                                                       class="px-6 py-4 whitespace-no-wrap text-sm leading-5">
                                                       <div class="flex space-x-4">
                                                           <a href="#" class="text-accent hover:text-accent ">

@@ -1,0 +1,123 @@
+{% load static %}
+<head>
+  <title>Vendor Sale</title>
+
+  
+</head>
+<div class="col-span-12 mt-8">
+  <div id="loader-overlay">
+      <div class="loader"></div>
+  </div>
+<div class="col-span-12 mt-8">
+ 
+<!-- component -->
+<link rel="stylesheet" href="https://demos.creative-tim.com/notus-js/assets/styles/tailwind.css">
+<link rel="stylesheet" href="https://demos.creative-tim.com/notus-js/assets/vendor/@fortawesome/fontawesome-free/css/all.min.css">
+
+<div class="col-span-12 mt-8">
+<section class="py-1">
+  <header class="bg-green-500 p-4 rounded-full">
+    <div class="container mx-auto flex justify-between items-center">
+        <div class="text-white text-xl font-bold">
+            <i class="fas fa-user-circle mr-2"></i>Vendor New Sale 
+            
+        </div>
+        
+        
+    </div>
+</header>
+
+   {% include 'components/SaleForm.html' %}
+</section>
+</div>
+ 
+
+  
+</div>
+
+<script>
+ document.addEventListener('DOMContentLoaded', (event) => {
+     const allowCreditCheckbox = document.getElementById('allowCredit');
+     const creditLimitDiv = document.getElementById('creditLimitDiv');
+
+     allowCreditCheckbox.addEventListener('change', function() {
+         if (this.checked) {
+             creditLimitDiv.style.display = 'block';
+         } else {
+             creditLimitDiv.style.display = 'none';
+         }
+     });
+ });
+</script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+<script>
+function data() {
+
+return {
+
+isSideMenuOpen: false,
+toggleSideMenu() {
+this.isSideMenuOpen = !this.isSideMenuOpen
+},
+closeSideMenu() {
+this.isSideMenuOpen = false
+},
+isNotificationsMenuOpen: false,
+toggleNotificationsMenu() {
+this.isNotificationsMenuOpen = !this.isNotificationsMenuOpen
+},
+closeNotificationsMenu() {
+this.isNotificationsMenuOpen = false
+},
+isProfileMenuOpen: false,
+toggleProfileMenu() {
+this.isProfileMenuOpen = !this.isProfileMenuOpen
+},
+closeProfileMenu() {
+this.isProfileMenuOpen = false
+},
+isPagesMenuOpen: false,
+togglePagesMenu() {
+this.isPagesMenuOpen = !this.isPagesMenuOpen
+},
+
+}
+}
+</script>
+ 
+<script>
+  document.addEventListener('htmx:afterOnLoad', function(evt) {
+      if (evt.detail.target.id === 'validation2') {
+          const response = JSON.parse(evt.detail.xhr.responseText);
+          const submitButton = document.getElementById('submit-button');
+          if (response.exists) {
+              submitButton.style.display = 'none';
+              document.getElementById('validation2').innerText = 'Mobile/Phone number already exists.';
+          } else {
+              submitButton.style.display = 'block';
+              document.getElementById('validation2').innerText = '';
+          }
+      }
+  });
+</script>
+ 
+<script>
+  document.getElementById('AddClientForm').addEventListener('submit', function() {
+      document.getElementById('loader-overlay').style.display = 'flex';
+  });
+
+  window.addEventListener('load', function() {
+      document.getElementById('loader-overlay').style.display = 'none';
+  });
+</script>
+  <script>
+    function calculateTotalAmount() {
+        const itemsOrBallese = document.getElementById('Items_Or_Ballese').value;
+        const salePrice = document.getElementById('Sale_Price').value;
+        const totalAmount = document.getElementById('Total_Amount');
+        totalAmount.value = (itemsOrBallese * salePrice).toFixed(2);
+    }
+</script>
+ 

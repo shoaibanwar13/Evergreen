@@ -1,0 +1,91 @@
+{% extends 'dashboard.html' %}
+{% block content  %}
+{% load static %}
+<head>
+<title>{{request.user.username}}|Vendor</title>
+</head>
+<div class="col-span-12 mt-8">
+<!-- component -->
+<link rel="stylesheet" href="https://demos.creative-tim.com/notus-js/assets/styles/tailwind.css">
+<link rel="stylesheet" href="https://demos.creative-tim.com/notus-js/assets/vendor/@fortawesome/fontawesome-free/css/all.min.css">
+ 
+<section class=" py-1 ">
+    <div class="w-full max-w-5xl px-10 py-16 mx-auto bg-white rounded-lg  ">
+        <div class="flex flex-col md:flex-row items-center">
+            <div class="md:w-1/2 mb-8 md:mb-0">
+                <img src="{% static '/img/invoice.jpg' %}" alt="PDF Preview" class="w-full rounded-lg shadow-lg" style="height: 420px;">
+            </div>
+            <div class="md:w-1/2 md:pl-10">
+                <h1 class="font-mono font-bold text-gray-700 text-2xl leading-tight border-b pb-4 mb-6">Download Your Exclusive Invoice PDF File </h1>
+                <p class="text-gray-700 text-lg mb-6">
+                     
+                </p>
+                <p class="text-gray-700 text-lg mb-6">
+                    Click the button below to  download Invoice  copy now. 
+                </p>
+                <div class="flex space-x-2"> 
+                   <a href="/CurrentSale/{{customerid}}/"    id="downloadPdfButton"  class="text-white font-normal py-2 px-4 rounded transition duration-300 ease-in-out focus:outline-none focus:shadow-outline bg-green-500 border border-green-500 hover:bg-green-500 hover:border-green bg-green-500 animate-bounce">Download Invoice</a>
+                     
+                </div>
+            </div>
+        </div>
+    </div>
+
+</section>
+ 
+
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+<script>
+function data() {
+
+return {
+
+isSideMenuOpen: false,
+toggleSideMenu() {
+this.isSideMenuOpen = !this.isSideMenuOpen
+},
+closeSideMenu() {
+this.isSideMenuOpen = false
+},
+isNotificationsMenuOpen: false,
+toggleNotificationsMenu() {
+this.isNotificationsMenuOpen = !this.isNotificationsMenuOpen
+},
+closeNotificationsMenu() {
+this.isNotificationsMenuOpen = false
+},
+isProfileMenuOpen: false,
+toggleProfileMenu() {
+this.isProfileMenuOpen = !this.isProfileMenuOpen
+},
+closeProfileMenu() {
+this.isProfileMenuOpen = false
+},
+isPagesMenuOpen: false,
+togglePagesMenu() {
+this.isPagesMenuOpen = !this.isPagesMenuOpen
+},
+
+}
+}
+</script>
+ 
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var downloadPdfButton = document.getElementById('downloadPdfButton');
+        var spinner = document.getElementById('spinner');
+
+        downloadPdfButton.addEventListener('click', function() {
+            // Show spinner
+            spinner.style.display = 'block';
+
+            // Simulate PDF download
+            setTimeout(function() {
+                // Hide spinner after download (simulated after 3 seconds)
+                spinner.style.display = 'none';
+            }, 3000); // Adjust this time according to your actual PDF download time
+        });
+    });
+</script>
+
+{% endblock  %}

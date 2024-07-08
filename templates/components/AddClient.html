@@ -31,7 +31,7 @@
          
       </div>
       <div class="flex-auto px-4 lg:px-6 py-6 pt-0">
-        <form action="{% url 'Addclient' %}" method="post" id="AddClientForm">
+        <form action="{% url 'Addclient' %}" method="post" id="AddClientForm"  enctype="multipart/form-data">
             {% csrf_token %}
             <h6 class="text-blueGray-600  text-sm mt-3 mb-6 font-bold uppercase">Personal Information</h6>
             <div class="flex flex-wrap">
@@ -70,7 +70,25 @@
                     </div>
                 </div>
             </div>
-    
+            <div class="w-full lg:w-2/2 px-2">
+                <div class="relative w-full mb-3">
+                    <label class="block uppercase text-black text-xs font-bold mb-2" for="Production_and_Expense_Proof_Screenshot">
+                        <i class="fas fa-user"></i>Profile Image
+                    </label>
+                    <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
+                        <div class="space-y-1 text-center">
+                            <!-- File Input -->
+                            <input type="file" name="pic" id="cpic" class="sr-only">
+                            <label for="cpic" class="cursor-pointer bg-white rounded-md py-2 px-4 inline-flex items-center justify-center text-sm font-medium text-gray-700 border border-gray-300 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                <i class="fas fa-upload mr-2"></i><span id="file-name" class="ml-2 text-sm text-gray-600"></span>
+                            </label>
+                            <!-- Selected File Display -->
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+
             <hr class="mt-6 border-b-1 border-black">
     
             <h6 class="text-blueGray-600  text-sm mt-3 mb-6 font-bold uppercase">Location Information</h6>
@@ -293,6 +311,12 @@ this.isPagesMenuOpen = !this.isPagesMenuOpen
       document.getElementById('loader-overlay').style.display = 'none';
   });
 </script>
-
-
-
+<script>
+    // Function to update file name display
+    document.getElementById('cpic').addEventListener('change', function() {
+        var input = this;
+        var fileName = input.files[0].name;
+        document.getElementById('file-name').textContent = fileName;
+    });
+    </script>
+  

@@ -1,6 +1,8 @@
 <div class="col-span-12 mt-8">
     <div class="flex items-center h-10 intro-y">
+        
         <h2 class="mr-5 text-lg font-medium truncate">Dashboard</h2>
+        
     </div>
     <div class="grid grid-cols-12 gap-6 mt-5">
         <a class="transform  hover:scale-105 transition duration-300 shadow-xl rounded-lg col-span-12 sm:col-span-6 xl:col-span-3 intro-y bg-white"
@@ -20,9 +22,12 @@
                 </div>
                 <div class="ml-2 w-full flex-1">
                     <div>
-                        <div class="mt-3 text-3xl font-bold leading-8">{{request.user.profile.Total_Purchase}} PKR</div>
+                        <div class="mt-3 text-3xl font-bold leading-8">{{total_purchase}}  </div> 
 
-                        <div class="mt-1 text-base text-gray-600">Total Purchase</div>
+                        <div class="mt-1 text-base text-gray-600">Total Purchase
+ 
+                             
+                        </div>(PKR)
                     </div>
                 </div>
             </div>
@@ -44,9 +49,9 @@
                 </div>
                 <div class="ml-2 w-full flex-1">
                     <div>
-                        <div class="mt-3 text-3xl font-bold leading-8">{{request.user.profile.Total_Sale}} PKR</div>
+                        <div class="mt-3 text-3xl font-bold leading-8">{{total_sale}} </div>
 
-                        <div class="mt-1 text-base text-gray-600">Total Sales</div>
+                        <div class="mt-1 text-base text-gray-600">Total Sales</div>(PKR)
                     </div>
                 </div>
             </div>
@@ -71,9 +76,9 @@
                 </div>
                 <div class="ml-2 w-full flex-1">
                     <div>
-                        <div class="mt-3 text-3xl font-bold leading-8">{{request.user.profile.Pending_Payments}} PKR</div>
+                        <div class="mt-3 text-3xl font-bold leading-8">{{total_pending}}  </div>
 
-                        <div class="mt-1 text-base text-gray-600">Pending Payment</div>
+                        <div class="mt-1 text-base text-gray-600">Pending Payment</div>(PKR)
                     </div>
                 </div>
             </div>
@@ -95,21 +100,108 @@
                 </div>
                 <div class="ml-2 w-full flex-1">
                     <div>
-                        <div class="mt-3 text-3xl font-bold leading-8">{{request.user.profile.Recived_Payments}} PKR</div>
+                        <div class="mt-3 text-3xl font-bold leading-8">{{total_Recived_Payment}}  </div>
 
-                        <div class="mt-1 text-base text-gray-600">Payment Received</div>
+                        <div class="mt-1 text-base text-gray-600">Payment Received</div>(PKR)
                     </div>
                 </div>
             </div>
         </a>
+        <a class="transform  hover:scale-105 transition duration-300 shadow-xl rounded-lg col-span-12 sm:col-span-6 xl:col-span-3 intro-y bg-white"
+            href="#">
+            <div class="p-5">
+                <div class="flex justify-between">
+                    <i class="fas fa-building text-purple-400 text-3xl"></i>
+                <div class="bg-blue-500 rounded-full h-6 px-2 flex justify-items-center text-white font-semibold text-sm">
+                    <span class="flex items-center">30%</span>
+                </div>
+                </div>
+                <div class="ml-2 w-full flex-1">
+                    <div>
+                        <div class="mt-3 text-3xl font-bold leading-8">{{siteexp}}  </div>
+
+                        <div class="mt-1 text-base text-gray-600">Site Expense</div>(PKR)
+                    </div>
+                </div>
+            </div>
+        </a>
+        
+        <a class="transform  hover:scale-105 transition duration-300 shadow-xl rounded-lg col-span-12 sm:col-span-6 xl:col-span-3 intro-y bg-white"
+            href="#">
+            <div class="p-5">
+                <div class="flex justify-between">
+                    <i class="fas fa-industry text-red-400 text-3xl"></i>
+                <!-- Percentage Indicator (Adjust color and percentage as needed) -->
+                <div class="bg-yellow-500 rounded-full h-6 px-2 flex justify-items-center text-white font-semibold text-sm">
+                    <span class="flex items-center">25%</span>
+                </div>
+                </div>
+                <div class="ml-2 w-full flex-1">
+                    <div>
+                        <div class="mt-3 text-3xl font-bold leading-8">{{manufacture_expense}}  </div>
+
+                        <div class="mt-1 text-base text-gray-600">Manufacturing Expense</div>(PKR)
+                    </div>
+                </div>
+            </div>
+        </a>
+        
+       
+        <a class="transform  hover:scale-105 transition duration-300 shadow-xl rounded-lg col-span-12 sm:col-span-6 xl:col-span-3 intro-y bg-white"
+            href="#">
+            <div class="p-5">
+                <div class="flex justify-between">
+                    <i class="fas fa-undo text-pink-600 text-3xl"></i>
+                <!-- Percentage Indicator (Adjust color and percentage as needed) -->
+                <div class="bg-pink-500 rounded-full h-6 px-2 flex justify-items-center text-white font-semibold text-sm">
+                    <span class="flex items-center">20%</span>
+                </div>
+                </div>
+                <div class="ml-2 w-full flex-1">
+                    <div>
+                        <div class="mt-3 text-3xl font-bold leading-8">{{request.user.profile.Balance}}  </div>
+
+                        <div class="mt-1 text-base text-gray-600">Balance </div>(PKR)
+                    </div>
+                </div>
+            </div>
+        </a>
+        <a class="transform  hover:scale-105 transition duration-300 shadow-xl rounded-lg col-span-12 sm:col-span-6 xl:col-span-3 intro-y bg-white"
+        href="#">
+        <div class="p-5">
+            <div class="flex justify-between">
+                <i class="fas fa-chart-line text-green-400 text-3xl"></i>
+                <div
+                    class="bg-blue-500 rounded-full h-6 px-2 flex justify-items-center text-white font-semibold text-sm">
+                    <span class="flex items-center">30%</span>
+                </div>
+            </div>
+            <div class="ml-2 w-full flex-1">
+                <div>
+                    <div class="mt-3 text-3xl font-bold leading-8">{{siteProfit}}  </div>
+
+                    <div class="mt-1 text-base text-gray-600">Profit/Lose</div>(PKR)
+                </div>
+            </div>
+        </div>
+    </a>
+    
+        
+        
     </div>
+ 
+
+
+    
 </div>
 <div class="col-span-12 mt-5">
     <div class="grid gap-2 grid-cols-1 lg:grid-cols-2">
-        <div class="bg-white shadow-lg p-4" id="chart"> </div>
+        
 
-        <div class="bg-white shadow-lg" id="chartpie"></div>
+        
     </div>
+    <div class="bg-white shadow-lg p-4 transform  hover:scale-105 transition duration-300 shadow-xl rounded-lg col-span-12 sm:col-span-6 xl:col-span-3 intro-y bg-white" id="chart"> </div>
+    <div class="bg-white shadow-lg mt-3 transform  hover:scale-105 transition duration-300 shadow-xl rounded-lg col-span-12 sm:col-span-6 xl:col-span-3 intro-y bg-white" id="areachart"></div>
 </div>
  
 
@@ -152,45 +244,99 @@ this.isPagesMenuOpen = !this.isPagesMenuOpen
 }
 }
 </script>
-
+ 
 <script>
     var options = {
-      series: [{
-        name: "Desktops",
-        data: [{{request.user.profile.Total_Purchase}}]
-    }],
-      chart: {
-      height: 350,
-      type: 'line',
-      zoom: {
-        enabled: false
-      }
-    },
-    dataLabels: {
-      enabled: false
-    },
-    stroke: {
-      curve: 'straight'
-    },
-    title: {
-      text: 'Product Trends by Month',
-      align: 'left'
-    },
-    grid: {
-      row: {
-        colors: ['#f3f3f3', 'transparent'], // takes an array which will be repeated on columns
-        opacity: 0.5
-      },
-    },
-    xaxis: {
-      categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'],
-    }
+        series: [
+            {
+                name: "Manufacturing",
+                data: [
+                    {{ january_total }}, {{ february_total }}, {{ march_total }},
+                    {{ april_total }}, {{ may_total }}, {{ june_total }},
+                    {{ july_total }}, {{ august_total }}, {{ september_total }},
+                    {{ october_total }}, {{ november_total }}, {{ december_total }}
+                ],
+            },
+            {
+                name: "Sale",
+                data: [
+                    {{ january_Sale }}, {{ february_Sale }}, {{ march_Sale }},
+                    {{ april_Sale }}, {{ may_Sale }}, {{ june_Sale }},
+                    {{ july_Sale }}, {{ august_Sale }}, {{ september_Sale }},
+                    {{ october_Sale }}, {{ november_Sale }}, {{ december_Sale }}
+                ],
+            }
+        ],
+        chart: {
+            height: 350,
+            type: 'area',
+            zoom: {
+                enabled: true,
+                type: 'x',
+                autoScaleYaxis: true
+            },
+            toolbar: {
+                autoSelected: 'zoom',
+                show: true
+            }
+        },
+        dataLabels: {
+            enabled: true,
+            formatter: function(val) {
+                return val.toFixed(2);
+            }
+        },
+        stroke: {
+            curve: 'smooth'
+        },
+        title: {
+            text: 'Manufacturing vs Sale',
+            align: 'center',
+            margin: 20,
+            offsetY: 10,
+            style: {
+                fontSize: '20px',
+                fontWeight: 'bold',
+                color: '#263238'
+            }
+        },
+        grid: {
+            row: {
+                colors: ['#f3f3f3', 'transparent'], // takes an array which will be repeated on columns
+                opacity: 0.5
+            },
+        },
+        xaxis: {
+            categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+        },
+        yaxis: {
+            title: {
+                text: 'Amount'
+            }
+        },
+        tooltip: {
+            shared: true,
+            intersect: false,
+            y: {
+                formatter: function(val) {
+                    return val.toFixed(2);
+                }
+            }
+        },
+        legend: {
+            position: 'top',
+            horizontalAlign: 'center',
+            floating: false,
+            offsetY: 10,
+            offsetX: 0
+        },
+        colors: ['#60a5fa', '#f59e0b']
     };
 
     var chart = new ApexCharts(document.querySelector("#chart"), options);
     chart.render();
-  
-  </script>
+</script>
+
 <script>
 var chart = document.querySelector('#chartpie')
 var options = {
@@ -224,21 +370,55 @@ labels: ['Purchase', 'Payment Recived','Sale', 'Pending Payment'],
 var chart = new ApexCharts(chart, options);
 chart.render();
 </script>
-
+ 
 <script>
-    function disableFields(currentField) {
-        const fields = ['name', 'city'];
-        const dateFields = ['dateFrom', 'dateTo'];
-        
-        if (dateFields.includes(currentField)) {
-            fields.forEach(field => document.getElementById(field).disabled = true);
-            dateFields.forEach(field => document.getElementById(field).disabled = false);
-        } else {
-            fields.concat(dateFields).forEach(field => {
-                document.getElementById(field).disabled = field !== currentField;
-            });
-        }
-    }
+    var options = {
+        series: [
+            {
+                name: 'Received Payments',
+                data: [
+                    {{ january_received }}, {{ february_received }}, {{ march_received }},
+                    {{ april_received }}, {{ may_received }}, {{ june_received }},
+                    {{ july_received }}, {{ august_received }}, {{ september_received }},
+                    {{ october_received }}, {{ november_received }}, {{ december_received }}
+                ]
+            },
+            {
+                name: 'Pending Payments',
+                data: [
+                {{ january_pending }}, {{ february_pending }}, {{ march_pending }},
+                {{ april_pending }}, {{ may_pending }}, {{ june_pending }},
+                {{ july_pending }}, {{ august_pending }}, {{ september_pending }},
+                {{ october_pending }}, {{ november_pending }}, {{ december_pending }}
+            ]
+            }
+        ],
+        chart: {
+            type: 'area',
+            height: 350,
+            width: '100%' // Ensure chart width takes full space available
+        },
+        dataLabels: {
+            enabled: false
+        },
+        stroke: {
+            curve: 'smooth'
+        },
+        xaxis: {
+            categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+        },
+        tooltip: {
+            x: {
+                format: 'MMM' // Format tooltip to display month abbreviation
+            },
+        },
+        title: {
+            text: 'Received vs Pending',
+            align: 'left'
+        },
+        colors: ['#38a169', '#b83280'],
+    };
+
+    var chart = new ApexCharts(document.querySelector("#areachart"), options);
+    chart.render();
 </script>
- 
- 

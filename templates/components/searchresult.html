@@ -1,0 +1,31 @@
+{% if results2 %}
+{% for results in results2  %}
+{% csrf_token %}
+ 
+<div id="client-cards" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+    <a class="transform hover:scale-105 transition duration-300 shadow-lg rounded-lg bg-white p-3 flex items-center" href="/ClientProfile/{{results.Whats_App_Number}}/">
+         
+        <div>
+            <div class="text-black">{{results.Full_Name}}, {{results.City}}</div>
+            <hr class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+        </div>
+    </a>
+    <!-- Repeat similar card structure for other clients -->
+    
+</div>
+    
+        {% endfor %}
+{% else %}
+<div id="client-cards" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+    <a class="transform hover:scale-105 transition duration-300 shadow-lg rounded-lg bg-white p-3 flex items-center"  >
+         
+        <div>
+            <div class="text-red-500">Client Record Not Found</div>
+            <hr class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+        </div>
+    </a>
+    <!-- Repeat similar card structure for other clients -->
+    
+</div>
+    
+{% endif %}

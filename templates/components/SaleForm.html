@@ -1,0 +1,404 @@
+<div class="col-span-12 mt-8">
+    <div id="loader-overlay">
+        <div class="loader"></div>
+    </div>
+<div class="w-full lg:w-9/10 px-4 mx-auto mt-6">
+    <div class="relative flex flex-col min-w-0 break-words w-full mb-6 shadow-lg rounded-lg border-0">
+      <div class="rounded-t bg-white mb-0 px-4 py-6">
+      </div>
+      <div class="flex-auto px-4 lg:px-6 py-6 pt-0" id="saleform">
+        <form action="/SaleGenerate/" method="post" id="SaleForm" enctype="multipart/form-data">
+            {% csrf_token %}
+            <h6 class="text-blueGray-600 text-sm mt-3 mb-6 font-bold uppercase"><a href="" hx-get="/Addclient/" hx-push-url="/Addclient/" hx-target="#change" class="block uppercase text-green-500 text-xs font-bold mb-2"><i class="fas fa-plus "></i> Add Client</a></h6>
+            <h4 class="text-blueGray-600 text-sm mt-3 mb-6 font-bold uppercase">{% if client_id %}Limit Left:{{client_data.Client_Credit}}{% endif %}</h4>
+            <div class="flex flex-wrap mb-6">
+              <!-- Client ID (Search and select) -->
+              <div class="w-full lg:w-6/12 px-2 mb-4 lg:mb-0">
+                <div class="relative w-full mb-3">
+                  <label class="block uppercase text-black text-xs font-bold mb-2" for="client-search">
+                    <i class="fas fa-user"></i> Client  
+                  </label>
+                   
+                  <select name="Client_ID" id="Client_ID" class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" required hx-get="/SalewithClient/" hx-target="#saleform" hx-trigger="change">
+                    <!-- Populate options dynamically from Django model -->
+                 
+                    {% if data %}
+                    <option value="">Select Client</option>
+                    {% for client in data %}
+                    
+                   
+                    <option value="{{client.Whats_App_Number }}">{{ client.Full_Name }}</option>
+                    {% endfor %}
+                    {% else %}
+                    <option value="{{client_id}}">{{ client_data.Full_Name }}</option>
+                    
+                    {% endif %}
+                    
+                    
+                  </select>
+                </div>
+              </div>
+              
+              <!-- Full Name -->
+              <div class="w-full lg:w-6/12 px-2 mb-4 lg:mb-0">
+                <div class="relative w-full mb-3">
+                  <label class="block uppercase text-black text-xs font-bold mb-2" for="Client_Name">
+                    <i class="fas fa-user"></i> Client Full Name
+                  </label>
+                  <input type="text" name="Client_Name" id="Client_Name"  class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" required value="{{client_data.Full_Name}} " placeholder="Client Full Name" readonly>
+                </div>
+              </div>
+              <!-- Phone Number -->
+              <div class="w-full lg:w-6/12 px-2 mb-4 lg:mb-0">
+                <div class="relative w-full mb-3">
+                  <label class="block uppercase text-black text-xs font-bold mb-2" for="Client_Phone_Number">
+                    <i class="fas fa-phone-alt"></i> Client Phone Number
+                  </label>
+                  <input type="text" name="Client_Phone_Number" placeholder="Client Phone Number" readonly id="Client_Phone_Number" class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" required value="{{client_data.Phone_Number}}" >
+                </div>
+              </div>
+              <div class="w-full lg:w-6/12 px-2">
+                <div class="relative w-full mb-3">
+                    <label class="block uppercase text-black text-xs font-bold mb-2" for="WhatsAppNo">
+                      <i class="fab fa-whatsapp"></i> WhatsApp No.
+                    </label>
+                    <input type="number" name="WhatsAppNo" readonly  class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" required placeholder="WhatsApp Number" value="{{client_data.WhatsApp}}">
+                    <div id="validation1" style="color: red;"></div>
+                </div>
+            </div>
+            
+             <!-- Shipping Address -->
+             <div class="w-full lg:w-6/12 px-2 mb-4 lg:mb-0">
+                <div class="relative w-full mb-3">
+                  <label class="block uppercase text-black text-xs font-bold mb-2" for="Shiping_Address">
+                    <i class="fas fa-address-card"></i> Shipping Address
+                  </label>
+                  <input type="text" name="Shiping_Address" id="Shiping_Address"   placeholder="Shipping Address" class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" required value="{{client_data.Shiping_Address}}">
+                </div>
+              </div>
+              <!-- Shipping City -->
+              <div class="w-full lg:w-6/12 px-2 mb-4 lg:mb-0">
+                <div class="relative w-full mb-3">
+                  <label class="block uppercase text-black text-xs font-bold mb-2" for="Shipping_City"  >
+                    <i class="fas fa-city"></i> Shipping City
+                  </label>
+                  <input type="text" name="Shipping_City" placeholder="Shipping City" value="{{client_data.Shipping_City}}" id="Shipping_City" class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" required>
+                </div>
+              </div>
+              <!-- Shipping State -->
+              <div class="w-full lg:w-6/12 px-2 mb-4 lg:mb-0">
+                <div class="relative w-full mb-3">
+                  <label class="block uppercase text-black text-xs font-bold mb-2" for="Shiping_State">
+                    <i class="fas fa-map-marker-alt"></i> Shipping State
+                  </label>
+                  <input type="text" name="Shiping_State" id="Shiping_State" placeholder="Shipping State" class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" required value="{{client_data.Shiping_State}}">
+                </div>
+              </div>
+              <div class="w-full lg:w-6/12 px-2 mb-4 lg:mb-0">
+                <div class="relative w-full mb-3">
+                  <label class="block uppercase text-black text-xs font-bold mb-2" for="client-search">
+                    <i class="fas fa-file-alt"></i> Sale Production Name
+                  </label>
+                   
+                  <select name="Sale_Production_Name" id="Client_ID" class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" required hx-get="/Itemchecking/" hx-target="#saleform" hx-trigger="change">
+                    <!-- Populate options dynamically from Django model -->
+                    
+                    {% for saleproduct in saleproduct %}
+                    <option value="{{saleproduct.Manufacturing_Product_Name}}">{{saleproduct.Manufacturing_Product_Name}}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+             
+              <!-- Items Or Balles -->
+              <div class="w-full lg:w-6/12 px-2 mb-4 lg:mb-0">
+                <div class="relative w-full mb-3">
+                  <label class="block uppercase text-black text-xs font-bold mb-2" for="Items_Or_Ballese">
+                    <i class="fas fa-box"></i> Items Or Balles
+                  </label>
+                  
+                  <input type="number" name="Items_Or_Balles" placeholder="Items Or Balles" id="Items_Or_Ballese" class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" hx-post="/Itemchecking/" hx-trigger="change" hx-target="#validation2" hx-swap="innerHTML" required>
+                </div>
+                <div id="validation2" style="color: red;"></div>
+                 
+              </div>
+              <!-- Weight -->
+              <div class="w-full lg:w-6/12 px-2 mb-4 lg:mb-0">
+                <div class="relative w-full mb-3">
+                  <label class="block uppercase text-black text-xs font-bold mb-2" for="Weight">
+                    <i class="fas fa-weight"></i> Weight
+                  </label>
+                  <input type="number" step="0.2" name="Weight" id="Weight" placeholder="Weight"  oninput="calculateTotalAmount()"class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" required>
+                </div>
+              </div>
+              <!-- Weight Unit -->
+              <div class="w-full lg:w-6/12 px-2 mb-4 lg:mb-0">
+                <div class="relative w-full mb-3">
+                  <label class="block uppercase text-black text-xs font-bold mb-2" for="Weight_Unit">
+                    <i class="fas fa-balance-scale"></i> Weight Unit
+                  </label>
+                  <select name="Weight_Unit"  id="Weight_Unit" class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" required>
+                    <option value="KG">KG</option>
+                    <option value="MUN">MUN</option>
+                    <option value="QUANTITY">QUANTITY</option>
+                    <option value="OTHERS">OTHERS</option>
+                  </select>
+                </div>
+              </div>
+              <!-- Sale Price -->
+              <div class="w-full lg:w-6/12 px-2 mb-4 lg:mb-0">
+                <div class="relative w-full mb-3">
+                  <label class="block uppercase text-black text-xs font-bold mb-2" for="Sale_Price">
+                    <i class="fas fa-dollar-sign"></i> Sale Price
+                  </label>
+                  <input type="number" step="0.01" name="Sale_Price" id="Sale_Price" placeholder="Sale Price" class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" required oninput="calculateTotalAmount()">
+                </div>
+              </div>
+             
+              <!-- Total Amount (auto-calculated) -->
+              <div class="w-full lg:w-6/12 px-2 mb-4 lg:mb-0">
+                <div class="relative w-full mb-3">
+                  <label class="block uppercase text-black text-xs font-bold mb-2" for="Total_Amount">
+                    <i class="fas fa-calculator"></i> Total Amount
+                  </label>
+                  <input type="number" step="0.01" name="Total_Amount" id="Total_Amount" placeholder="Total Amount" class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" readonly>
+                </div>
+              </div>
+               <!-- Discount -->
+               <div class="w-full lg:w-6/12 px-2 mb-4 lg:mb-0">
+                <div class="relative w-full mb-3">
+                  <label class="block uppercase text-black text-xs font-bold mb-2" for="Sale_Price">
+                    <i class="fas fa-tags"></i> Discount(%)
+                  </label>
+                  <input type="number" step="0.01" name="Discount" id="discount"  placeholder=" Discount(%)" class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" value="{{0.00}}"   oninput="calculateTotalAmount()">
+                </div>
+              </div>
+              <div class="w-full lg:w-6/12 px-2 mb-4 lg:mb-0">
+                <div class="relative w-full mb-3">
+                    <label class="block uppercase text-black text-xs font-bold mb-2" for="GST_Percentage">
+                        <i class="fas fa-percentage"></i> GST Percentage
+                    </label>
+                    <input type="number" step="0.01" name="GST_Percentage" id="GST_Percentage" placeholder="GST Percentage" class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" value="{{0.00}}" oninput="calculateTotalAmount()">
+                </div>
+            </div>
+               <!-- Discount -->
+               <div class="w-full lg:w-6/12 px-2 mb-4 lg:mb-0">
+                <div class="relative w-full mb-3">
+                  <label class="block uppercase text-black text-xs font-bold mb-2" for="Sale_Price">
+                    <i class="fas fa-money-bill-wave"></i> Final Amount
+                  </label>
+                  <input type="number" step="0.01" name="Final_Amount" readonly id="finalAmount" placeholder="Final Amount" class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" required oninput="calculateTotalAmount()" >
+                </div>
+              </div>
+              <div class="w-full lg:w-6/12 px-2 mb-4 lg:mb-0">
+                <div class="relative w-full mb-3">
+                  <label class="block uppercase text-black text-xs font-bold mb-2" for="Sale_Price">
+                    <i class="fas fa-money-bill-wave"></i> Payable Amount
+                  </label>
+                  <input type="number" step="0.01" name="pay"  id="pay" placeholder="Payable Amount" class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" required oninput="calculateTotalAmount()">
+                </div>
+              </div>
+              <div class="w-full lg:w-6/12 px-2 mb-4 lg:mb-0">
+                <div class="relative w-full mb-3">
+                  <label class="block uppercase text-black text-xs font-bold mb-2" for="Sale_Price">
+                    <i class="fas fa-money-bill-wave"></i> Remaining Amount
+                  </label>
+                  <input type="number" step="0.01" name="Remaning" id="remaning" placeholder="Final Amount" class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" readonly >
+                </div>
+              </div>
+              <div class="w-full lg:w-6/12 px-2 mb-4 lg:mb-0">
+                <div class="relative w-full mb-3">
+                  <label class="block uppercase text-black text-xs font-bold mb-2" for="Computer_Weight_Slip">
+                    <i class="fas fa-file-upload"></i> Payment Slip
+                  </label>
+                  <input type="file" name="paymentslip"   class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" required>
+                </div>
+              </div>
+              
+              <!-- Payment Status -->
+              <div class="w-full lg:w-6/12 px-2 mb-4 lg:mb-0">
+                <div class="relative w-full mb-3">
+                    <label class="block uppercase text-black text-xs font-bold mb-2" for="Payment_Status">
+                        <i class="fas fa-money-check"></i> Payment Status
+                    </label>
+                    <select name="Payment_Status" id="Payment_Status" class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" required>
+                        <option value="Pending">Pending</option>
+                        <option value="Completed">Completed</option>
+                        <option value="Failed">Failed</option>
+                    </select>
+                </div>
+            </div>
+              <!-- Computer Weight Slip -->
+              <div class="w-full lg:w-6/12 px-2 mb-4 lg:mb-0">
+                <div class="relative w-full mb-3">
+                  <label class="block uppercase text-black text-xs font-bold mb-2" for="Computer_Weight_Slip">
+                    <i class="fas fa-file-upload"></i> Computer Weight Slip
+                  </label>
+                  <input type="file" name=" Computer_Weight_Slip" id="Computer_Weight_Slip" class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" required>
+                </div>
+              </div>
+              <!-- Driver Name -->
+              <div class="w-full lg:w-6/12 px-2 mb-4 lg:mb-0">
+                <div class="relative w-full mb-3">
+                  <label class="block uppercase text-black text-xs font-bold mb-2" for="Driver_Name">
+                    <i class="fas fa-user-tie"></i> Driver Name
+                  </label>
+                  <input type="text" name="Driver_Name" id="Driver_Name"placeholder="Driver Name" class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" required>
+                </div>
+              </div>
+              <!-- Vehicle Number -->
+              <div class="w-full lg:w-6/12 px-2 mb-4 lg:mb-0">
+                <div class="relative w-full mb-3">
+                  <label class="block uppercase text-black text-xs font-bold mb-2" for="Vehicle_Number">
+                    <i class="fas fa-truck"></i> Vehicle Number
+                  </label>
+                  <input type="text" name="Vehicle_Number" id="Vehicle_Number" placeholder="Vehicle Number"  class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" required>
+                </div>
+              </div>
+              <!-- Driver Contact -->
+              <div class="w-full lg:w-6/12 px-2 mb-4 lg:mb-0">
+                <div class="relative w-full mb-3">
+                  <label class="block uppercase text-black text-xs font-bold mb-2" for="Driver_Contact">
+                    <i class="fas fa-phone"></i> Driver Contact
+                  </label>
+                  <input type="text" name="Driver_Contact" id="Driver_Contact" placeholder="Driver Contact" class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" required>
+                </div>
+              </div>
+              <!-- Vehicle Weight -->
+              <div class="w-full lg:w-6/12 px-2 mb-4 lg:mb-0">
+                <div class="relative w-full mb-3">
+                  <label class="block uppercase text-black text-xs font-bold mb-2" for="Vehicle_Weight">
+                    <i class="fas fa-weight"></i> Vehicle Weight
+                  </label>
+                  <input type="number" step="0.01" name="Vehicle_Weight" id="Vehicle_Weight" placeholder="Vehicle Weight" class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" required>
+                </div>
+              </div>
+              <!-- Vehicle Weight Unit -->
+              <div class="w-full lg:w-6/12 px-2 mb-4 lg:mb-0">
+                <div class="relative w-full mb-3">
+                  <label class="block uppercase text-black text-xs font-bold mb-2" for="VECHCLE_WEIGHT_Unit">
+                    <i class="fas fa-balance-scale"></i> Vehicle Weight Unit
+                  </label>
+                  <select name="VECHCLE_WEIGHT_Unit" id="VECHCLE_WEIGHT_Unit"  class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" required>
+                    <option value="KG">KG</option>
+                    <option value="MUN">MUN</option>
+                    <option value="QUANTITY">QUANTITY</option>
+                    <option value="OTHERS">OTHERS</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <!-- Submit Button -->
+             {% if check %}
+             <div class="flex justify-center">
+              <button type="submit" id="submit-button" disabled class="w-full bg-green-500 text-white py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+               <b class="text-red-400">Credit Lmit Have Been Exceed</b>
+              </button>
+              {% else %}
+            <div class="flex justify-center">
+              <button type="submit" id="submit-button" class="w-full bg-green-500 text-white py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                <i class="fas fa-plus"></i> Generate Invoice
+              </button>
+              {% endif %}
+            </div></form>
+    </div>
+    
+    
+    
+    </div>
+  </div>
+  <script>
+    function calculateTotalAmount() {
+        const totalWeight = parseFloat(document.getElementById('Weight').value) || 0;
+        const salePrice = parseFloat(document.getElementById('Sale_Price').value) || 0;
+        const discount = parseFloat(document.getElementById('discount').value) || 0;
+        const gstPercentage = parseFloat(document.getElementById('GST_Percentage').value) || 0;
+        const payable = parseFloat(document.getElementById('pay').value) || 0;
+    
+        const totalAmountElement = document.getElementById('Total_Amount');
+        const finalAmountElement = document.getElementById('finalAmount');
+        const remainingAmountElement = document.getElementById('remaning');
+    
+        const totalAmount = totalWeight * salePrice;
+        const discountAmount = (discount / 100) * totalAmount;
+        const gstAmount = (gstPercentage / 100) * (totalAmount - discountAmount);
+        const finalAmount = (totalAmount - discountAmount) + gstAmount;
+        const remainingAmount = finalAmount - payable;
+    
+        totalAmountElement.value = totalAmount.toFixed(2);
+        finalAmountElement.value = finalAmount.toFixed(2);
+        remainingAmountElement.value = remainingAmount.toFixed(2);
+        updatePaymentStatus();
+    }
+    
+    document.getElementById('discount').addEventListener('input', calculateTotalAmount);
+    document.getElementById('Total_Amount').addEventListener('input', calculateTotalAmount);
+    document.getElementById('GST_Percentage').addEventListener('input', calculateTotalAmount);
+    document.getElementById('Weight').addEventListener('input', calculateTotalAmount);
+    document.getElementById('Sale_Price').addEventListener('input', calculateTotalAmount);
+    document.getElementById('pay').addEventListener('input', calculateTotalAmount);
+    function updatePaymentStatus() {
+      const payable = parseFloat(document.getElementById('pay').value) || 0;
+      const finalAmount = parseFloat(document.getElementById('finalAmount').value) || 0;
+      const paymentStatus = document.getElementById('Payment_Status');
+  
+      if (payable === finalAmount) {
+          paymentStatus.value = 'Completed';
+          paymentStatus.disabled = true;
+      } else {
+          paymentStatus.value = 'Pending';
+          paymentStatus.disabled = false;
+      }
+  }
+    </script>
+    
+    <script>
+    document.getElementById('SaleForm').addEventListener('submit', function() {
+        document.getElementById('loader-overlay').style.display = 'flex';
+    });
+    
+    window.addEventListener('load', function() {
+        document.getElementById('loader-overlay').style.display = 'none';
+    });
+    </script>
+    
+<script>
+document.getElementById('discount').addEventListener('input', calculateFinalAmount);
+document.getElementById('Total_Amount').addEventListener('input', calculateFinalAmount);
+
+function calculateFinalAmount() {
+    const totalAmount = parseFloat(document.getElementById('Total_Amount').value) || 0;
+    const discount = parseFloat(document.getElementById('discount').value) || 0;
+    const discountAmount = (discount / 100) * totalAmount;
+    const finalAmount = totalAmount - discountAmount;
+
+    document.getElementById('finalAmount').value = finalAmount.toFixed(2);
+}
+
+</script>
+ 
+<script>
+    document.getElementById('SaleForm').addEventListener('submit', function() {
+        document.getElementById('loader-overlay').style.display = 'flex';
+    });
+  
+    window.addEventListener('load', function() {
+        document.getElementById('loader-overlay').style.display = 'none';
+    });
+  </script>
+   <script>
+  document.addEventListener('htmx:afterOnLoad', function(evt) {
+      if (evt.detail.target.id === 'validation2') {
+          const response = JSON.parse(evt.detail.xhr.responseText);
+          const submitButton = document.getElementById('submit-button');
+          if (response.exists) {
+              submitButton.style.display = 'none';
+              document.getElementById('validation2').innerText = 'Items/Balles is out of stock.';
+          } else {
+              submitButton.style.display = 'block';
+              document.getElementById('validation2').innerText = '';
+          }
+      }
+  });
+</script>
+  

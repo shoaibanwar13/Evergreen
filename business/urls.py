@@ -22,7 +22,39 @@ urlpatterns = [
     path('ClientProfile/<str:pk>/',ClientProfile,name="ClientProfile"),
     path('ManufactureMaterialPurchase/',ManufactureMaterialPurchase,name="ManufactureMaterialPurchase"),
     path('ManufacturePuchasePDF/',ManufacturePuchasePDF,name="ManufacturePuchasePDF"),
-    path('ManufactureMaterrial_export_to_excel/',ManufactureMaterrial_export_to_excel,name="ManufactureMaterrial_export_to_excel")
+    path('ManufactureMaterrial_export_to_excel/',ManufactureMaterrial_export_to_excel,name="ManufactureMaterrial_export_to_excel"),
+    path('SalewithClient/',SalewithClient,name='SalewithClient'),
+    path('SaleGenerate/',SaleGenerate,name='SaleGenerate'), 
+    path('client_search/',client_search,name='client_search'),
+    path('CurrentSale/<str:pk>/',CurrentSale,name='CurrentSale'),
+    path('currentInvoice/<str:pk>/',currentInvoice,name='currentInvoice'),
+    path('ClientSearchAndPurchase/<str:pk>/',ClientSearchAndPurchase,name='ClientSearchAndPurchase'),
+    path('ClientReport/<str:pk>/',ClientReport,name='ClientReport'),
+    path('Client_export_to_excel/<str:pk>/',Client_export_to_excel,name='Client_export_to_excel'),
+    path('SaleManagement/',SaleManagement,name='SaleManagement'),
+    path('SaleReport/',SaleReport,name='SaleReport'),
+    path('VendorSale_export_to_excel/',VendorSale_export_to_excel,name='VendorSale_export_to_excel'),
+    path('paymentIn/<str:pk>/<str:id>/',paymentIn,name='paymentIn'),
+    path('Itemchecking/',Itemchecking,name='Itemchecking'),
+    path('currentPaymentInPdf/<str:pk>/<str:id>/',currentPaymentInPdf,name='currentPaymentInPdf'), 
+    path('paymentInSlip/<str:pk>/<str:id>/',paymentInSlip,name='paymentInSlip'),
+    path('add_expense/', add_expense, name='add_expense'),
+    path('expenseManagement/', expenseManagement, name='expenseManagement'),
+    path('generate_expense_report/', generate_expense_report, name='generate_expense_report'),
+    path('expensebill/', expensebill, name='expensebill'),
+    path('ExpenseSlip/', ExpenseSlip, name='ExpenseSlip'),
+    path('expense_Excel/', expense_Excel, name='expense_Excel'),
+    path('VendorPayementOut/', VendorPayementOut, name='VendorPayementOut'),
+    path('withdrwalSlip/', withdrwalSlip, name='withdrwalSlip'), 
+    path('PaymentOutSlip/', PaymentOutSlip, name='PaymentOutSlip'),
+    path('transactionHistory/', transactionHistory, name='transactionHistory'),
+    path('generate_Transactions_report/',  generate_Transactions_report, name=' generate_Transactions_report'),
+    path('search/',search, name='search'),
+    
+
+    
+  
+    
     
 
 ]

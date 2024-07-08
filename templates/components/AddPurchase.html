@@ -55,7 +55,7 @@
                   <label class="block uppercase text-black text-xs font-bold mb-2" for="City">
                     <i class="fas fa-city"></i> City <b class="text-red-500">*</b>
                   </label>
-                  <input type="text" name="City" class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" required placeholder="City">
+                  <input type="text" name="city" class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" required placeholder="City">
                 </div>
               </div>
               <div class="w-full lg:w-6/12 px-2">
@@ -91,7 +91,7 @@
                   <input type="text" name="Total_Expense_Amount" class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" required placeholder="Production Expense Amount">
                 </div>
               </div>
-              <div class="w-full lg:w-6/2 px-2">
+              <div class="w-full lg:w-2/2 px-2">
                 <div class="relative w-full mb-3">
                     <label class="block uppercase text-black text-xs font-bold mb-2" for="Production_and_Expense_Proof_Screenshot">
                         <i class="fas fa-receipt"></i> Production & Expense Slip <b class="text-red-500">*</b>
@@ -101,11 +101,11 @@
                             <!-- File Input -->
                             <input type="file" name="Production_and_Expense_Proof_Screenshot" id="Production_and_Expense_Proof_Screenshot" class="sr-only">
                             <label for="Production_and_Expense_Proof_Screenshot" class="cursor-pointer bg-white rounded-md py-2 px-4 inline-flex items-center justify-center text-sm font-medium text-gray-700 border border-gray-300 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                                <i class="fas fa-upload mr-2"></i> Upload File
+                                <i class="fas fa-upload mr-2"></i><span id="file-name" class="ml-2 text-sm text-gray-600"></span>
                             </label>
                             <!-- Selected File Display -->
-                            <span id="file-name" class="ml-2 text-sm text-gray-600"></span>
                         </div>
+                        
                     </div>
                 </div>
             </div>
