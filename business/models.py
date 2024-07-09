@@ -16,7 +16,8 @@ class CompanyDetail(models.Model):
 class Profile(models.Model):
     user=models.OneToOneField(User, on_delete=models.CASCADE)
     bio=models.TextField(null=True)
-    profilepic=models.ImageField(upload_to='profilepic/', null=True,blank=True)
+    profilepic=models.ImageField(upload_to='profilepic/',default="media/img/logo1.png" ,null=True,blank=True)
+    email=models.CharField(max_length=200,null=True,blank=True)
     created=models.DateTimeField(auto_now=True)
     Total_Purchase=models.DecimalField(max_digits=20, decimal_places=2,default=0)
     Total_Sale=models.DecimalField(max_digits=20, decimal_places=2,default=0)
@@ -44,7 +45,7 @@ class Manufacturing(models.Model):
     Payment_Proof=models.ImageField(upload_to="Payment Proof/",null=True,blank=True)
     Total_Production_Items=models.IntegerField(default=0)
     Manufacture_Balles=models.IntegerField(default=0)
-    Total_Purchase_Price=models.DecimalField( max_digits=20,decimal_places=2)
+    Total_Purchase_Price=models.DecimalField( max_digits=20,decimal_places=2,default=0)
     Manufacturing_Expense=models.IntegerField(default=0)
     Total_Sale_Amount=models.DecimalField(max_digits=20,decimal_places=2,null=True,blank=True,default=0)
     Profit_OR_Lose=models.DecimalField( max_digits=20,decimal_places=2,null=True,blank=True,default=0)

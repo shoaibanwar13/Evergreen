@@ -6,6 +6,8 @@ from .models import *
 from django.core.mail import send_mail
 from django.conf import settings
 from django.db.models import F
+adminEmail=CompanyDetail.objects.get()
+mail=adminEmail.email
 @receiver(post_save,sender=User)
 def create_profile(sender,instance,created,**kwargs):
     if created:
@@ -46,7 +48,7 @@ def send_email_to_admin(sale):
         f'Vehicle: {sale.Vehicle_Number}\n'
         f'Vehicle: {sale.Driver_Contact}\n'
     )
-    admin_email = 'shoaib4311859@gmail.com'
+    admin_email = mail
     send_mail(subject, message, settings.EMAIL_HOST_USER, [admin_email])
 
 def send_email_to_customer(sale):
@@ -92,7 +94,7 @@ def send_dailyProductionemail_to_admin(production):
         f'Expense Amount: {production.Total_Expense_Amount}\n'
         f'Remarks: {production.Remarks_of_Expense}\n'
     )
-    admin_email = 'shoaib4311859@gmail.com'
+    admin_email = mail
     send_mail(subject, message,  settings.EMAIL_HOST_USER, [admin_email])
 @receiver(post_save, sender=Manufacturing)
 def send_manufacturing_email(sender, instance, created, **kwargs):
@@ -119,7 +121,7 @@ def send_Manufacturing_email_to_admin(manufacturing):
         f'Total Purchase Price: {manufacturing.Total_Purchase_Price}\n'
         f'Manufacturing Expense: {manufacturing.Manufacturing_Expense}\n'
     )
-    admin_email = 'shoaib4311859@gmail.com'
+    admin_email = mail
     send_mail(subject, message, settings.EMAIL_HOST_USER , [admin_email])
 @receiver(post_save, sender=Expense)
 def send_email_to_admin_for_expense(sender, instance, created, **kwargs):
@@ -138,7 +140,7 @@ def send_email_to_admin_for_expense(expense):
         f'Date: {expense.date}\n'
         f'Notes: {expense.notes}\n'
     )
-    admin_email = 'shoaib4311859@gmail.com'
+    admin_email = mail
     send_mail(subject, message, settings.EMAIL_HOST_USER, [admin_email])
 @receiver(post_save, sender=PaymentOut)
 def send_paymentout_email(sender, instance, created, **kwargs):
@@ -158,5 +160,5 @@ def send_email_to_admin_for_payment_out(payment_out):
         f'Notes: {payment_out.notes}\n'
         f'Vendor: {payment_out.user}\n'
     )
-    admin_email = 'shoaib4311859@gmail.com'
+    admin_email = mail
     send_mail(subject, message, settings.EMAIL_HOST_USER, [admin_email])

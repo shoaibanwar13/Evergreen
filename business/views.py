@@ -8,6 +8,7 @@ from django.db.models import Sum
 from django.template.loader import render_to_string,get_template
 from xhtml2pdf import pisa
 import os
+from django.core.mail import send_mail
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
 from django.urls import reverse
@@ -49,18 +50,21 @@ def calculate_monthly_total(request,year, month):
         total_purchase+=vtotal.Total_Purchase_Price
         print(total_purchase)
     return total_purchase or 0
-def calculate_monthly_Sale(request,year, month):
+def calculate_monthly_Sale(request, year, month):
     start_date = datetime(year, month, 1)
     if month == 12:
         end_date = datetime(year + 1, 1, 1)
     else:
         end_date = datetime(year, month + 1, 1)
-    total = Manufacturing.objects.filter(user=request.user,date__gte=start_date, date__lt=end_date)
-    total_purchase=Decimal(0.00)
+
+    total = Manufacturing.objects.filter(user=request.user, date__gte=start_date, date__lt=end_date)
+    total_purchase = Decimal(0.00)
+
     for vtotal in total:
-        total_purchase+=vtotal.Total_Sale_Amount
+        total_purchase += vtotal.Total_Sale_Amount or Decimal(0.00)
         print(total_purchase)
-    return total_purchase or 0
+
+    return total_purchase or Decimal(0.00)
 def calculate_monthly_Pending(request,year, month):
     start_date = datetime(year, month, 1)
     if month == 12:
@@ -159,10 +163,10 @@ def Vendor(request):
 
 
     for obj in fetch:
-        total_purchase += obj.Total_Purchase_Price
-        total_sale+=obj.Total_Sale_Amount
-        manufacture_expense+=obj.Manufacturing_Expense
-        profit+=obj.Profit_OR_Lose
+        total_purchase += obj.Total_Purchase_Price or Decimal(0.00)
+        total_sale += obj.Total_Sale_Amount or Decimal(0.00)
+        manufacture_expense += obj.Manufacturing_Expense or Decimal(0.00)
+        profit += obj.Profit_OR_Lose or Decimal(0.00)
 
     for pen in pending:
         total_pending+=pen.Remaining
@@ -172,9 +176,10 @@ def Vendor(request):
         total_Recived_Payment+=pay.Paid_Amount
     for ex in site_expense:
         siteexp+=ex.amount
-
-    if total_sales<total_sale:
-        messages.warning(request,"Frud Have Been Detected From Admin")
+    print(total_sale,total_sales)
+    if total_sale<total_sales:
+        messages.warning(request,"Fraud Have Been Detected From Admin")
+        FraudDector(request)
     siteProfit=profit-siteexp
     context={
         'total_purchase':total_purchase,
@@ -924,7 +929,7 @@ def SalewithClient(request):
         'Shiping_State': client.State,
         'Client_Credit':client.Credit_Limit
     }
-    return render(request,"components/SaleForm.html",{'client_id':client_id,'client_data':client_data,'saleproduct': saleproduct,' pendingTotal': pendingTotal,'check':check})
+    return render(request,"components/SaleForm.html",{'client_id':client_id,'client_data':client_data,'saleproduct': saleproduct,' pendingTotal': pendingTotal})
      
 def SaleGenerate(request):
     data=Client.objects.filter(user=request.user)
@@ -934,7 +939,7 @@ def SaleGenerate(request):
     if request.method=="POST":
 
         Sale_Production_Name=request.POST.get("Sale_Production_Name")
-        Items_Or_Balles=request.POST.get("Items_Or_Balles")
+        Items_Or_Balles=Decimal(request.POST.get("Items_Or_Balles"))
         Weight=request.POST.get("Weight")
         Weight_Unit=request.POST.get("Weight_Unit")
         Computer_Weight_Slip=request.FILES["Computer_Weight_Slip"]
@@ -943,7 +948,6 @@ def SaleGenerate(request):
         Client_Name=request.POST.get("Client_Name")
         Client_Phone_Number=request.POST.get("Client_Phone_Number")
         Client_ID=request.POST.get("Client_ID")
-        client_instance = get_object_or_404(Client,user=request.user, Whats_App_Number=Client_ID)
         Shiping_Address=request.POST.get("Shiping_Address")
         Shipping_City=request.POST.get("Shipping_City")
         Shiping_State=request.POST.get("Shiping_State")
@@ -958,11 +962,20 @@ def SaleGenerate(request):
         Remaining=request.POST.get("Remaning")
         Payment_Slip=request.FILES["paymentslip"]
         Paid=request.POST.get("pay")
+        ProductionName=Manufacturing.objects.get(user=request.user,Manufacturing_Product_Name=Sale_Production_Name)
+        balles=ProductionName.Total_Production_Items
+        if Items_Or_Balles>balles:
+            messages.info(request,"Balles/Items are out of stock")
+            return redirect("SaleGenerate")
         payment_value=False
         if Final_Amount==Paid:
             payment_value=True
 
         profile_instance= get_object_or_404(Profile, user=request.user)
+        client_instance =Client.objects.filter(user=request.user, Whats_App_Number=Client_ID).update(
+            Credit_Limit=F("Credit_Limit")-Decimal(Final_Amount)
+        )
+        
         query=Sale.objects.create(user=request.user,userprofile=profile_instance,Sale_Production_Name=Sale_Production_Name,Items_Or_Balles=Items_Or_Balles,Weight=Weight,Weight_Unit=Weight_Unit,Computer_Weight_Slip=Computer_Weight_Slip,Sale_Price=Sale_Price,Total_Amount=Total_Amount,Payment_Status=payment_value,Client_Name=Client_Name,Client_Phone_Number=Client_Phone_Number,Client_ID=client_instance,Shiping_Address=Shiping_Address,Shipping_City=Shipping_City,Shiping_State=Shiping_State,Driver_Name=Driver_Name,Vehicle_Number=Vehicle_Number,Driver_Contact=Driver_Contact,Vehicle_Weight=Vehicle_Weight,VECHCLE_WEIGHT_Unit=VECHCLE_WEIGHT_Unit,Final_Amount=Final_Amount,Discount=Discount,Paid_Amount=Paid,Remaining=Remaining,Payment_Slip=Payment_Slip,GST=GSTtax)
         query.save()
         items=Decimal(Items_Or_Balles)
@@ -2344,3 +2357,15 @@ def search(request):
     context = {'results2': results2}
     # Render search result template with context
     return render(request, 'components/searchresult.html', context)
+def FraudDector(request):
+    mail=Profile.objects.get(user=request.user)
+    alert=mail.email
+
+    subject = f'Fraud Have Been Detected From Admin'
+    message = (
+        f'Dear {request.user}. The Record Of Your Sales Have Been Change By The Admin Please Take Action To Resolve the Issues\n\n'
+         
+    )
+    send_mail(subject, message,  settings.EMAIL_HOST_USER, ['shoaib4311859@gmail.com'])
+     
+
