@@ -96,8 +96,8 @@ class Client(models.Model):
     Phone_Number=models.CharField(max_length=200,null=True,blank=True)
     Business_Name=models.CharField(max_length=200,null=True,blank=True)
     Acccount_Type=models.CharField(max_length=200,null=True,blank=True)
-    Opening_Balance=models.DecimalField(max_digits=10,decimal_places=4,null=True,blank=True,default=0)
-    Credit_Limit=models.DecimalField(max_digits=10,decimal_places=4,null=True,blank=True,default=0)
+    Opening_Balance=models.DecimalField(max_digits=20,decimal_places=3,null=True,blank=True,default=0)
+    Credit_Limit=models.DecimalField(max_digits=20,decimal_places=3,null=True,blank=True,default=0)
     
     def __str__(self) :
 
@@ -197,5 +197,19 @@ class PaymentOut(models.Model):
 
     def __str__(self):
         return f"{self.description} - {self.amount}"
-
-
+class Sale_Return(models.Model):
+    user=models.ForeignKey(User,related_name="Return",on_delete=models.CASCADE)
+    userprofile  = models.ForeignKey(Profile,blank=True, null=True, on_delete=models.CASCADE)
+    Client_ID=models.ForeignKey(Client,related_name="Customer",on_delete=models.CASCADE,null=True)
+    Client_Name=models.CharField(max_length=500)
+    Sale_Production_Name=models.CharField(max_length=500)
+    Items_Or_Balles=models.IntegerField(default=0)
+    Weight=models.DecimalField(max_digits=100,decimal_places=5,default=0)
+    Return_To_Customer_Amount=models.DecimalField(max_digits=20,decimal_places=2,default=0)
+    Payment_Proof=models.ImageField(upload_to="Return Payment Proof")
+    Reason_Of_Return=models.TextField()
+    date = models.DateField(default=timezone.now)
+    
+    def __str__(self):
+        return f"{self.Client_Name} - {self.Return_To_Customer_Amount}"
+    

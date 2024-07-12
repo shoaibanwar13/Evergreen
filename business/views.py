@@ -263,8 +263,8 @@ def Addclient(request):
         state=request.POST.get("state")
         bname=request.POST.get("bname")
         accountType=request.POST.get("accountType")
-        openingBalance=request.POST.get("openbalance",'')
-        creditlimit=request.POST.get("creditLimit",'')
+        openingBalance=Decimal(request.POST.get("openbalance",''))
+        creditlimit=Decimal(request.POST.get("creditLimit",''))
         profile_instance= get_object_or_404(Profile, user=request.user)
         query=Client.objects.create(user=request.user,userprofile=profile_instance,Full_Name=name,Email=email,Whats_App_Number=whatsappno,Phone_Number=phoneno,Billing_Address=address,City=city,State=state,Business_Name=bname,Acccount_Type=accountType,Opening_Balance=openingBalance,Credit_Limit=creditlimit,profilepic=clientPic)
         query.save()
@@ -314,22 +314,7 @@ def AddDailyProduction(request):
         Manufacture_Balles=F("Manufacture_Balles")+items
 
     )
-        
          
-        email_subject = "Daily Production Detail"
-        message = render_to_string('DailyproductionEmail.html', {
-                    'SiteName':request.user,
-                    'Production_Name':Puroduction_Product_Name,
-                    'item_or_Balles':items,
-                    'Production_Team':Production_Team_Name,
-                    'Production_Place':Production_Place,
-                    'Production_Status':Production_completed,
-                    'Expense':Total_Expense_Amount,
-                    'Expense_Remark':Expense_Remarks,
-              
-        })
-        email_message2 = EmailMessage(email_subject, message, settings.EMAIL_HOST_USER, Email)
-        email_message2.send()
 
     
          
@@ -929,13 +914,9 @@ def SalewithClient(request):
         'Shiping_State': client.State,
         'Client_Credit':client.Credit_Limit
     }
-    return render(request,"components/SaleForm.html",{'client_id':client_id,'client_data':client_data,'saleproduct': saleproduct,' pendingTotal': pendingTotal})
+    return render(request,"components/SaleForm.html",{'client_id':client_id,'client_data':client_data,'saleproduct': saleproduct,' pendingTotal': pendingTotal,'data': data})
      
 def SaleGenerate(request):
-    data=Client.objects.filter(user=request.user)
-    
-     
-    
     if request.method=="POST":
 
         Sale_Production_Name=request.POST.get("Sale_Production_Name")
@@ -972,7 +953,8 @@ def SaleGenerate(request):
             payment_value=True
 
         profile_instance= get_object_or_404(Profile, user=request.user)
-        client_instance =Client.objects.filter(user=request.user, Whats_App_Number=Client_ID).update(
+        client_instance =get_object_or_404(Client, Whats_App_Number=Client_ID)
+        Client.objects.filter(user=request.user, Whats_App_Number=Client_ID).update(
             Credit_Limit=F("Credit_Limit")-Decimal(Final_Amount)
         )
         
@@ -999,11 +981,12 @@ def SaleGenerate(request):
         
 
         return redirect("currentInvoice",pk=Client_ID)
+    data=Client.objects.filter(user=request.user)
     Products=Manufacturing.objects.filter(user=request.user,Out_Of_Stock=False).all()
     if request.htmx:
         return render(request, 'components/SaleGenerate.html',{'Products': Products,'data':data})
     else:
-        return render(request,"VendorSale.html",{'Products': Products,'data':data})
+        return render(request,"VendorSale.html",{'Products': Products,'data':data })
       
 def client_search(request):
     query = request.GET.get('query', '')
@@ -1430,9 +1413,9 @@ def  SaleReport(request):
     # Header and Company Details
     header_data = [
         [company_logo, Paragraph("<b>{}</b>".format(company_name), title_style)],
-        ["", Paragraph("Email: {}".format(company_email), paragraph_style)],
-        ["", Paragraph("Head Office: {}".format(Head_Office), paragraph_style)],
-        ["", Paragraph("Contact No.: {}".format(Phone), paragraph_style)],
+        ["", Paragraph("{}".format(company_email), paragraph_style)],
+        ["", Paragraph("{}".format(Head_Office), paragraph_style)],
+        ["", Paragraph("{}".format(Phone), paragraph_style)],
     ]
 
     header_table = Table(header_data, colWidths=[100, 400])
@@ -2231,6 +2214,191 @@ def Transaction_export_to_excel(request):
         df.to_excel(writer, index=False, sheet_name='Sheet1')
 
     return response
+def Salereturn(request):
+    productions=Manufacturing.objects.filter(user=request.user)
+    clients=Client.objects.filter(user=request.user)
+    if request.method=="POST":
+        Product=request.POST.get('Sale_Production_Name')
+        Client_ID=request.POST.get('Client_ID')
+        client_instance =Client.objects.get(user=request.user, Whats_App_Number=Client_ID)
+        client_Name=client_instance.Full_Name
+        item= request.POST.get('Items_Or_Balles')
+        weight = request.POST.get('Weight')
+        amount =Decimal(request.POST.get('Return_To_Customer_Amount'))
+        bill = request.FILES['Payment_Proof']
+        reason = request.POST.get('Reason_Of_Return')
+        profile_instance= get_object_or_404(Profile, user=request.user)
+        Manufacturing.objects.filter(user=request.user,Manufacturing_Product_Name=Product).update(
+            Weight=F("Weight")+weight,Total_Production_Items=F("Total_Production_Items")+item,Total_Sale_Amount=F("Total_Sale_Amount")-amount,Profit_OR_Lose=F("Profit_OR_Lose")-amount,Out_Of_Stock=False
+        )
+        Sale.objects.filter(user=request.user,Sale_Production_Name=Product,Client_ID=Client_ID).delete()
+        query=Sale_Return.objects.create(user=request.user,userprofile=profile_instance,Client_ID=client_instance,Client_Name=client_Name,Sale_Production_Name=Product,Items_Or_Balles=item,Weight=weight,Return_To_Customer_Amount=amount,Payment_Proof=bill,Reason_Of_Return=reason)
+        query.save()
+        messages.success(request,"Sale Return Record Added!")
+        return redirect("Vendor")
+    if request.htmx:
+        return render(request,"components/SaleReturn.html",{'clients':clients,'productions':productions})
+    else:
+        return render(request,"SaleReturn.html",{'clients':clients,'productions':productions})
+def SaleReturnManagement(request):
+    query = request.GET.get('query')
+    query2=request.GET.get('query2')
+    fromdate=request.GET.get("fromdate")
+    todate=request.GET.get('todate')
+    results = Sale_Return.objects.filter(user=request.user)
+
+    if query:
+        results = results.filter(Client_Name__icontains=query)
+    if query2:
+        results = results.filter(Client_ID__icontains=query2)
+    if fromdate and todate:
+        results = results.filter(date__lte=todate, date__gte=fromdate)    
+      
+    if request.htmx:
+        return render(request,'components/SaleReturnmanagement.html',{'query':query,'query2':query2,'fromdate':fromdate,'todate':todate,'results':results} )
+    else:
+        return render(request,'SaleReturnmanagement.html',{'query':query,'query2':query2,'fromdate':fromdate,'todate':todate,'results':results} )
+def  SaleReturnReport(request):
+    query = request.GET.get('query')
+    query2=request.GET.get('query2')
+    fromdate=request.GET.get("fromdate")
+    todate=request.GET.get('todate')
+    results = Sale_Return.objects.filter(user=request.user)
+    if query:
+        results = results.filter(Client_Name__icontains=query)
+    if query2:
+        results = results.filter(Client_ID__icontains=query2)
+    if fromdate and todate:
+        results = results.filter(date__lte=todate, date__gte=fromdate)   
+    compydetail = CompanyDetail.objects.all()    
+    
+    
+    comN = []
+    Email = []
+    address = []
+    phone = []
+    for com in compydetail:
+        name = com.name
+        comN.append(name)
+        email = com.email
+        Email.append(email)
+        office = com.Head_Office
+        address.append(office)
+        Phone = com.phone
+        phone.append(Phone)
+    
+    
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="ClientReport.pdf"'
+
+    # Create a PDF document
+    pdf = SimpleDocTemplate(response, pagesize=landscape(letter))
+
+    # Define data for the invoice
+    company_logo_path = "media/Company Logo/logo1.png"  # Replace with actual path
+    company_name = comN[0]
+    company_email = Email[0]
+    Head_Office = address[0]
+    Phone = phone[0]
+    Date = datetime.now().strftime("%d/%m/%Y")
+    Total_Return_Amount=0
+    
+    for salereport in results: 
+        Total_Return_Amount+=salereport.Return_To_Customer_Amount
+         
+
+
+         
+         
+    
+    sale = [
+        ["Client","Production","Items/Balles", "Weight",  "Return Amount"],]
+    for report in results:
+        
+       
+          
+           
+        sale.append([str(report.Client_Name),str(report.Sale_Production_Name),str(report.Items_Or_Balles), str(report.Weight),  str(report.Return_To_Customer_Amount),]
+    )
+    
+
+    # Define styles
+    styles = getSampleStyleSheet()
+    title_style = styles['Title']
+    paragraph_style = styles['Normal']
+
+    # Define table style
+    table_style = TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.white),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.white),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black)
+    ])
+
+    # Create invoice content
+    content = []
+
+    # Company details and logo
+    company_logo = Image(company_logo_path, width=90, height=90)
+
+    # Header and Company Details
+    header_data = [
+        [company_logo, Paragraph("<b>{}</b>".format(company_name), title_style)],
+        ["", Paragraph("{}".format(company_email), paragraph_style)],
+        ["", Paragraph("{}".format(Head_Office), paragraph_style)],
+        ["", Paragraph("{}".format(Phone), paragraph_style)],
+    ]
+
+    header_table = Table(header_data, colWidths=[100, 400])
+    content.append(header_table)
+    content.append(Spacer(1, 12))
+    invoice_number = random.randint(100000, 999999)
+    # Client and Driver details in parallel
+    client_driver_details = [
+        ["Report Number",str(invoice_number), "Date", Date,],
+        ["Email", request.user.email, "Total Return", str(Total_Return_Amount)], 
+        ["Seller Name",request.user.first_name, "Vendor ", request.user.username]
+        
+    ]
+
+    details_data = [[Paragraph("<b>{}</b>".format(detail[0]), paragraph_style), Paragraph(detail[1], paragraph_style),
+                     Paragraph("<b>{}</b>".format(detail[2]), paragraph_style), Paragraph(detail[3], paragraph_style)] for detail in client_driver_details]
+    details_table = Table(details_data, colWidths=[220, 150, 150, 150])
+    details_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (0, -1), colors.white),
+        ('TEXTCOLOR', (0, 0), (0, -1), colors.black),
+        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+        ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black)
+    ]))
+
+    content.append(details_table)
+    content.append(Spacer(1, 12))
+
+    # Sale items table
+    items_table = Table(sale, colWidths=[120, 60, 90, 80, 80, 70, 80, 70])
+    items_table.setStyle(table_style)
+    content.append(items_table)
+
+    # Build the PDF document
+    pdf.build(content)
+    return response
+def VendorSaleReturn_export_to_excel(request):
+    # Query the database
+    data = Sale_Return.objects.filter(user=request.user,).values()
+    df = pd.DataFrame(list(data))
+    # Create an Excel writer using Pandas
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename=VendorSale.xlsx'
+    with pd.ExcelWriter(response, engine='openpyxl') as writer:
+        df.to_excel(writer, index=False, sheet_name='Sheet1')
+
+    return response
+ 
 def generate_daily_report():
     today = date.today()
     

@@ -49,7 +49,13 @@ urlpatterns = [
     path('PaymentOutSlip/', PaymentOutSlip, name='PaymentOutSlip'),
     path('transactionHistory/', transactionHistory, name='transactionHistory'),
     path('generate_Transactions_report/',  generate_Transactions_report, name=' generate_Transactions_report'),
-    path('search/',search, name='search'),
+    path('search/',search, name='search'), 
+    path('Salereturn/',Salereturn, name='Salereturn'),
+    path('SaleReturnManagement/',SaleReturnManagement, name='SaleReturnManagement'), 
+    path('VendorSaleReturn_export_to_excel/',VendorSaleReturn_export_to_excel, name='VendorSaleReturn_export_to_excel'),
+    path('SaleReturnReport/',SaleReturnReport, name='SaleReturnReport'),
+    
+     
     
 
     

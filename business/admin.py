@@ -19,6 +19,9 @@ class ExpenseInline(admin.TabularInline):
 class PayemtoutInline(admin.TabularInline):
     model = PaymentOut
     extra = 0 
+class SaleReturnInline(admin.TabularInline):
+    model = Sale_Return
+    extra = 0 
 
 
 
@@ -27,7 +30,7 @@ class SaleLine(admin.ModelAdmin):
     inlines = [SaleInline]
    
 class ProfileAdmin(admin.ModelAdmin):
-    inlines = [DailyProductionInline,ClientInline,SaleInline,ManufacturingInline,ExpenseInline,PayemtoutInline]
+    inlines = [DailyProductionInline,ClientInline,SaleInline,ManufacturingInline,ExpenseInline,PayemtoutInline,SaleReturnInline]
     search_fields=['Sale_Production_Name']
 
 admin.site.register(CompanyDetail)
@@ -38,6 +41,7 @@ admin.site.register(Client,SaleLine)
 admin.site.register(Sale)
 admin.site.register(Expense)
 admin.site.register(PaymentOut)
+admin.site.register(Sale_Return)
 
 
 # Register your models here.
