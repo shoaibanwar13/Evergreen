@@ -149,7 +149,6 @@ def Vendor(request):
     fetch=Manufacturing.objects.filter(user=request.user)
     pending=Sale.objects.filter(user=request.user)
     paymentRecived=Sale.objects.filter(user=request.user)
-    site_expense=Expense.objects.filter(user=request.user)
     total_purchase = Decimal(0.00)
     total_sale=Decimal(0.00)
     total_pending = Decimal(0.00)
@@ -167,6 +166,7 @@ def Vendor(request):
         total_sale += obj.Total_Sale_Amount or Decimal(0.00)
         manufacture_expense += obj.Manufacturing_Expense or Decimal(0.00)
         profit += obj.Profit_OR_Lose or Decimal(0.00)
+        siteexp+=obj.Other_Expense or Decimal(0.00)
 
     for pen in pending:
         total_pending+=pen.Remaining
@@ -174,8 +174,7 @@ def Vendor(request):
 
     for pay in paymentRecived:
         total_Recived_Payment+=pay.Paid_Amount
-    for ex in site_expense:
-        siteexp+=ex.amount
+    
     print(total_sale,total_sales)
     if total_sale<total_sales:
         messages.warning(request,"Fraud Have Been Detected From Admin")
@@ -278,11 +277,7 @@ def Addclient(request):
    
      
 def AddDailyProduction(request):
-    compydetail=CompanyDetail.objects.all()
-    Email=[]
-    for com in compydetail:
-        email=com.email
-        Email.append(email)
+    
     Products=Manufacturing.objects.filter(user=request.user,Complete_Production=False).all()
     if request.method=="POST":
         Puroduction_Product_Name=request.POST.get("Production_Product_Name")
@@ -311,7 +306,7 @@ def AddDailyProduction(request):
     )
         Manufacturing.objects.filter(user=request.user,Manufacturing_Product_Name=Puroduction_Product_Name).update(
         Total_Production_Items=F('Total_Production_Items') + items,Manufacturing_Expense=F('Manufacturing_Expense')+expense,
-        Manufacture_Balles=F("Manufacture_Balles")+items
+        Manufacture_Balles=F("Manufacture_Balles")+items,Labour_Expense=F("Labour_Expense")+expense
 
     )
          
@@ -326,9 +321,9 @@ def AddDailyProduction(request):
 
         return redirect("current_purchase_pdf")
     if request.htmx:
-        return render(request, 'components/AddPurchase.html',{'compydetail': compydetail,'Products': Products})
+        return render(request, 'components/AddPurchase.html',{ 'Products': Products})
     else:
-        return render(request,"Addpurchase.html",{'compydetail': compydetail,'Products': Products})
+        return render(request,"Addpurchase.html",{ 'Products': Products})
  
 def Client_Whatsapp_filter(request):
     Client_Whatsapp=request.POST.get('WhatsAppNo')
@@ -860,13 +855,19 @@ def ManufacturePuchasePDF(request):
 def ClientProfile(request,pk):
     clientdata=Client.objects.get(user=request.user,Whats_App_Number=pk)
     clientSale=Sale.objects.filter(user=request.user,Client_ID=pk)
+    saleReturn=Sale_Return.objects.filter(user=request.user,Client_ID=pk)
     clientid=pk
     total_sale=0
     total_pending_payment=0
     total_paid_payment=0
+    total_sale_Return=0
+    for sales in saleReturn:
+        total_sale_Return=sales.Return_To_Customer_Amount
+
      
     for data in clientSale:
         total_sale+=data.Final_Amount
+        
         if data.Payment_Status==False:
             total_pending_payment+=data.Remaining
         
@@ -879,14 +880,14 @@ def ClientProfile(request,pk):
     print(total_sale)
   
     if request.htmx:
-        return render(request, 'components/Clientprofile.html',{'clientid':clientid,'clientdata': clientdata,'clientSale':clientSale,'total_sale':total_sale,'total_pending_payment':total_pending_payment,'total_paid_payment':total_paid_payment})
+        return render(request, 'components/Clientprofile.html',{'clientid':clientid,'clientdata': clientdata,'clientSale':clientSale,'total_sale':total_sale,'total_pending_payment':total_pending_payment,'total_paid_payment':total_paid_payment,'total_sale_Return':total_sale_Return})
     else:
-      return render(request,"Clientprofile.html",{ 'clientid':clientid ,'clientdata': clientdata,'clientSale':clientSale,'total_sale':total_sale,'total_pending_payment':total_pending_payment,'total_paid_payment':total_paid_payment})
+      return render(request,"Clientprofile.html",{ 'clientid':clientid ,'clientdata': clientdata,'clientSale':clientSale,'total_sale':total_sale,'total_pending_payment':total_pending_payment,'total_paid_payment':total_paid_payment,'total_sale_Return':total_sale_Return})
 def SalewithClient(request):
     client_id = request.GET.get('Client_ID')
     item=request.GET.get('item')
     client = Client.objects.get(Whats_App_Number=client_id)
-    data=Client.objects.filter(user=request.user)
+    
     check=False
     limit=client.Credit_Limit
     if limit==0.00:
@@ -914,7 +915,7 @@ def SalewithClient(request):
         'Shiping_State': client.State,
         'Client_Credit':client.Credit_Limit
     }
-    return render(request,"components/SaleForm.html",{'client_id':client_id,'client_data':client_data,'saleproduct': saleproduct,' pendingTotal': pendingTotal,'data': data})
+    return render(request,"components/SaleForm.html",{'client_id':client_id,'client_data':client_data,'saleproduct': saleproduct,' pendingTotal': pendingTotal})
      
 def SaleGenerate(request):
     if request.method=="POST":
@@ -944,6 +945,7 @@ def SaleGenerate(request):
         Payment_Slip=request.FILES["paymentslip"]
         Paid=request.POST.get("pay")
         ProductionName=Manufacturing.objects.get(user=request.user,Manufacturing_Product_Name=Sale_Production_Name)
+        data=Client.objects.filter(user=request.user)
         balles=ProductionName.Total_Production_Items
         if Items_Or_Balles>balles:
             messages.info(request,"Balles/Items are out of stock")
@@ -1661,22 +1663,67 @@ def paymentInSlip(request, pk,id):
     return response
 def add_expense(request):
     balance=Profile.objects.get(user=request.user)
+    productions=Manufacturing.objects.filter(user=request.user,Out_Of_Stock=False)
     totalBalance=balance.Balance
-    if totalBalance==0.00:
-        messages.warning(request,"You Have Low Balance To Add Expense")
+     
     if request.method == 'POST':
+        production_name=request.POST.get('name')
         description = request.POST.get('description')
         category = request.POST.get('category')
         amount =Decimal(request.POST.get('amount'))
         bill = request.FILES['expensebill']
         notes = request.POST.get('notes')
         profile_instance= get_object_or_404(Profile, user=request.user)
-        query=Expense.objects.create(user=request.user,userprofile=profile_instance,description=description,category=category,amount=amount,Bill_Proof=bill,notes=notes)
-        query.save()
-        balance=Profile.objects.filter(user=request.user).update(
-            Balance=F("Balance")-amount
-        )
-        expense=Profile.objects.filter(user=request.user).update(
+        manufaccture_instance=Manufacturing.objects.filter(user=request.user,Manufacturing_Product_Name=production_name)
+ 
+        if category=="Harvesting":
+             
+            manufaccture_instance.update(Harvesting_Cost=F("Harvesting_Cost")+amount,Manufacturing_Expense=F("Manufacturing_Expense")+amount)
+            
+            query=Expense.objects.create(user=request.user,userprofile=profile_instance,Production_Name=production_name,description=description,category=category,amount=amount,Bill_Proof=bill,notes=notes)
+            query.save()
+        elif  category=="Pressing":
+            manufaccture_instance.update(Pressing_Cost=F("Pressing_Cost")+amount,Manufacturing_Expense=F("Manufacturing_Expense")+amount)
+            query=Expense.objects.create(user=request.user,userprofile=profile_instance,Production_Name=production_name,description=description,category=category,amount=amount,Bill_Proof=bill,notes=notes)
+            query.save()
+        elif  category=="Dumping":
+            manufaccture_instance.update(Dumping_Cost=F("Dumping_Cost")+amount,Manufacturing_Expense=F("Manufacturing_Expense")+amount)
+            query=Expense.objects.create(user=request.user,userprofile=profile_instance,Production_Name=production_name,description=description,category=category,amount=amount,Bill_Proof=bill,notes=notes)
+            query.save()
+        elif  category=="Polythene":
+            manufaccture_instance.update(Polythene_Cost=F("Polythene_Cost")+amount,Manufacturing_Expense=F("Manufacturing_Expense")+amount)
+            query=Expense.objects.create(user=request.user,userprofile=profile_instance,Production_Name=production_name,description=description,category=category,amount=amount,Bill_Proof=bill,notes=notes)
+            query.save()
+        elif  category=="Mud Cost":
+            manufaccture_instance.update(Mud_Cost=F("Mud_Cost")+amount,Manufacturing_Expense=F("Manufacturing_Expense")+amount)
+            
+            query=Expense.objects.create(user=request.user,userprofile=profile_instance,Production_Name=production_name,description=description,category=category,amount=amount,Bill_Proof=bill,notes=notes)
+            query.save()
+        elif  category=="Weight Losses":
+            manufaccture_instance.update(Weight_Losses=F("Weight_Losses")+amount,Manufacturing_Expense=F("Manufacturing_Expense")+amount)
+            query=Expense.objects.create(user=request.user,userprofile=profile_instance,Production_Name=production_name,description=description,category=category,amount=amount,Bill_Proof=bill,notes=notes)
+            query.save()
+        elif  category=="Packing Material":
+            manufaccture_instance.update(Packing_Material=F("Packing_Material")+amount,Manufacturing_Expense=F("Manufacturing_Expense")+amount)
+            query=Expense.objects.create(user=request.user,userprofile=profile_instance,Production_Name=production_name,description=description,category=category,amount=amount,Bill_Proof=bill,notes=notes)
+            query.save()
+        elif  category=="Machine Depreciation":
+            manufaccture_instance.update(Machine_Depreciation=F("Machine_Depreciation")+amount,Manufacturing_Expense=F("Manufacturing_Expense")+amount)
+            query=Expense.objects.create(user=request.user,userprofile=profile_instance,Production_Name=production_name,description=description,category=category,amount=amount,Bill_Proof=bill,notes=notes)
+            query.save()
+        elif  category=="Loading":
+            manufaccture_instance.update(Loading_Cost=F("Loading_Cost")+amount,Manufacturing_Expense=F("Manufacturing_Expense")+amount)
+            query=Expense.objects.create(user=request.user,userprofile=profile_instance,Production_Name=production_name,description=description,category=category,amount=amount,Bill_Proof=bill,notes=notes)
+            query.save()
+        elif  category=="Labour":
+            manufaccture_instance.update(Labour_Expense=F("Labour_Expense")+amount,Manufacturing_Expense=F("Manufacturing_Expense")+amount)
+            query=Expense.objects.create(user=request.user,userprofile=profile_instance,Production_Name=production_name,description=description,category=category,amount=amount,Bill_Proof=bill,notes=notes)
+            query.save()
+        else:
+            manufaccture_instance.update(Other_Expense=F("Other_Expense")+amount,Manufacturing_Expense=F("Manufacturing_Expense")+amount)
+            query=Expense.objects.create(user=request.user,userprofile=profile_instance,Production_Name=production_name,description=description,category=category,amount=amount,Bill_Proof=bill,notes=notes)
+            query.save()
+        Profile.objects.filter(user=request.user).update(
             Total_Expense=F("Total_Expense")+amount
         )
          
@@ -1684,9 +1731,9 @@ def add_expense(request):
         # Redirect to a success page or do further processing
         return redirect('expensebill')  # Replace with your success URL or view name
     if request.htmx:
-        return render(request,'components/expense_form.html',{'totalBalance':totalBalance})
+        return render(request,'components/expense_form.html',{'totalBalance':totalBalance,'productions':productions})
     else:
-        return render(request, 'expense_form.html',{'totalBalance':totalBalance})
+        return render(request, 'expense_form.html',{'totalBalance':totalBalance,'productions':productions})
 def expenseManagement(request):
     fromdate=request.GET.get("fromdate")
     todate=request.GET.get('todate')

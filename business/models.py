@@ -46,6 +46,17 @@ class Manufacturing(models.Model):
     Total_Production_Items=models.IntegerField(default=0)
     Manufacture_Balles=models.IntegerField(default=0)
     Total_Purchase_Price=models.DecimalField( max_digits=20,decimal_places=2,default=0)
+    Harvesting_Cost=models.DecimalField( max_digits=20,decimal_places=2,default=0)
+    Pressing_Cost=models.DecimalField( max_digits=20,decimal_places=2,default=0)
+    Dumping_Cost=models.DecimalField( max_digits=20,decimal_places=2,default=0)
+    Mud_Cost=models.DecimalField( max_digits=20,decimal_places=2,default=0)
+    Polythene_Cost=models.DecimalField( max_digits=20,decimal_places=2,default=0)
+    Weight_Losses=models.DecimalField( max_digits=20,decimal_places=2,default=0)
+    Packing_Material=models.DecimalField( max_digits=20,decimal_places=2,default=0)
+    Machine_Depreciation=models.DecimalField( max_digits=20,decimal_places=2,default=0)
+    Loading_Cost=models.DecimalField( max_digits=20,decimal_places=2,default=0)
+    Labour_Expense=models.DecimalField( max_digits=20,decimal_places=2,default=0)
+    Other_Expense=models.DecimalField(max_digits=20,decimal_places=2,default=0)
     Manufacturing_Expense=models.IntegerField(default=0)
     Total_Sale_Amount=models.DecimalField(max_digits=20,decimal_places=2,null=True,blank=True,default=0)
     Profit_OR_Lose=models.DecimalField( max_digits=20,decimal_places=2,null=True,blank=True,default=0)
@@ -157,13 +168,25 @@ class  Sale(models.Model):
 class Expense(models.Model):
     user=models.ForeignKey(User,related_name="Expenses",on_delete=models.CASCADE)
     userprofile  = models.ForeignKey(Profile,blank=True, null=True, on_delete=models.CASCADE)
+    Production_Name=models.CharField(max_length=100, null=True)
     CATEGORY_CHOICES = [
+        ('Harvesting', 'Harvesting'),
+        ('Pressing', 'Pressing'),
+        ('Dumping', 'Dumping'),
+        ('Polythene', 'Polythene'),
+        ('Mud Cost', 'Mud Cost'),
+        ('Weight Losses', 'Weight Losses'),
+        ('Packing Material', 'Packing Material'),
+        ('Machine Depreciation', 'Machine Depreciation'),
+        ('Loading', 'Loading'),
+        ('Labour', 'Labour'),
         ('Office Supplies', 'Office Supplies'),
         ('Travel', 'Travel'),
         ('Utilities', 'Utilities'),
         ('Marketing', 'Marketing'),
         ('Other', 'Other'),
     ]
+
 
     description = models.CharField(max_length=255)
     category = models.CharField(max_length=50, choices=CATEGORY_CHOICES, default='Other')
@@ -179,6 +202,7 @@ class Expense(models.Model):
 class PaymentOut(models.Model):
     userprofile  = models.ForeignKey(Profile,blank=True, null=True, on_delete=models.CASCADE)
     user=models.ForeignKey(User,related_name="Transaction",on_delete=models.CASCADE)
+    
     CATEGORY_CHOICES = [
         ('Profit', 'Profit'),
         ('Travel', 'Travel'),

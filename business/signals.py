@@ -102,7 +102,7 @@ def send_manufacturing_email(sender, instance, created, **kwargs):
         send_Manufacturing_email_to_admin(instance)
 
 def send_Manufacturing_email_to_admin(manufacturing):
-    profile_expense=Profile.objects.filter(user=manufacturing.user).update(Total_Expense=F("Total_Expense")+manufacturing.Manufacturing_Expense
+    Profile.objects.filter(user=manufacturing.user).update(Total_Expense=F("Total_Expense")+manufacturing.Manufacturing_Expense
     ,Total_Purchase=F("Total_Purchase")+manufacturing.Total_Purchase_Price                                                                   
 
     )

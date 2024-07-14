@@ -25,15 +25,14 @@
                    
                   <select name="Client_ID" id="Client_ID" class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" required hx-get="/SalewithClient/" hx-target="#saleform" hx-trigger="change">
                     <!-- Populate options dynamically from Django model -->
-                 
-                    {% if data %}
+                    
+                  
                     
                     {% for client in data %}
                     
-                   
                     <option value="{{client.Whats_App_Number }}">{{ client.Full_Name }}</option>
                     {% endfor %}
-                    {% else %}
+                    {% if client_data.Full_Name %}
                     <option value="{{client_id}}">{{ client_data.Full_Name }}</option>
                     
                     {% endif %}
