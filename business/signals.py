@@ -6,8 +6,8 @@ from .models import *
 from django.core.mail import send_mail
 from django.conf import settings
 from django.db.models import F
-adminEmail=CompanyDetail.objects.get()
-mail=adminEmail.email
+
+mail="evergreencornsilage@gmail.com"
 @receiver(post_save,sender=User)
 def create_profile(sender,instance,created,**kwargs):
     if created:
