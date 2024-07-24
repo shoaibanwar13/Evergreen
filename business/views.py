@@ -1103,7 +1103,7 @@ def CurrentSale(request, pk):
         ["Shipping Address", client_address, "Vehicle Weight", str(Vehicle_Weight)],
         ["Shipping City", client_city, "Vehicle Weight Unit", Vehicle_Weight_Unit],
         ["Shipping State", client_state, "Payment Status", paymentstatus],
-        ["GST", Gst, "Vendor ", request.user.username],
+        ["GST", str(Gst), "Vendor ", request.user.username],
         
     ]
 
