@@ -78,7 +78,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-     'django_htmx.middleware.HtmxMiddleware',
+    'django_htmx.middleware.HtmxMiddleware',
 ]
 
 ROOT_URLCONF = 'Evergreen.urls'
@@ -112,7 +112,7 @@ DATABASES = {
     }
 }
 
-DATABASES['default']=dj_database_url.parse("postgresql://evergreen_3mla_user:R7mg5VxBA2cyucNRWxNDQQorX7j2TVhu@dpg-cqg8npqju9rs73c9ecq0-a.singapore-postgres.render.com/evergreen_3mla")
+#DATABASES['default']=dj_database_url.parse("postgresql://evergreen_3mla_user:R7mg5VxBA2cyucNRWxNDQQorX7j2TVhu@dpg-cqg8npqju9rs73c9ecq0-a.singapore-postgres.render.com/evergreen_3mla")
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
 
