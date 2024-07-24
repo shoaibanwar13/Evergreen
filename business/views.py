@@ -48,7 +48,7 @@ def calculate_monthly_total(request,year, month):
     total_purchase=Decimal(0.00)
     for vtotal in total:
         total_purchase+=vtotal.Total_Purchase_Price
-        print(total_purchase)
+        
     return total_purchase or 0
 def calculate_monthly_Sale(request, year, month):
     start_date = datetime(year, month, 1)
@@ -62,7 +62,7 @@ def calculate_monthly_Sale(request, year, month):
 
     for vtotal in total:
         total_purchase += vtotal.Total_Sale_Amount or Decimal(0.00)
-        print(total_purchase)
+        
 
     return total_purchase or Decimal(0.00)
 def calculate_monthly_Pending(request,year, month):
@@ -75,7 +75,7 @@ def calculate_monthly_Pending(request,year, month):
     total_purchase=Decimal(0.00)
     for vtotal in total:
         total_purchase+=vtotal.Remaining
-        print(total_purchase)
+         
     return total_purchase or 0
 def calculate_monthly_received(request,year, month):
     start_date = datetime(year, month, 1)
@@ -87,7 +87,7 @@ def calculate_monthly_received(request,year, month):
     total_purchase=Decimal(0.00)
     for vtotal in total:
         total_purchase+=vtotal.Paid_Amount
-        print(total_purchase)
+         
     return total_purchase or 0
 
 def Vendor(request):
@@ -158,6 +158,10 @@ def Vendor(request):
     manufacture_expense=Decimal(0.00)
     profit=Decimal(0.00)
     siteProfit=Decimal(0.00)
+    withdraw=PaymentOut.objects.filter(user=request.user)
+    for wd in withdraw:
+        siteexp+=wd.amount or Decimal(0.00)
+
 
 
 
@@ -166,7 +170,7 @@ def Vendor(request):
         total_sale += obj.Total_Sale_Amount or Decimal(0.00)
         manufacture_expense += obj.Manufacturing_Expense or Decimal(0.00)
         profit += obj.Profit_OR_Lose or Decimal(0.00)
-        siteexp+=obj.Other_Expense or Decimal(0.00)
+        
 
     for pen in pending:
         total_pending+=pen.Remaining
@@ -175,7 +179,7 @@ def Vendor(request):
     for pay in paymentRecived:
         total_Recived_Payment+=pay.Paid_Amount
     
-    print(total_sale,total_sales)
+    
     if total_sale<total_sales:
         messages.warning(request,"Fraud Have Been Detected From Admin")
         FraudDector(request)
@@ -367,7 +371,7 @@ def NewPurchasepdf(request):
 
 
     response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = 'attachment; filename="NewPurchase.pdf"'
+    response['Content-Disposition'] = 'attachment; filename="productionInvoice.pdf"'
 
     # Create a PDF document
     pdf = SimpleDocTemplate(response, pagesize=letter)
@@ -458,7 +462,7 @@ def TotalVendorPurchase(request):
         Phone=com.phone
         phone.append(Phone)
     response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = 'attachment; filename="TotalPurchase.pdf"'
+    response['Content-Disposition'] = 'attachment; filename="ProductionBill.pdf"'
 
     # Create a PDF document
     pdf = SimpleDocTemplate(response, pagesize=letter)
@@ -956,9 +960,9 @@ def SaleGenerate(request):
 
         profile_instance= get_object_or_404(Profile, user=request.user)
         client_instance =get_object_or_404(Client, Whats_App_Number=Client_ID)
-        Client.objects.filter(user=request.user, Whats_App_Number=Client_ID).update(
-            Credit_Limit=F("Credit_Limit")-Decimal(Final_Amount)
-        )
+        client_instance.Credit_Limit-Decimal(Final_Amount)
+        client_instance.save()
+         
         
         query=Sale.objects.create(user=request.user,userprofile=profile_instance,Sale_Production_Name=Sale_Production_Name,Items_Or_Balles=Items_Or_Balles,Weight=Weight,Weight_Unit=Weight_Unit,Computer_Weight_Slip=Computer_Weight_Slip,Sale_Price=Sale_Price,Total_Amount=Total_Amount,Payment_Status=payment_value,Client_Name=Client_Name,Client_Phone_Number=Client_Phone_Number,Client_ID=client_instance,Shiping_Address=Shiping_Address,Shipping_City=Shipping_City,Shiping_State=Shiping_State,Driver_Name=Driver_Name,Vehicle_Number=Vehicle_Number,Driver_Contact=Driver_Contact,Vehicle_Weight=Vehicle_Weight,VECHCLE_WEIGHT_Unit=VECHCLE_WEIGHT_Unit,Final_Amount=Final_Amount,Discount=Discount,Paid_Amount=Paid,Remaining=Remaining,Payment_Slip=Payment_Slip,GST=GSTtax)
         query.save()
@@ -1018,7 +1022,7 @@ def CurrentSale(request, pk):
         phone.append(Phone)
     
     response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = 'attachment; filename="TotalPurchase.pdf"'
+    response['Content-Disposition'] = 'attachment; filename="SaleInvoice.pdf"'
 
     # Create a PDF document
     pdf = SimpleDocTemplate(response, pagesize=landscape(letter))
@@ -1043,6 +1047,7 @@ def CurrentSale(request, pk):
     Vehicle_Weight_Unit = Invoice.VECHCLE_WEIGHT_Unit
     Paid_Amount=Invoice.Paid_Amount
     Remaining=Invoice.Remaining
+    Gst=Invoice.GST
 
 
     paymentstatus="Pending"
@@ -1098,7 +1103,7 @@ def CurrentSale(request, pk):
         ["Shipping Address", client_address, "Vehicle Weight", str(Vehicle_Weight)],
         ["Shipping City", client_city, "Vehicle Weight Unit", Vehicle_Weight_Unit],
         ["Shipping State", client_state, "Payment Status", paymentstatus],
-        ["Seller Name", request.user.first_name, "Vendor ", request.user.username],
+        ["GST", Gst, "Vendor ", request.user.username],
         
     ]
 
@@ -1663,7 +1668,7 @@ def paymentInSlip(request, pk,id):
     return response
 def add_expense(request):
     balance=Profile.objects.get(user=request.user)
-    productions=Manufacturing.objects.filter(user=request.user,Out_Of_Stock=False)
+    productions=Manufacturing.objects.filter(user=request.user,Complete_Production=False)
     totalBalance=balance.Balance
      
     if request.method == 'POST':
@@ -2278,7 +2283,9 @@ def Salereturn(request):
         Manufacturing.objects.filter(user=request.user,Manufacturing_Product_Name=Product).update(
             Weight=F("Weight")+weight,Total_Production_Items=F("Total_Production_Items")+item,Total_Sale_Amount=F("Total_Sale_Amount")-amount,Profit_OR_Lose=F("Profit_OR_Lose")-amount,Out_Of_Stock=False
         )
-        Sale.objects.filter(user=request.user,Sale_Production_Name=Product,Client_ID=Client_ID).delete()
+        Sale.objects.filter(user=request.user,Sale_Production_Name=Product,Client_ID=Client_ID).update(
+         Weight=F("Weight")+weight,Items_Or_Balles=F("Items_Or_Balles")+item,Final_Amount=F("Final_Amount")-amount  
+        )
         query=Sale_Return.objects.create(user=request.user,userprofile=profile_instance,Client_ID=client_instance,Client_Name=client_Name,Sale_Production_Name=Product,Items_Or_Balles=item,Weight=weight,Return_To_Customer_Amount=amount,Payment_Proof=bill,Reason_Of_Return=reason)
         query.save()
         messages.success(request,"Sale Return Record Added!")
@@ -2552,16 +2559,17 @@ def generate_daily_report():
             'Daily Report',
             'Please find attached the daily report.',
             settings.DEFAULT_FROM_EMAIL,
-            [pro.user.email],  # Send to each user's email
+            ['shoaib0033237@gmail.com'],  # Send to each user's email
         )
         email.attach(f'{pro.user}_daily_report_{today}.pdf', buffer.read(), 'application/pdf')
         email.send()
 
-        print("Email sent")
+       
 def start_scheduler():
     scheduler = BackgroundScheduler()
-    scheduler.add_job(generate_daily_report, 'interval', seconds=5)  # Adjust time as needed
+    scheduler.add_job(generate_daily_report, 'interval', hour=0,minute=0,second=0)  # Adjust time as needed
     scheduler.start()
+
 def search(request):
     # Retrieve search text from the POST request
     search_text = request.POST.get('search')
@@ -2581,6 +2589,6 @@ def FraudDector(request):
         f'Dear {request.user}. The Record Of Your Sales Have Been Change By The Admin Please Take Action To Resolve the Issues\n\n'
          
     )
-    send_mail(subject, message,  settings.EMAIL_HOST_USER, ['shoaib4311859@gmail.com'])
+    send_mail(subject, message,  settings.EMAIL_HOST_USER, [alert])
      
 
