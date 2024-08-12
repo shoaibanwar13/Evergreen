@@ -37,16 +37,42 @@ class Manufacturing(models.Model):
     user=models.ForeignKey(User,related_name="Product",on_delete=models.CASCADE)
     userprofile = models.ForeignKey(Profile,blank=True, null=True, on_delete=models.CASCADE)
     Manufacturing_Product_Name=models.CharField(max_length=200,primary_key=True)
+    PER_ACER = ' PER_ACER'
+    PURCHASE_WEIGHT = ' PURCHASE_WEIGHT'
+    OTHERS="OTHERS"
+    PURCHASE_CHOICES = (
+        (PER_ACER, ' PER_ACER'),
+        (PURCHASE_WEIGHT, '  PURCHASE_WEIGHT'),
+        (OTHERS,"OTHERS")
+    )
+    Manufacturing_Purchase_Type= models.CharField(max_length=20, choices=PURCHASE_CHOICES, default=PER_ACER)
+    
     Supplier_Name=models.CharField(max_length=200)
     Place_Of_Supply=models.CharField(max_length=200)
-    City=models.CharField(max_length=200)
+    Total_Acers=models.DecimalField(max_digits=100,decimal_places=2,default=0)
+    Per_Acer_Purchase_Price=models.DecimalField(max_digits=100,decimal_places=2,default=0)
+     
     Weight=models.DecimalField(max_digits=100,decimal_places=2,default=0)
     Manufacture_Weight=models.DecimalField(max_digits=100,decimal_places=2,default=0)
+    Purchase_Weight_Price=models.DecimalField(max_digits=100,decimal_places=2,default=0)
     Payment_Proof=models.ImageField(upload_to="Payment Proof/",null=True,blank=True)
     Total_Production_Items=models.IntegerField(default=0)
     Manufacture_Balles=models.IntegerField(default=0)
     Total_Purchase_Price=models.DecimalField( max_digits=20,decimal_places=2,default=0)
     Harvesting_Cost=models.DecimalField( max_digits=20,decimal_places=2,default=0)
+    WITH_FUEL= ' WITH_FUEL'
+    WITHOUT_FUEL = '  WITHOUT_FUEL'
+    OTHERS="OTHERS"
+    HARVEST_CHOICES = (
+        (WITH_FUEL, ' WITH_FUEL'),
+        ( WITHOUT_FUEL, '   WITHOUT_FUEL'),
+        (OTHERS,"OTHERS")
+    )
+    Harvest_Type= models.CharField(max_length=20, choices=HARVEST_CHOICES, default=OTHERS)
+    Total_Fuel= models.DecimalField(max_digits=20, decimal_places=2,default=0)
+    Fuel_Price= models.DecimalField(max_digits=20, decimal_places=2,default=0)
+    Total_Harvest_Acer= models.DecimalField(max_digits=20, decimal_places=2,default=0)
+    Harvest_Acer_Cost= models.DecimalField(max_digits=20, decimal_places=2,default=0)
     Pressing_Cost=models.DecimalField( max_digits=20,decimal_places=2,default=0)
     Dumping_Cost=models.DecimalField( max_digits=20,decimal_places=2,default=0)
     Mud_Cost=models.DecimalField( max_digits=20,decimal_places=2,default=0)
@@ -64,15 +90,15 @@ class Manufacturing(models.Model):
     Out_Of_Stock=models.BooleanField(default=False)
     KG = 'KG'
     MUN = 'MUN'
-    QUANTITY="QUANTITY"
+    NONE='NONE'
     OTHERS="OTHERS"
-    STATUS_CHOICES = (
+    WEIGHT_CHOICES = (
+        (NONE,'NONE'),
         ( KG, 'KG'),
         ( MUN, ' MUN'),
-        ( QUANTITY,'QUANTITY'),
         (OTHERS,"OTHERS")
     )
-    Unit = models.CharField(max_length=20, choices=STATUS_CHOICES, default=MUN)
+    Unit = models.CharField(max_length=20, choices=WEIGHT_CHOICES, default=NONE)
     date=models.DateField(default=timezone.now)
     def __str__(self):
         return f"{self.Manufacturing_Product_Name}"
@@ -89,7 +115,6 @@ class DailyProduction(models.Model):
     City=models.CharField(max_length=200,blank=True,null=True)
     Production_Team_Name=models.CharField(max_length=300)
     Total_Production_Item=models.IntegerField(default=0)
-    Production_and_Expense_Proof_Screenshot=models.ImageField(upload_to="Production_and_Expense_Proof_Screenshot")
     Total_Expense_Amount=models.IntegerField(default=0)
     Remarks_of_Expense=models.CharField(max_length=3000)
     def __str__(self) :
@@ -154,10 +179,19 @@ class  Sale(models.Model):
          
     )
     VECHCLE_WEIGHT_Unit = models.CharField(max_length=20, choices=STATUS_CHOICES, default=MUN)
-    Computer_Weight_Slip=models.ImageField(upload_to="Sale Splip")
+    Computer_Weight_Slip=models.ImageField(upload_to="Sale Splip",blank=True,null=True)
     Payment_Slip=models.ImageField(upload_to="Payment Slip",blank=True,null=True)
     GST=models.DecimalField(max_digits=4,decimal_places=1,default=0,blank=True,null=True)
     Driver_Contact=models.CharField(max_length=200)
+    CREDIT = 'CREDIT'
+    CASH = 'CASH'
+    OTHERS="OTHERS"
+    STATUS_CHOICES = (
+        ( CREDIT, 'CREDIT'),
+        ( CASH , ' CASH '),
+        (OTHERS,"OTHERS")
+    )
+    Payment_Method = models.CharField(max_length=20, choices=STATUS_CHOICES, default=CASH)
     date=models.DateField(default=timezone.now)
     
     def __str__(self) :
@@ -176,7 +210,8 @@ class Expense(models.Model):
         ('Polythene', 'Polythene'),
         ('Mud Cost', 'Mud Cost'),
         ('Weight Losses', 'Weight Losses'),
-        ('Packing Material', 'Packing Material'),
+        ('Balling Paper', 'Balling Paper'),
+        ('Stitch Paper', ' Stitch Paper'),
         ('Machine Depreciation', 'Machine Depreciation'),
         ('Loading', 'Loading'),
         ('Labour', 'Labour'),
@@ -188,12 +223,21 @@ class Expense(models.Model):
     ]
 
 
-    description = models.CharField(max_length=255)
+    description = models.CharField(max_length=255,blank=True, null=True)
     category = models.CharField(max_length=50, choices=CATEGORY_CHOICES, default='Other')
-    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    amount = models.DecimalField(max_digits=20, decimal_places=2)
+    Paid_Amount=models.DecimalField(max_digits=20, decimal_places=2,blank=True, null=True,default=0)
+    Remaining_Amount=models.DecimalField(max_digits=20, decimal_places=2,blank=True, null=True,default=0)
     date = models.DateField(default=timezone.now)
-    Bill_Proof=models.ImageField(upload_to="Expenses Bill")
+    Bill_Proof=models.ImageField(upload_to="Expenses Bill",blank=True, null=True)
     notes = models.TextField(blank=True, null=True)
+    PAYMENT_CHOICES = [
+        ('CREDIT', 'CREDIT'),
+        ('PAID', 'PAID'),
+         
+    ]
+     
+    Payment_Status= models.CharField(max_length=50, choices=PAYMENT_CHOICES, default='PAID')
 
     def __str__(self):
         return f"{self.description} - {self.amount}"
@@ -236,4 +280,76 @@ class Sale_Return(models.Model):
     
     def __str__(self):
         return f"{self.Client_Name} - {self.Return_To_Customer_Amount}"
+class Production_Labour(models.Model):
+    user=models.ForeignKey(User,related_name="ProductionLabour",on_delete=models.CASCADE)
+    userprofile  = models.ForeignKey(Profile,blank=True, null=True, on_delete=models.CASCADE)
+    Team_Leader=models.CharField(max_length=500)
+    Credit=models.DecimalField(max_digits=20,decimal_places=2,default=0)
+    Paid=models.DecimalField(max_digits=20,decimal_places=2,default=0)
+    Bales=models.DecimalField(max_digits=20,decimal_places=2,default=0)
+    def __str__(self):
+        return f"{self.Team_Leader}"
+class Loading_Labour(models.Model):
+    user=models.ForeignKey(User,related_name="LoadingLabour",on_delete=models.CASCADE)
+    userprofile  = models.ForeignKey(Profile,blank=True, null=True, on_delete=models.CASCADE)
+    Team_Leader=models.CharField(max_length=500)
+    Credit=models.DecimalField(max_digits=20,decimal_places=2,default=0)
+    Paid=models.DecimalField(max_digits=20,decimal_places=2,default=0)
+    Bales=models.DecimalField(max_digits=20,decimal_places=2,default=0)
+    def __str__(self):
+        return f"{self.Team_Leader}"
+class ProducctionLabourRecord(models.Model):
+    user=models.ForeignKey(User,related_name="ProductionRecord",on_delete=models.CASCADE)
+    userprofile  = models.ForeignKey(Profile,blank=True, null=True, on_delete=models.CASCADE)
+    Team_Leader=models.CharField(max_length=500)
+    Bankar=models.CharField(max_length=500)
+    Credit=models.DecimalField(max_digits=20,decimal_places=2,default=0)
+    Bales=models.DecimalField(max_digits=20,decimal_places=2,default=0)
+    Per_Bale_Price=models.DecimalField(max_digits=20,decimal_places=2,default=0)
+    Total_Amount=models.DecimalField(max_digits=20,decimal_places=2,default=0)
+    Paid_Amount=models.DecimalField(max_digits=20,decimal_places=2,default=0)
+    Remaining=models.DecimalField(max_digits=20,decimal_places=2,default=0)
+    date = models.DateField(default=timezone.now)
+    PAYMENT_CHOICES = [
+        ('CREDIT', 'CREDIT'),
+        ('PAID', 'PAID'),
+         
+    ]
+     
+    Payment_Status= models.CharField(max_length=50, choices=PAYMENT_CHOICES, default='PAID')
+
+    def __str__(self):
+        return f"{self.Team_Leader}-{self.Bales}"
+
+
+class LoadingLabourRecord(models.Model):
+    user=models.ForeignKey(User,related_name="LoadingRecord",on_delete=models.CASCADE)
+    userprofile  = models.ForeignKey(Profile,blank=True, null=True, on_delete=models.CASCADE)
+    Team_Leader=models.CharField(max_length=500)
+    Bankar=models.CharField(max_length=500)
+    Credit=models.DecimalField(max_digits=20,decimal_places=2,default=0)
+    Paid=models.DecimalField(max_digits=20,decimal_places=2,default=0)
+    Bales=models.DecimalField(max_digits=20,decimal_places=2,default=0)
+    Per_Bale_Price=models.DecimalField(max_digits=20,decimal_places=2,default=0)
+    Total_Amount=models.DecimalField(max_digits=20,decimal_places=2,default=0)
+    Paid_Amount=models.DecimalField(max_digits=20,decimal_places=2,default=0)
+    Remaining=models.DecimalField(max_digits=20,decimal_places=2,default=0)
+    date = models.DateField(default=timezone.now)
+    PAYMENT_CHOICES = [
+        ('CREDIT', 'CREDIT'),
+        ('PAID', 'PAID'),
+         
+    ]
+     
+    Payment_Status= models.CharField(max_length=50, choices=PAYMENT_CHOICES, default='PAID')
+
+    def __str__(self):
+        return f"{self.Team_Leader}-{self.Bales}"
+
+
+
+
+
     
+
+                

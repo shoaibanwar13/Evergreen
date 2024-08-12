@@ -22,8 +22,8 @@
     <style>
         /* Loader CSS */
         .loader {
-         border: 16px solid #f3f3f3; /* Light grey */
-         border-top: 16px solid green; /* Green */
+         border: 16px dotted #f3f3f3; /* Light grey */
+         border-top: 16px dotted #f3f3f3; /* Green */
          border-radius: 50%;
          width: 120px;
          height: 120px;
@@ -85,19 +85,20 @@
                                 href="" hx-get="{% url 'Vendor' %}" hx-push-url="{% url 'Vendor' %}"    hx-target="#change"
                                     >
                                      
-                                    <span class="ml-4"> <i class="fas fa-tachometer-alt h-6 w-6"></i>
-                                        DASHBOARD </span>
+                                    <span class="ml-4"> <i class="fas fa-tachometer-alt h-6 w-6"></i>DASHBOARD
+                                         </span>
                                 </a>
                             </li>
-
+                            
                             <li class="relative px-2 py-1" x-data="{ Open : false  }">
                                 <div class="inline-flex items-center justify-between w-full text-base font-semibold transition-colors duration-150 text-gray-500  hover:text-yellow-400 cursor-pointer"
                                     x-on:click="Open = !Open">
                                     <span
                                         class="inline-flex items-center  text-sm font-semibold text-white hover:text-green-400">
                                          
-                                        <span class="ml-4"> <i class="fas fa-shopping-cart h-6 w-6"></i>
-                                             Production</span>
+                                        <span class="ml-4"> <i class="fas fa-cogs"></i> Manufacturing
+
+                                            </span>
                                     </span>
                                     <svg xmlns="http://www.w3.org/2000/svg" x-show="!Open"
                                         class="ml-1  text-white w-4 h-4" fill="none" viewBox="0 0 24 24"
@@ -128,7 +129,78 @@
                                             <div class="px-1 hover:text-gray-800 hover:bg-gray-100 rounded-md">
                                                 <div class="flex items-center">
                                                     
-                                                    <a href="" hx-get="{% url 'AddDailyProduction' %}" hx-push-url="{% url 'AddDailyProduction' %}"  hx-target="#change"
+                                                    <a href="/AddManufecturePurchase/"  
+                                                        class="w-full ml-2  text-sm font-semibold text-white hover:text-gray-800" ><i class="fas fa-industry"></i>
+
+                                                        Add Manufacturing
+                                                        </a>
+                                                </div>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                                 
+                                <div x-show.transition="Open" style="display:none;">
+                                    <ul x-transition:enter="transition-all ease-in-out duration-300"
+                                        x-transition:enter-start="opacity-25 max-h-0"
+                                        x-transition:enter-end="opacity-100 max-h-xl"
+                                        x-transition:leave="transition-all ease-in-out duration-300"
+                                        x-transition:leave-start="opacity-100 max-h-xl"
+                                        x-transition:leave-end="opacity-0 max-h-0"
+                                        class="p-2 mt-2 space-y-2 overflow-hidden text-sm font-medium  rounded-md shadow-inner  bg-green-400"
+                                        aria-label="submenu">
+
+                                        <li class="px-2 py-1 text-white transition-colors duration-150">
+                                            <div class="px-1 hover:text-gray-800 hover:bg-gray-100 rounded-md">
+                                                <div class="flex items-center">
+                                                     
+                                                    <a href="" hx-get="/ManufactureMaterialPurchase/" hx-push-url="/ManufactureMaterialPurchase/"  hx-target="#change"
+                                                        class="w-full ml-2  text-sm font-semibold text-white hover:text-gray-800">  <i class="fas fa-search h-6 w-6"></i> Search & Manage Manufacture Material                                                        </a>
+                                                </div>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </li>
+                            <li class="relative px-2 py-1" x-data="{ Open : false  }">
+                                <div class="inline-flex items-center justify-between w-full text-base font-semibold transition-colors duration-150 text-gray-500  hover:text-yellow-400 cursor-pointer"
+                                    x-on:click="Open = !Open">
+                                    <span
+                                        class="inline-flex items-center  text-sm font-semibold text-white hover:text-green-400">
+                                         
+                                        <span class="ml-4"> <i class="fas fa-shopping-cart h-6 w-6"></i>Production
+                                             </span>
+                                    </span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" x-show="!Open"
+                                        class="ml-1  text-white w-4 h-4" fill="none" viewBox="0 0 24 24"
+                                        stroke="currentColor" style="display: none;">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M15 19l-7-7 7-7" />
+                                    </svg>
+
+                                    <svg xmlns="http://www.w3.org/2000/svg" x-show="Open"
+                                        class="ml-1  text-white w-4 h-4" fill="none" viewBox="0 0 24 24"
+                                        stroke="currentColor" style="display: none;">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M19 9l-7 7-7-7" />
+                                    </svg>
+                                </div>
+
+                                <div x-show.transition="Open" style="display:none;">
+                                    <ul x-transition:enter="transition-all ease-in-out duration-300"
+                                        x-transition:enter-start="opacity-25 max-h-0"
+                                        x-transition:enter-end="opacity-100 max-h-xl"
+                                        x-transition:leave="transition-all ease-in-out duration-300"
+                                        x-transition:leave-start="opacity-100 max-h-xl"
+                                        x-transition:leave-end="opacity-0 max-h-0"
+                                        class="p-2 mt-2 space-y-2 overflow-hidden text-sm font-medium  rounded-md shadow-inner  bg-green-400"
+                                        aria-label="submenu">
+
+                                        <li class="px-2 py-1 text-white transition-colors duration-150">
+                                            <div class="px-1 hover:text-gray-800 hover:bg-gray-100 rounded-md">
+                                                <div class="flex items-center">
+                                                    
+                                                    <a href="/AddDailyProduction/"  
                                                         class="w-full ml-2  text-sm font-semibold text-white hover:text-gray-800" ><i class="fas fa-file-invoice-dollar h-6 w-6"></i>
                                                         Add Daily Production
                                                         </a>
@@ -159,27 +231,7 @@
                                         </li>
                                     </ul>
                                 </div>
-                                <div x-show.transition="Open" style="display:none;">
-                                    <ul x-transition:enter="transition-all ease-in-out duration-300"
-                                        x-transition:enter-start="opacity-25 max-h-0"
-                                        x-transition:enter-end="opacity-100 max-h-xl"
-                                        x-transition:leave="transition-all ease-in-out duration-300"
-                                        x-transition:leave-start="opacity-100 max-h-xl"
-                                        x-transition:leave-end="opacity-0 max-h-0"
-                                        class="p-2 mt-2 space-y-2 overflow-hidden text-sm font-medium  rounded-md shadow-inner  bg-green-400"
-                                        aria-label="submenu">
-
-                                        <li class="px-2 py-1 text-white transition-colors duration-150">
-                                            <div class="px-1 hover:text-gray-800 hover:bg-gray-100 rounded-md">
-                                                <div class="flex items-center">
-                                                     
-                                                    <a href="" hx-get="/ManufactureMaterialPurchase/" hx-push-url="/ManufactureMaterialPurchase/"  hx-target="#change"
-                                                        class="w-full ml-2  text-sm font-semibold text-white hover:text-gray-800">  <i class="fas fa-search h-6 w-6"></i> Search & Manage Manufacture Material                                                        </a>
-                                                </div>
-                                            </div>
-                                        </li>
-                                    </ul>
-                                </div>
+                                
                             </li>
                             <li class="relative px-2 py-1" x-data="{ Open : false  }">
                                 <div class="inline-flex items-center justify-between w-full text-base font-semibold transition-colors duration-150 text-gray-500  hover:text-yellow-400 cursor-pointer"
@@ -187,8 +239,8 @@
                                     <span
                                         class="inline-flex items-center  text-sm font-semibold text-white hover:text-green-400">
                                          
-                                        <span class="ml-4"> <i class="fas fa-dollar-sign h-6 w-6"></i>
-                                            Sale</span>
+                                        <span class="ml-4"> <i class="fas fa-dollar-sign h-6 w-6"></i>Sale
+                                            </span>
                                     </span>
                                     <svg xmlns="http://www.w3.org/2000/svg" x-show="!Open"
                                         class="ml-1  text-white w-4 h-4" fill="none" viewBox="0 0 24 24"
@@ -315,9 +367,9 @@
                                         <span
                                             class="inline-flex items-center  text-sm font-semibold text-white hover:text-green-400">
                                              
-                                            <span class="ml-4"> <i class="fas fa-user h-6 w-6"></i>
+                                            <span class="ml-4"> <i class="fas fa-user h-6 w-6"></i>Client
 
-                                                Client</span>
+                                                </span>
                                         </span>
                                         <svg xmlns="http://www.w3.org/2000/svg" x-show="!Open"
                                             class="ml-1  text-white w-4 h-4" fill="none" viewBox="0 0 24 24"
@@ -388,9 +440,9 @@
                                         <span
                                             class="inline-flex items-center  text-sm font-semibold text-white hover:text-green-400">
                                              
-                                            <span class="ml-4"> <i class="fas fa-money-bill-wave h-6 w-6"></i> 
+                                            <span class="ml-4"> <i class="fas fa-money-bill-wave h-6 w-6"></i>Expense 
 
-                                                Expense</span>
+                                                </span>
                                         </span>
                                         <svg xmlns="http://www.w3.org/2000/svg" x-show="!Open"
                                             class="ml-1  text-white w-4 h-4" fill="none" viewBox="0 0 24 24"
@@ -418,7 +470,7 @@
                                                 <div class="px-1 hover:text-gray-800 hover:bg-gray-100 rounded-md">
                                                     <div class="flex items-center">
                                                         <i class="fas fa-plus-circle h-5 w-5"></i>
-                                                        <a href="" hx-get="/add_expense/"hx-push-url="/add_expense/" hx-target="#change" class="w-full ml-2 text-sm font-semibold text-white hover:text-gray-800">Add Expense</a>
+                                                        <a href="/add_expense/"  class="w-full ml-2 text-sm font-semibold text-white hover:text-gray-800">Add Expense</a>
                                                     </div>
                                                 </div>
                                             </li>
@@ -433,8 +485,83 @@
                                         </ul>
                                     </div>
                                 </li>
+                                <li class="relative px-2 py-1 ">
+                                    <a class="inline-flex items-center w-full text-sm font-semibold text-white transition-colors duration-150 cursor-pointer hover:text-green-500" 
+                                    href="" hx-get="/WeightLose/" hx-push-url="/WeightLose/"    hx-target="#change"
+                                        >
+                                         
+                                        <span class="ml-4"<span class="ml-4"> <i class="fas fa-weight"></i> WeightLose
+                                             </span>
+                                    </a>
+                                </li>
+                                <li class="relative px-2 py-1" x-data="{ Open : false  }">
+                                    <div class="inline-flex items-center justify-between w-full text-base font-semibold transition-colors duration-150 text-gray-500  hover:text-yellow-400 cursor-pointer"
+                                        x-on:click="Open = !Open">
+                                        <span
+                                            class="inline-flex items-center  text-sm font-semibold text-white hover:text-green-400">
+                                             
+                                            <span class="ml-4"> 
+    
+                                                <i class="fas fa-people-carry"></i> Labours</span>
+                                        </span>
+                                        <svg xmlns="http://www.w3.org/2000/svg" x-show="!Open"
+                                            class="ml-1  text-white w-4 h-4" fill="none" viewBox="0 0 24 24"
+                                            stroke="currentColor" style="display: none;">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M15 19l-7-7 7-7" />
+                                        </svg>
+    
+                                        <svg xmlns="http://www.w3.org/2000/svg" x-show="Open"
+                                            class="ml-1  text-white w-4 h-4" fill="none" viewBox="0 0 24 24"
+                                            stroke="currentColor" style="display: none;">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M19 9l-7 7-7-7" />
+                                        </svg>
+                                    </div>
+    
+                                    <div x-show.transition="Open" style="display:none;">
+                                        <ul x-transition:enter="transition-all ease-in-out duration-300" x-transition:enter-start="opacity-25 max-h-0"
+                                            x-transition:enter-end="opacity-100 max-h-xl" x-transition:leave="transition-all ease-in-out duration-300"
+                                            x-transition:leave-start="opacity-100 max-h-xl" x-transition:leave-end="opacity-0 max-h-0"
+                                            class="p-2 mt-2 space-y-2 overflow-hidden text-sm font-medium rounded-md shadow-inner bg-green-400"
+                                            aria-label="submenu">
                                 
-                            
+                                            <li class="px-2 py-1 text-white transition-colors duration-150">
+                                                <div class="px-1 hover:text-gray-800 hover:bg-gray-100 rounded-md">
+                                                    <div class="flex items-center">
+                                                        <i class="fas fa-hammer"></i>
+                                                        <a href=""   hx-get="/add_production_labour/"hx-push-url="/add_production_labour/" hx-target="#change" class="w-full ml-2 text-sm font-semibold text-white hover:text-gray-800">Add Production Labour</a>
+                                                    </div>
+                                                </div>
+                                            </li>
+                                            <li class="px-2 py-1 text-white transition-colors duration-150">
+                                                <div class="px-1 hover:text-gray-800 hover:bg-gray-100 rounded-md">
+                                                    <div class="flex items-center">
+                                                        <i class="fas fa-search h-5 w-5"></i>
+                                                        <a href=""  hx-get="/search1/"hx-push-url="/search1/" hx-target="#change" class="w-full ml-2 text-sm font-semibold text-white hover:text-gray-800">Search Production Labour Record</a>
+                                                    </div>
+                                                </div>
+                                            </li>
+                                            <li class="px-2 py-1 text-white transition-colors duration-150">
+                                                <div class="px-1 hover:text-gray-800 hover:bg-gray-100 rounded-md">
+                                                    <div class="flex items-center">
+                                                        <i class="fas fa-truck-loading"></i>
+                                                        <a href=""   hx-get="/add_loading_labour/"hx-push-url="/add_loading_labour/" hx-target="#change" class="w-full ml-2 text-sm font-semibold text-white hover:text-gray-800">Add Loading Labour</a>
+                                                    </div>
+                                                </div>
+                                            </li>
+                                            <li class="px-2 py-1 text-white transition-colors duration-150">
+                                                <div class="px-1 hover:text-gray-800 hover:bg-gray-100 rounded-md">
+                                                    <div class="flex items-center">
+                                                        <i class="fas fa-search h-5 w-5"></i>
+                                                        <a href=""  hx-get="/search2/"hx-push-url="/search2/" hx-target="#change" class="w-full ml-2 text-sm font-semibold text-white hover:text-gray-800">Search Loading Labour Record</a>
+                                                    </div>
+                                                </div>
+                                            </li>
+ 
+                                        </ul>
+                                    </div>
+                                </li>
                             <li class="relative px-2 py-1" x-data="{ Open : false  }">
                                 <div class="inline-flex items-center justify-between w-full text-base font-semibold transition-colors duration-150 text-gray-500  hover:text-yellow-400 cursor-pointer"
                                     x-on:click="Open = !Open">
@@ -546,6 +673,78 @@
                                     <span
                                         class="inline-flex items-center  text-sm font-semibold text-white hover:text-green-400">
                                          
+                                        <span class="ml-4"> <i class="fas fa-cogs"></i> Manufacturing
+
+                                            </span>
+                                    </span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" x-show="!Open"
+                                        class="ml-1  text-white w-4 h-4" fill="none" viewBox="0 0 24 24"
+                                        stroke="currentColor" style="display: none;">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M15 19l-7-7 7-7" />
+                                    </svg>
+
+                                    <svg xmlns="http://www.w3.org/2000/svg" x-show="Open"
+                                        class="ml-1  text-white w-4 h-4" fill="none" viewBox="0 0 24 24"
+                                        stroke="currentColor" style="display: none;">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M19 9l-7 7-7-7" />
+                                    </svg>
+                                </div>
+
+                                <div x-show.transition="Open" style="display:none;">
+                                    <ul x-transition:enter="transition-all ease-in-out duration-300"
+                                        x-transition:enter-start="opacity-25 max-h-0"
+                                        x-transition:enter-end="opacity-100 max-h-xl"
+                                        x-transition:leave="transition-all ease-in-out duration-300"
+                                        x-transition:leave-start="opacity-100 max-h-xl"
+                                        x-transition:leave-end="opacity-0 max-h-0"
+                                        class="p-2 mt-2 space-y-2 overflow-hidden text-sm font-medium  rounded-md shadow-inner  bg-green-400"
+                                        aria-label="submenu">
+
+                                        <li class="px-2 py-1 text-white transition-colors duration-150">
+                                            <div class="px-1 hover:text-gray-800 hover:bg-gray-100 rounded-md">
+                                                <div class="flex items-center">
+                                                    
+                                                    <a href="/AddManufecturePurchase/"  
+                                                        class="w-full ml-2  text-sm font-semibold text-white hover:text-gray-800" ><i class="fas fa-industry"></i>
+
+                                                        Add Manufacturing
+                                                        </a>
+                                                </div>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                                 
+                                <div x-show.transition="Open" style="display:none;">
+                                    <ul x-transition:enter="transition-all ease-in-out duration-300"
+                                        x-transition:enter-start="opacity-25 max-h-0"
+                                        x-transition:enter-end="opacity-100 max-h-xl"
+                                        x-transition:leave="transition-all ease-in-out duration-300"
+                                        x-transition:leave-start="opacity-100 max-h-xl"
+                                        x-transition:leave-end="opacity-0 max-h-0"
+                                        class="p-2 mt-2 space-y-2 overflow-hidden text-sm font-medium  rounded-md shadow-inner  bg-green-400"
+                                        aria-label="submenu">
+
+                                        <li class="px-2 py-1 text-white transition-colors duration-150">
+                                            <div class="px-1 hover:text-gray-800 hover:bg-gray-100 rounded-md">
+                                                <div class="flex items-center">
+                                                     
+                                                    <a href="" hx-get="/ManufactureMaterialPurchase/" hx-push-url="/ManufactureMaterialPurchase/"  hx-target="#change"
+                                                        class="w-full ml-2  text-sm font-semibold text-white hover:text-gray-800">  <i class="fas fa-search h-6 w-6"></i> Search & Manage Manufacture Material                                                        </a>
+                                                </div>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </li>
+                            <li class="relative px-2 py-1" x-data="{ Open : false  }">
+                                <div class="inline-flex items-center justify-between w-full text-base font-semibold transition-colors duration-150 text-gray-500  hover:text-yellow-400 cursor-pointer"
+                                    x-on:click="Open = !Open">
+                                    <span
+                                        class="inline-flex items-center  text-sm font-semibold text-white hover:text-green-400">
+                                         
                                         <span class="ml-4"> <i class="fas fa-shopping-cart h-6 w-6"></i>
                                             Production</span>
                                     </span>
@@ -578,7 +777,7 @@
                                             <div class="px-1 hover:text-gray-800 hover:bg-gray-100 rounded-md">
                                                 <div class="flex items-center">
                                                     
-                                                    <a href="" hx-get="{% url 'AddDailyProduction' %}" hx-push-url="{% url 'AddDailyProduction' %}"  hx-target="#change"
+                                                    <a href="/AddDailyProduction/"  
                                                         class="w-full ml-2  text-sm font-semibold text-white hover:text-gray-800" ><i class="fas fa-file-invoice-dollar h-6 w-6"></i>
                                                         Add Daily Production
                                                         </a>
@@ -609,28 +808,7 @@
                                         </li>
                                     </ul>
                                 </div>
-                             <div x-show.transition="Open" style="display:none;">
-                                    <ul x-transition:enter="transition-all ease-in-out duration-300"
-                                        x-transition:enter-start="opacity-25 max-h-0"
-                                        x-transition:enter-end="opacity-100 max-h-xl"
-                                        x-transition:leave="transition-all ease-in-out duration-300"
-                                        x-transition:leave-start="opacity-100 max-h-xl"
-                                        x-transition:leave-end="opacity-0 max-h-0"
-                                        class="p-2 mt-2 space-y-2 overflow-hidden text-sm font-medium  rounded-md shadow-inner  bg-green-400"
-                                        aria-label="submenu">
-
-                                        <li class="px-2 py-1 text-white transition-colors duration-150">
-                                            <div class="px-1 hover:text-gray-800 hover:bg-gray-100 rounded-md">
-                                                <div class="flex items-center">
-                                                     
-                                                    <a href="" hx-get="/ManufactureMaterialPurchase/" hx-push-url="/ManufactureMaterialPurchase/"  hx-target="#change"
-                                                        class="w-full ml-2  text-sm font-semibold text-white hover:text-gray-800">  <i class="fas fa-search h-6 w-6"></i> Search & Manage Manufacture Material                                                        </a>
-                                                </div>
-                                            </div>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </li>
+                               </li>
                             <li class="relative px-2 py-1" x-data="{ Open : false  }">
                                 <div class="inline-flex items-center justify-between w-full text-base font-semibold transition-colors duration-150 text-gray-500  hover:text-yellow-400 cursor-pointer"
                                     x-on:click="Open = !Open">
@@ -868,7 +1046,7 @@
                                                 <div class="px-1 hover:text-gray-800 hover:bg-gray-100 rounded-md">
                                                     <div class="flex items-center">
                                                         <i class="fas fa-plus-circle h-5 w-5"></i>
-                                                        <a href=""   hx-get="/add_expense/"hx-push-url="/add_expense/" hx-target="#change" class="w-full ml-2 text-sm font-semibold text-white hover:text-gray-800">Add Expense</a>
+                                                        <a href="/add_expense/"class="w-full ml-2 text-sm font-semibold text-white hover:text-gray-800">Add Expense</a>
                                                     </div>
                                                 </div>
                                             </li>
@@ -883,7 +1061,83 @@
                                         </ul>
                                     </div>
                                 </li>
-                              
+                                <li class="relative px-2 py-1 ">
+                                    <a class="inline-flex items-center w-full text-sm font-semibold text-white transition-colors duration-150 cursor-pointer hover:text-green-500" 
+                                    href="" hx-get="/WeightLose/" hx-push-url="/WeightLose/"    hx-target="#change"
+                                        >
+                                         
+                                        <span class="ml-4"<span class="ml-4"><i class="fas fa-weight"></i> WeightLose
+                                             </span>
+                                    </a>
+                                </li>
+                                <li class="relative px-2 py-1" x-data="{ Open : false  }">
+                                    <div class="inline-flex items-center justify-between w-full text-base font-semibold transition-colors duration-150 text-gray-500  hover:text-yellow-400 cursor-pointer"
+                                        x-on:click="Open = !Open">
+                                        <span
+                                            class="inline-flex items-center  text-sm font-semibold text-white hover:text-green-400">
+                                             
+                                            <span class="ml-4"> 
+    
+                                                <i class="fas fa-people-carry"></i> Labours</span>
+                                        </span>
+                                        <svg xmlns="http://www.w3.org/2000/svg" x-show="!Open"
+                                            class="ml-1  text-white w-4 h-4" fill="none" viewBox="0 0 24 24"
+                                            stroke="currentColor" style="display: none;">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M15 19l-7-7 7-7" />
+                                        </svg>
+    
+                                        <svg xmlns="http://www.w3.org/2000/svg" x-show="Open"
+                                            class="ml-1  text-white w-4 h-4" fill="none" viewBox="0 0 24 24"
+                                            stroke="currentColor" style="display: none;">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M19 9l-7 7-7-7" />
+                                        </svg>
+                                    </div>
+    
+                                    <div x-show.transition="Open" style="display:none;">
+                                        <ul x-transition:enter="transition-all ease-in-out duration-300" x-transition:enter-start="opacity-25 max-h-0"
+                                            x-transition:enter-end="opacity-100 max-h-xl" x-transition:leave="transition-all ease-in-out duration-300"
+                                            x-transition:leave-start="opacity-100 max-h-xl" x-transition:leave-end="opacity-0 max-h-0"
+                                            class="p-2 mt-2 space-y-2 overflow-hidden text-sm font-medium rounded-md shadow-inner bg-green-400"
+                                            aria-label="submenu">
+                                
+                                            <li class="px-2 py-1 text-white transition-colors duration-150">
+                                                <div class="px-1 hover:text-gray-800 hover:bg-gray-100 rounded-md">
+                                                    <div class="flex items-center">
+                                                        <i class="fas fa-hammer"></i>
+                                                        <a href=""   hx-get="/add_production_labour/"hx-push-url="/add_production_labour/" hx-target="#change" class="w-full ml-2 text-sm font-semibold text-white hover:text-gray-800">Add Production Labour</a>
+                                                    </div>
+                                                </div>
+                                            </li>
+                                            <li class="px-2 py-1 text-white transition-colors duration-150">
+                                                <div class="px-1 hover:text-gray-800 hover:bg-gray-100 rounded-md">
+                                                    <div class="flex items-center">
+                                                        <i class="fas fa-search h-5 w-5"></i>
+                                                        <a href=""  hx-get="/search1/"hx-push-url="/search1/" hx-target="#change" class="w-full ml-2 text-sm font-semibold text-white hover:text-gray-800">Search Production Labour Record</a>
+                                                    </div>
+                                                </div>
+                                            </li>
+                                            <li class="px-2 py-1 text-white transition-colors duration-150">
+                                                <div class="px-1 hover:text-gray-800 hover:bg-gray-100 rounded-md">
+                                                    <div class="flex items-center">
+                                                        <i class="fas fa-truck-loading"></i>
+                                                        <a href=""   hx-get="/add_loading_labour/"hx-push-url="/add_loading_labour/" hx-target="#change" class="w-full ml-2 text-sm font-semibold text-white hover:text-gray-800">Add Loading Labour</a>
+                                                    </div>
+                                                </div>
+                                            </li>
+                                            <li class="px-2 py-1 text-white transition-colors duration-150">
+                                                <div class="px-1 hover:text-gray-800 hover:bg-gray-100 rounded-md">
+                                                    <div class="flex items-center">
+                                                        <i class="fas fa-search h-5 w-5"></i>
+                                                        <a href=""  hx-get="/search2/"hx-push-url="/search2/" hx-target="#change" class="w-full ml-2 text-sm font-semibold text-white hover:text-gray-800">Search Loading Labour Record</a>
+                                                    </div>
+                                                </div>
+                                            </li>
+ 
+                                        </ul>
+                                    </div>
+                                </li>
                             <li class="relative px-2 py-1" x-data="{ Open : false  }">
                                 <div class="inline-flex items-center justify-between w-full text-base font-semibold transition-colors duration-150 text-gray-500  hover:text-yellow-400 cursor-pointer"
                                     x-on:click="Open = !Open">
@@ -935,6 +1189,7 @@
                                     </ul>
                                 </div>
                             </li>
+                            
                             <li class="relative px-2 py-1 ">
                                 <a class="inline-flex items-center w-full text-sm font-semibold text-white transition-colors duration-150 cursor-pointer hover:text-green-500" 
                                     href=" #">
@@ -989,7 +1244,35 @@
                         
                     </div>
                     
-                    
+ 
+<div id="flash-message" class="bg-indigo-900 text-center py-3 lg:px-3 hidden " style="border-radius: 10px;">
+    <div class="p-2 bg-indigo-800 items-center text-indigo-100 leading-none lg:rounded-full flex lg:inline-flex" role="alert">
+      <span class="flex rounded-full bg-indigo-500 uppercase px-2 py-1 text-xs font-bold mr-3">Alert</span>
+      <span class="font-semibold mr-2 text-left flex-auto">
+        {% for message in messages %}{{ message }}{% endfor %}
+      </span>
+      <svg class="fill-current opacity-75 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+        <path d="M12.95 10.707l.707-.707L8 4.343 6.586 5.757 10.828 10l-4.242 4.243L8 15.657l4.95-4.95z"/>
+      </svg>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const flashMessage = document.getElementById('flash-message');
+      
+      // Check if there is a message
+      if (flashMessage.textContent.trim() !== '') {
+        flashMessage.classList.remove('hidden'); // Show the message
+
+        // Hide the message after 4 seconds
+        setTimeout(function() {
+          flashMessage.classList.add('hidden'); // Hide the message
+        }, 4000); // 4 seconds
+      }
+    });
+  </script>
+
                     <ul class="flex items-center flex-shrink-0 space-x-6">
 
                         <!-- Notifications menu -->
@@ -1105,47 +1388,7 @@
             <div>
             </div>
         </div>
-        <script>
-            const ctx = document.getElementById('financialChart').getContext('2d');
-            const financialChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: ['Total Sales', 'Pending Amount', 'Paid Amount','Return Purchases'],
-                    datasets: [{
-                        label: 'Total Sales', 
-                        data: [
-                            {{total_sale}},
-                            {{total_pending_payment}},
-                            {{total_paid_payment}},
-                            5000000,
-                            
-                        ],
-                        backgroundColor: [
-                            'rgba(75, 192, 192, 0.2)',
-                            'rgba(255, 99, 132, 0.2)',
-                            'rgba(255, 206, 86, 0.2)',
-                            'rgba(54, 162, 238, 0.2)'
-                        ],
-                        borderColor: [
-                            'rgba(75, 192, 192, 1)',
-                            'rgba(255, 99, 132, 1)',
-                            'rgba(255, 206, 86, 1)',
-                            'rgba(54, 162, 235, 1)'
-                        ],
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
-                }
-            });
-        </script> 
          
-        
         
         
         </body>

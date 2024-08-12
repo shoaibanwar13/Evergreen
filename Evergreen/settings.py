@@ -112,7 +112,7 @@ DATABASES = {
     }
 }
  
-DATABASES['default']=dj_database_url.parse("postgresql://evergreen_irxo_user:ZZZujYJh78O17Tajo3WReZGKvOS08i3t@dpg-cqght6o8fa8c7387shig-a.oregon-postgres.render.com/evergreen_irxo")
+#DATABASES['default']=dj_database_url.parse("postgresql://evergreen_irxo_user:ZZZujYJh78O17Tajo3WReZGKvOS08i3t@dpg-cqght6o8fa8c7387shig-a.oregon-postgres.render.com/evergreen_irxo")
  
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators

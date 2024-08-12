@@ -1,0 +1,338 @@
+ 
+ 
+<head>
+    <title>{{request.user.username}}|Vendor</title>
+    </head>
+    <div class="col-span-12 mt-8">
+    <!-- component -->
+    <link rel="stylesheet" href="https://demos.creative-tim.com/notus-js/assets/styles/tailwind.css">
+    <link rel="stylesheet" href="https://demos.creative-tim.com/notus-js/assets/vendor/@fortawesome/fontawesome-free/css/all.min.css">
+    <div class="col-span-12 mt-4">
+        <div id="loader-overlay">
+            <div class="loader"></div>
+        </div>
+       
+        <section class="py-1">
+            <div class="flex-auto px-6 lg:px-12 py-12 pt-0">
+                <form action="/search1/ " method="get" id="searchForm">
+                    {% csrf_token %}
+                    <h6 class="text-2xl font-bold mb-5 font-bold uppercase">
+                        Search And Manage Production Labour Record
+                    </h6>
+                    <div class="flex flex-wrap">
+                         
+                        <div class="w-full lg:w-6/12 px-4 mb-4">
+                            <div class="relative w-full">
+                                <label class="block uppercase text-blueGray-600 text-sm font-bold mb-2" htmlfor="Total_Production_Item">
+                                    <i class="fas fa-calendar-alt text-gray-700"></i> From  
+                                </label>
+                                <input type="date" name="fromdate" id="dateFrom" oninput="disableFields('dateFrom')" class="border-0 px-4 py-3 placeholder-black text-black bg-white rounded text-base shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" required>
+                            </div>
+                        </div>
+                        <div class="w-full lg:w-6/12 px-4 mb-4">
+                            <div class="relative w-full">
+                                <label class="block uppercase text-blueGray-600 text-sm font-bold mb-2" htmlfor="Total_Production_Item">
+                                    <i class="fas fa-calendar-alt text-gray-700"></i> To 
+                                </label>
+                                <input type="date" name="todate" id="dateTo" oninput="disableFields('dateTo')" class="border-0 px-4 py-3 placeholder-black text-black bg-white rounded text-base shadow focus:outline-none focus:ring-indigo-500 focus:border-green-500 w-full ease-linear transition-all duration-150" required>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" id="search-button"  class="w-full bg-green-500 text-white py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium hover:bg-green-600 focus:outline-none focus:ring-indigo-500 focus:border-green-500 focus:ring-offset-2 focus:ring-indigo-500"><i class="fas fa-search h-6 w-6"></i> Search</button>
+                </form>
+            </div>
+        </section>    </div>
+
+    </div>
+    
+    <div class="col-span-12 mt-5">
+        <div class="grid gap-2 grid-cols-1 lg:grid-cols-1">
+            <div class="bg-white p-4 shadow-lg rounded-lg">
+                {% if results %}
+                <h1 class="font-bold text-base">Production Labour Record
+                </h1>
+                <div class="mt-4">
+                    <div class="flex flex-col">
+                        <div class="-my-2 overflow-x-auto">
+                            <div class="py-2 align-middle inline-block min-w-full">
+                                <div class="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg bg-white">
+                                    <table class="min-w-full divide-y divide-gray-200">
+                                        <thead>
+                                            <tr>
+                                                <th class="px-6 py-3 bg-gray-50 text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                                                    <div class="flex cursor-pointer">
+                                                        <span class="mr-2">Team Leader</span>
+                                                    </div>
+                                                </th>
+                                                <th class="px-6 py-3 bg-gray-50 text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                                                    <div class="flex cursor-pointer">
+                                                        <span class="mr-2">Bunakr</span>
+                                                    </div>
+                                                </th>
+                                                <th class="px-6 py-3 bg-gray-50 text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                                                    <div class="flex cursor-pointer">
+                                                        <span class="mr-2">Bales</span>
+                                                    </div>
+                                                </th>
+                                                <th class="px-6 py-3 bg-gray-50 text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                                                    <div class="flex cursor-pointer">
+                                                        <span class="mr-2">Bale Price</span>
+                                                    </div>
+                                                </th>
+                                                <th class="px-6 py-3 bg-gray-50 text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                                                    <div class="flex cursor-pointer">
+                                                        <span class="mr-2">Total Bill</span>
+                                                    </div>
+                                                </th>
+                                                <th class="px-6 py-3 bg-gray-50 text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                                                    <div class="flex cursor-pointer">
+                                                        <span class="mr-2">Payment Status</span>
+                                                    </div>
+                                                </th>
+                                                <th class="px-6 py-3 bg-gray-50 text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                                                    <div class="flex cursor-pointer">
+                                                        <span class="mr-2">Paid</span>
+                                                    </div>
+                                                </th>
+                                                <th class="px-6 py-3 bg-gray-50 text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                                                    <div class="flex cursor-pointer">
+                                                        <span class="mr-2">Pending</span>
+                                                    </div>
+                                                </th>
+                                                
+                                            </tr>
+                                        </thead>
+                                        <tbody class="bg-white divide-y divide-gray-200">
+                                            {% for  labour in results %}
+                                            
+                                           
+                                            <tr>
+                                               
+                                                <td
+                                                    class="px-6 py-4 whitespace-no-wrap text-sm leading-5">
+                                                     
+                                                    <p>{{  labour.Team_Leader}}</p>
+                                                    <p class="text-xs text-gray-400">{{ labour.date}}
+                                                    </p>
+                                                   
+                                                 
+                                                </td>
+                                                <td
+                                                    class="px-6 py-4 whitespace-no-wrap text-sm leading-5">
+                                                    <p>{{  labour.Bankar}} </p>
+                                                </td>
+                                                <td
+                                                    class="px-6 py-4 whitespace-no-wrap text-sm leading-5">
+                                                    <div class="flex text-green-500">
+                                                          
+                                                     
+                                                       <p>{{ labour.Bales}}</p>
+                                                    </div>
+                                                
+                                                </td>
+                                                <td
+                                                    class="px-6 py-4 whitespace-no-wrap text-sm leading-5">
+                                                    <div class="flex space-x-4">
+                                                         
+                                                         
+                                                        <p>{{  labour.Per_Bale_Price}}</p>
+                                                        
+                                                         
+                                                    </div>
+                                                </td>
+                                                <td
+                                                class="px-6 py-4 whitespace-no-wrap text-sm leading-5">
+                                                <div class="flex space-x-4">
+                                                     
+                                                     
+                                                    <p>{{  labour.Total_Amount}}</p>
+                                                    
+                                                     
+                                                </div>
+                                            </td>
+                                            <td
+                                                class="px-6 py-4 whitespace-no-wrap text-sm leading-5">
+                                                <div class="flex space-x-4">
+                                                     
+                                                    {% if labour.Payment_Status == "CREDIT" %}
+                                                    <a href="" hx-get="/CreditToPaid/{{labour.id}}/" hx-push-url="/CreditToPaid/{{labour.id}}/" hx-target="#change" style="text-decoration: none;">
+                                                        <p class="text-red-500">{{ labour.Payment_Status }}</p>
+                                                    </a>
+                                                    {% else %}
+                                                    <p class="text-green-500">Paid</p>
+                                                {% endif %}
+                                                
+                                                </div>
+                                            </td>
+                                           
+                                            <td
+                                                class="px-6 py-4 whitespace-no-wrap text-sm leading-5">
+                                                <div class="flex space-x-4">
+                                                     
+                                                     
+                                                    <p>{{  labour.Paid_Amount}}</p>
+                                                    
+                                                     
+                                                </div>
+                                            </td>
+                                           
+                                            <td
+                                                class="px-6 py-4 whitespace-no-wrap text-sm leading-5">
+                                                <div class="flex space-x-4">
+                                                     
+                                                     
+                                                    <p>{{  labour.Remaining}}</p>
+                                                    
+                                                     
+                                                </div>
+                                            </td>
+                                           
+                                           
+                                           
+                                           
+                                             
+                                            </tr>
+                                       
+                                            {% endfor %}
+                                        
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                </div>
+            </div>
+    </div>
+    {% if fromdate and todate  %} 
+        <div class="mb-2 mt-4">
+            <button type="button" class='flex items-center bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 focus:outline-none text-white text-lg uppercase font-bold shadow-md p-2 rounded-md' style="width: auto; max-width: 200px;">
+                <div class="flex items-center gap-2">
+                    <div class="flex-shrink-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13l-3 3m0 0l-3-3m3 3V8m0 13a9 9 0 110-18 9 9 0 010 18z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <a href="/generate_Production_Labour_report/">Download PDF </a>
+                    </div>
+                </div>
+            </button>
+            {% else %}
+            <div class="mb-4 flex space-x-4 items-center mt-6">
+                <button type="button" class='flex items-center bg-gradient-to-r from-indigo-500 via-pink-500 to-green-500 hover:from-indigo-600 hover:via-pink-600 hover:to-white focus:outline-none text-white text-lg uppercase font-bold shadow-md rounded-full p-3'>
+                    <div class="flex items-center gap-2">
+                        <div class="flex-shrink-0">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13l-3 3m0 0l-3-3m3 3V8m0 13a9 9 0 110-18 9 9 0 010 18z" />
+                            </svg>
+                        </div>
+                        <div class="flex-grow"><a href="/Production_Labour_Excel/">Download Excel Sheet</a></div>
+                    </div>
+                </button>
+                
+                <button type="button" class='flex items-center bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 focus:outline-none text-white text-lg uppercase font-bold shadow-md p-3 rounded-full'>
+                    <div class="flex items-center gap-2">
+                        <div class="flex-shrink-0">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13l-3 3m0 0l-3-3m3 3V8m0 13a9 9 0 110-18 9 9 0 010 18z" />
+                            </svg>
+                        </div>
+                        <div class="flex-grow">
+                            <a href="/generate_Production_Labour_report/">Download PDF</a>
+                        </div>
+                    </div>
+                </button>
+                {% endif %}
+            </div>
+                
+            </div>
+            
+        </div>
+        <div>
+            
+   
+        {% else %}
+        <div class="flex space-x-4">
+            <a href="#" class="text-accent hover:text-accent">
+             
+            <p class="text-red-500"> Record Not Found</p>
+            </a>
+             
+        </div>
+        {% endif %}
+         
+            </div>
+        </div>
+    </div>
+    <div>
+        
+    
+    </section>
+     
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script>
+    function data() {
+    
+    return {
+    
+    isSideMenuOpen: false,
+    toggleSideMenu() {
+    this.isSideMenuOpen = !this.isSideMenuOpen
+    },
+    closeSideMenu() {
+    this.isSideMenuOpen = false
+    },
+    isNotificationsMenuOpen: false,
+    toggleNotificationsMenu() {
+    this.isNotificationsMenuOpen = !this.isNotificationsMenuOpen
+    },
+    closeNotificationsMenu() {
+    this.isNotificationsMenuOpen = false
+    },
+    isProfileMenuOpen: false,
+    toggleProfileMenu() {
+    this.isProfileMenuOpen = !this.isProfileMenuOpen
+    },
+    closeProfileMenu() {
+    this.isProfileMenuOpen = false
+    },
+    isPagesMenuOpen: false,
+    togglePagesMenu() {
+    this.isPagesMenuOpen = !this.isPagesMenuOpen
+    },
+    
+    }
+    }
+    </script>
+    
+    
+    <script>
+        function disableFields(currentField) {
+            const fields = ['name', 'place'];
+            const dateFields = ['dateFrom', 'dateTo'];
+            
+            if (dateFields.includes(currentField)) {
+                fields.forEach(field => document.getElementById(field).disabled = true);
+                dateFields.forEach(field => document.getElementById(field).disabled = false);
+            } else {
+                fields.concat(dateFields).forEach(field => {
+                    document.getElementById(field).disabled = field !== currentField;
+                });
+            }
+        }
+    </script>
+    <script>
+        document.getElementById('searchForm').addEventListener('submit', function() {
+            document.getElementById('loader-overlay').style.display = 'flex';
+        });
+      
+        window.addEventListener('load', function() {
+            document.getElementById('loader-overlay').style.display = 'none';
+        });
+      </script>
+    
+    
+     

@@ -1,0 +1,305 @@
+<head>
+    <title>{{request.user.username}}|Vendor</title>
+    </head>
+    <div class="col-span-12 mt-8">
+    <!-- component -->
+    <link rel="stylesheet" href="https://demos.creative-tim.com/notus-js/assets/styles/tailwind.css">
+    <link rel="stylesheet" href="https://demos.creative-tim.com/notus-js/assets/vendor/@fortawesome/fontawesome-free/css/all.min.css">
+    <div class="col-span-12 mt-8">
+      <header class="bg-green-500 p-4 rounded-full">
+        <div class="container mx-auto flex justify-between items-center">
+            <div class="text-white text-xl font-bold">
+              <i class="fas fa-industry"></i>  Enter Daily Production Detail
+            </div>
+            
+        </div>
+    </header>
+      <div id="loader-overlay">
+          <div class="loader"></div>
+      </div>
+    <section class=" py-1 ">
+      <div class="w-full lg:w-9/10 px-4 mx-auto mt-6">
+        <div class="relative flex flex-col min-w-0 break-words w-full mb-6 shadow-lg rounded-lg border-0">
+          <div class="rounded-t bg-white mb-0 px-4 py-6">
+            <!-- Title -->
+            <h6 class="text-blueGray-600 text-sm mt-3 mb-6 font-bold uppercase">Production Information</h6>
+          </div>
+          <div class="flex-auto px-4 lg:px-6 py-6 pt-0">
+            <form action="{% url 'AddManufecturePurchase' %}" method="post" id="AddManufecturePurchase" enctype="multipart/form-data">
+              {% csrf_token %}
+              
+              <!-- Production Information Section -->
+              <div class="flex flex-wrap mb-6">
+                <div class="w-full lg:w-6/12 px-2">
+                  <div class="relative w-full mb-3">
+                    <label class="block uppercase text-black text-xs font-bold mb-2" for="Production_Product_Name">
+                      <i class="fas fa-cog"></i> SELECT PURCHASE TYPE <b class="text-red-500">*</b>
+                    </label>
+                    <select name="Purchase_Type" id="type-select" class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" required>
+                        <option value="PER ACER" selected disabled>SELECT PURCHASE TYPE </option>
+                    <option value="PER_ACER">PER ACER</option>
+                    <option value="PURCHASE_WEIGHT">PURCHASE WEIGHT</option>
+                    
+                    </select>
+                  </div>
+                </div>
+                <div class="w-full lg:w-6/12 px-2">
+                  <div class="relative w-full mb-3">
+                    <label class="block uppercase text-black text-xs font-bold mb-2" for="Production_Place">
+                      <i class="fas fa-map-marker-alt"></i> Production Place <b class="text-red-500">*</b>
+                    </label>
+                    <input type="text" name="Production_Place" class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" required placeholder="Production Place">
+                  </div>
+                </div>
+                <div class="w-full lg:w-6/12 px-2">
+                  <div class="relative w-full mb-3">
+                    <label class="block uppercase text-black text-xs font-bold mb-2" for="City">
+                        <i class="fas fa-users"></i> Supplier Name <b class="text-red-500">*</b>
+                    </label>
+                    <input type="text" name="sname" class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" required placeholder="City">
+                  </div>
+                </div>
+                <div class="w-full lg:w-6/12 px-2">
+                  <div class="relative w-full mb-3">
+                    <label class="block uppercase text-black text-xs font-bold mb-2" for="Total_Production_Item">
+                      <i class="fas fa-box"></i> Bunkar Name <b class="text-red-500">*</b>
+                    </label>
+                    <input type="text" name="Product_Name" class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" required placeholder="Bunkar"  hx-post="{% url 'check_product_name' %}" hx-trigger="change" hx-target="#validation1" hx-swap="innerHTML">
+                    
+                  </div>
+                  <div id="validation1" style="color: red;"></div>
+                </div>
+              </div>
+              <hr class="mt-6 border-b-1 border-black">
+              <div class="rounded-t bg-white mb-0 px-4 py-6">
+                <!-- Title -->
+                
+              </div>
+              <!-- Production Team Information Section -->
+              <div id="per-acer-fields" style="display: none;">
+                 
+                <div class="flex flex-wrap mb-6">
+                  <div class="w-full lg:w-6/12 px-2">
+                    <div class="relative w-full mb-3">
+                      <label class="block uppercase text-black text-xs font-bold mb-2" for="total-acer">
+                        <i class="fas fa-calculator"></i> Total Acer
+                      </label>
+                      <input type="number" id="total-acer" name="total_acer" class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" placeholder="Total Acer">
+                    </div>
+                  </div>
+                  <div class="w-full lg:w-6/12 px-2">
+                    <div class="relative w-full mb-3">
+                      <label class="block uppercase text-black text-xs font-bold mb-2" for="acer-purchase-price">
+                        <i class="fas fa-dollar-sign"></i>  Acer Purchase Price
+                      </label>
+                      <input type="number" id="acer-purchase-price" name="acer_purchase_price" class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" placeholder="Acer Purchase Price">
+                    </div>
+                  </div>
+                </div>
+                <div class="w-full lg:w-2/12 px-2">
+                  <div class="relative w-full mb-3">
+                    <label class="block uppercase text-black text-xs font-bold mb-2" for="total-amount">
+                      <i class="fas fa-coins"></i> Total Amount
+                    </label>
+                    <input type="number" id="total-amount" step="0.2"  name="total_amount_acers" class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" placeholder="Total Amount" readonly style="width: 800px;">
+                  
+                          </div>
+              </div>
+          </div>
+          
+ 
+           
+            <div id="purchase-weight-fields" class="flex flex-wrap mb-6" style="display: none;">
+                 
+                  
+                <div class="w-full lg:w-4/12 px-2">
+                    <div class="relative w-full mb-3">
+                        <label class="block uppercase text-black text-xs font-bold mb-2" for="Total_Weight">
+                            <i class="fas fa-weight"></i> Total Weight
+                        </label>
+                        <input type="number" step="0.2" name="Total_Weight" id="Total_Weight" placeholder="Total Weight" class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150">
+                    </div>
+                </div>
+                <div class="w-full lg:w-4/12 px-2">
+                    <div class="relative w-full mb-3">
+                        <label class="block uppercase text-black text-xs font-bold mb-2" for="Purchase_Weight_Price">
+                            <i class="fas fa-tag"></i>    Purchase Weight Price
+                        </label>
+                        <input type="number" step="0.2" name="Purchase_Weight_Price" placeholder="Weight Purchase Price" id="Purchase_Weight_Price" class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150">
+                    </div>
+                </div>
+                <div class="w-full lg:w-2/12 px-2">
+                    <div class="relative w-full mb-3">
+                        <label class="block uppercase text-black text-xs font-bold mb-2" for="Total_Amount">
+                            <i class="fas fa-coins"></i>  Total Amount
+                        </label>
+                        <input type="number" step="0.2"  name="Wtotal" id="Total_Amount" placeholder="Total" readonly  class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" >
+                   
+                            </div>
+                </div>
+            </div>
+            
+        </div>
+              <!-- Submit Button -->
+              <div class="flex justify-center">
+                <button type="submit" id="submit-button" class="w-full bg-green-500 text-white py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                  <i class="fas fa-plus"></i> Add Manufacturing
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      
+    </section>
+    
+      
+    </div>
+   
+    
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script>
+    function data() {
+    
+    return {
+    
+    isSideMenuOpen: false,
+    toggleSideMenu() {
+    this.isSideMenuOpen = !this.isSideMenuOpen
+    },
+    closeSideMenu() {
+    this.isSideMenuOpen = false
+    },
+    isNotificationsMenuOpen: false,
+    toggleNotificationsMenu() {
+    this.isNotificationsMenuOpen = !this.isNotificationsMenuOpen
+    },
+    closeNotificationsMenu() {
+    this.isNotificationsMenuOpen = false
+    },
+    isProfileMenuOpen: false,
+    toggleProfileMenu() {
+    this.isProfileMenuOpen = !this.isProfileMenuOpen
+    },
+    closeProfileMenu() {
+    this.isProfileMenuOpen = false
+    },
+    isPagesMenuOpen: false,
+    togglePagesMenu() {
+    this.isPagesMenuOpen = !this.isPagesMenuOpen
+    },
+    
+    }
+    }
+    </script>
+    <script>
+        document.addEventListener('htmx:afterOnLoad', function(evt) {
+            if (evt.detail.target.id === 'validation1') {
+                const response = JSON.parse(evt.detail.xhr.responseText);
+                const submitButton = document.getElementById('submit-button');
+                if (response.exists) {
+                    submitButton.style.display = 'none';
+                    document.getElementById('validation1').innerText = 'WhatsApp number already exists.';
+                } else {
+                    submitButton.style.display = 'block';
+                    document.getElementById('validation1').innerText = '';
+                }
+            }
+        });
+      </script>
+    <script>
+      document.getElementById('AddManufecturePurchase').addEventListener('submit', function() {
+          document.getElementById('loader-overlay').style.display = 'flex';
+      });
+    
+      window.addEventListener('load', function() {
+          document.getElementById('loader-overlay').style.display = 'none';
+      });
+    </script>
+    <script>
+      // Function to update file name display
+      document.getElementById('Production_and_Expense_Proof_Screenshot').addEventListener('change', function() {
+          var input = this;
+          var fileName = input.files[0].name;
+          document.getElementById('file-name').textContent = fileName;
+      });
+      </script>
+      <script>
+        document.addEventListener('DOMContentLoaded', function () {
+          const typeSelect = document.getElementById('type-select');
+          const perAcerFields = document.getElementById('per-acer-fields');
+          const purchaseWeightFields = document.getElementById('purchase-weight-fields');
+          const totalAcerInput = document.getElementById('total-acer');
+          const acerPriceInput = document.getElementById('acer-purchase-price');
+          const totalAmountInput = document.getElementById('total-amount');
+          const totalWeightInput = document.getElementById('Total_Weight');
+          const purchaseWeightPriceInput = document.getElementById('Purchase_Weight_Price');
+          const totalAmountWeightInput = document.getElementById('Total_Amount');
+        
+          typeSelect.addEventListener('change', function () {
+            if (this.value === 'PER_ACER') {
+              perAcerFields.style.display = 'block';
+              purchaseWeightFields.style.display = 'none';
+            } else if (this.value === 'PURCHASE_WEIGHT') {
+              purchaseWeightFields.style.display = 'flex';
+              perAcerFields.style.display = 'none';
+            } else {
+              perAcerFields.style.display = 'none';
+              purchaseWeightFields.style.display = 'none';
+            }
+          });
+        
+          function calculateTotalAcerAmount() {
+            const totalAcer = parseFloat(totalAcerInput.value) || 0;
+            const acerPrice = parseFloat(acerPriceInput.value) || 0;
+            totalAmountInput.value = (totalAcer * acerPrice).toFixed(2);
+          }
+        
+          function calculateTotalWeightAmount() {
+            const totalWeight = parseFloat(totalWeightInput.value) || 0;
+            const weightPrice = parseFloat(purchaseWeightPriceInput.value) || 0;
+            totalAmountWeightInput.value = (totalWeight * weightPrice).toFixed(2);
+          }
+        
+          totalAcerInput.addEventListener('input', calculateTotalAcerAmount);
+          acerPriceInput.addEventListener('input', calculateTotalAcerAmount);
+        
+          totalWeightInput.addEventListener('input', calculateTotalWeightAmount);
+          purchaseWeightPriceInput.addEventListener('input', calculateTotalWeightAmount);
+        });
+        
+        </script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const typeSelect = document.getElementById('type-select');
+    const purchaseWeightFields = document.getElementById('purchase-weight-fields');
+    const totalWeightInput = document.getElementById('Total_Weight');
+    const purchaseWeightPriceInput = document.getElementById('Purchase_Weight_Price');
+    const totalAmountInput = document.getElementById('Total_Amount');
+  
+    // Show or hide fields based on selection
+    typeSelect.addEventListener('change', function () {
+      if (typeSelect.value === 'PURCHASE_WEIGHT') {
+        purchaseWeightFields.style.display = 'flex';
+      } else {
+        purchaseWeightFields.style.display = 'none';
+        totalWeightInput.value = '';
+        purchaseWeightPriceInput.value = '';
+        totalAmountInput.value = '';
+      }
+    });
+  
+    // Calculate total amount
+    function calculateTotalAmount() {
+      const totalWeight = parseFloat(totalWeightInput.value) || 0;
+      const purchaseWeightPrice = parseFloat(purchaseWeightPriceInput.value) || 0;
+      const totalAmount = totalWeight * purchaseWeightPrice;
+      totalAmountInput.value = totalAmount.toFixed(2);
+    }
+  
+    totalWeightInput.addEventListener('input', calculateTotalAmount);
+    purchaseWeightPriceInput.addEventListener('input', calculateTotalAmount);
+  });
+  
+</script>

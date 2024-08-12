@@ -26,122 +26,193 @@
         </div>
         <div class="flex-auto px-4 lg:px-6 py-6 pt-0">
           <form action="{% url 'AddDailyProduction' %}" method="post" id="AddDailyProduction" enctype="multipart/form-data">
-            {% csrf_token %}
-            
-            <!-- Production Information Section -->
-            <div class="flex flex-wrap mb-6">
-              <div class="w-full lg:w-6/12 px-2">
-                <div class="relative w-full mb-3">
-                  <label class="block uppercase text-black text-xs font-bold mb-2" for="Production_Product_Name">
-                    <i class="fas fa-cog"></i> Production Product Name <b class="text-red-500">*</b>
-                  </label>
-                  <select name="Production_Product_Name" id="Production_Product_Name" class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" required>
-                    {% for  Products in  Products  %}
-                  <option value="{{Products.Manufacturing_Product_Name}}">{{Products.Manufacturing_Product_Name}}</option>
-                  {% endfor %}
-                  </select>
-                </div>
-              </div>
-              <div class="w-full lg:w-6/12 px-2">
-                <div class="relative w-full mb-3">
-                  <label class="block uppercase text-black text-xs font-bold mb-2" for="Production_Place">
-                    <i class="fas fa-map-marker-alt"></i> Production Place <b class="text-red-500">*</b>
-                  </label>
-                  <input type="text" name="Production_Place" class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" required placeholder="Production Place">
-                </div>
-              </div>
-              <div class="w-full lg:w-6/12 px-2">
-                <div class="relative w-full mb-3">
-                  <label class="block uppercase text-black text-xs font-bold mb-2" for="City">
-                    <i class="fas fa-city"></i> City <b class="text-red-500">*</b>
-                  </label>
-                  <input type="text" name="city" class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" required placeholder="City">
-                </div>
-              </div>
-              <div class="w-full lg:w-6/12 px-2">
-                <div class="relative w-full mb-3">
-                  <label class="block uppercase text-black text-xs font-bold mb-2" for="Total_Production_Item">
-                    <i class="fas fa-box"></i> Total Production Item (BALES) <b class="text-red-500">*</b>
-                  </label>
-                  <input type="number" name="Total_Production_Item" class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" required placeholder="Total Production Item">
-                </div>
-              </div>
-            </div>
-            <hr class="mt-6 border-b-1 border-black">
-            <div class="rounded-t bg-white mb-0 px-4 py-6">
-              <!-- Title -->
-              <h6 class="text-blueGray-600 text-sm mt-3 mb-6 font-bold uppercase">Production Team & Expenses</h6>
-            </div>
-            <!-- Production Team Information Section -->
-            <div class="flex flex-wrap mb-6">
-              <div class="w-full lg:w-6/12 px-2">
-                <div class="relative w-full mb-3">
-                  <label class="block uppercase text-black text-xs font-bold mb-2" for="Production_Team_Name">
-                    <i class="fas fa-users"></i> Production Team Name <b class="text-red-500">*</b>
-                  </label>
-                  <input type="text" name="Production_Team_Name" class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" required placeholder="Production Team Name">
-                </div>
-              </div>
+              {% csrf_token %}
               
-              <div class="w-full lg:w-6/12 px-2">
-                <div class="relative w-full mb-3">
-                  <label class="block uppercase text-black text-xs font-bold mb-2" for="Total_Expense_Amount">
-                    <i class="fas fa-money-bill-wave"></i> Production Expense Amount <b class="text-red-500">*</b>
-                  </label>
-                  <input type="text" name="Total_Expense_Amount" class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" required placeholder="Production Expense Amount">
-                </div>
+              <!-- Production Information Section -->
+              <div class="flex flex-wrap mb-6">
+                  <div class="w-full lg:w-6/12 px-2">
+                      <div class="relative w-full mb-3">
+                          <label class="block uppercase text-black text-xs font-bold mb-2" for="Production_Product_Name">
+                              <i class="fas fa-cog"></i> Production Product Name <b class="text-red-500">*</b>
+                          </label>
+                          <select name="Production_Product_Name" id="Production_Product_Name" class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" required>
+                              {% for Products in Products %}
+                              <option value="{{Products.Manufacturing_Product_Name}}">{{Products.Manufacturing_Product_Name}}</option>
+                              {% endfor %}
+                          </select>
+                      </div>
+                  </div>
+                  <div class="w-full lg:w-6/12 px-2">
+                      <div class="relative w-full mb-3">
+                          <label class="block uppercase text-black text-xs font-bold mb-2" for="Production_Place">
+                              <i class="fas fa-map-marker-alt"></i> Production Place <b class="text-red-500">*</b>
+                          </label>
+                          <input type="text" name="Production_Place" class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" required placeholder="Production Place">
+                      </div>
+                  </div>
+                  <div class="w-full lg:w-6/12 px-2">
+                      <div class="relative w-full mb-3">
+                          <label class="block uppercase text-black text-xs font-bold mb-2" for="City">
+                              <i class="fas fa-city"></i> City <b class="text-red-500">*</b>
+                          </label>
+                          <input type="text" name="City" class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" required placeholder="City">
+                      </div>
+                  </div>
+                  <div class="w-full lg:w-6/12 px-2">
+                      <div class="relative w-full mb-3">
+                          <label class="block uppercase text-black text-xs font-bold mb-2" for="Total_Production_Item">
+                              <i class="fas fa-box"></i> Total Production Item (BALES) <b class="text-red-500">*</b>
+                          </label>
+                          <input type="number" name="Total_Production_Item" id="Total_Production_Item" class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" required placeholder="Total Production Item">
+                      </div>
+                  </div>
+                  <div class="w-full lg:w-6/12 px-2">
+                      <div class="relative w-full mb-3">
+                          <label class="block uppercase text-black text-xs font-bold mb-2" for="Bale_Production_Price">
+                              <i class="fas fa-dollar-sign"></i> Bale Production Price <b class="text-red-500">*</b>
+                          </label>
+                          <input type="number" name="Bale_Production_Price" id="Bale_Production_Price" class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" required placeholder="Bale Production Price">
+                      </div>
+                  </div>
+                  <div class="w-full lg:w-6/12 px-2">
+                      <div class="relative w-full mb-3">
+                          <label class="block uppercase text-black text-xs font-bold mb-2" for="Total_Amount">
+                              <i class="fas fa-dollar-sign"></i> Total Amount <b class="text-red-500">*</b>
+                          </label>
+                          <input type="text" name="Total_Amount" id="Total_Amount" class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" readonly placeholder="Total Amount">
+                      </div>
+                  </div>
               </div>
-              <div class="w-full lg:w-2/2 px-2">
-                <div class="relative w-full mb-3">
-                    <label class="block uppercase text-black text-xs font-bold mb-2" for="Production_and_Expense_Proof_Screenshot">
-                        <i class="fas fa-receipt"></i> Production & Expense Slip <b class="text-red-500">*</b>
-                    </label>
-                    <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
-                        <div class="space-y-1 text-center">
-                            <!-- File Input -->
-                            <input type="file" name="Production_and_Expense_Proof_Screenshot" id="Production_and_Expense_Proof_Screenshot" class="sr-only">
-                            <label for="Production_and_Expense_Proof_Screenshot" class="cursor-pointer bg-white rounded-md py-2 px-4 inline-flex items-center justify-center text-sm font-medium text-gray-700 border border-gray-300 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                                <i class="fas fa-upload mr-2"></i><span id="file-name" class="ml-2 text-sm text-gray-600"></span>
+              <hr class="mt-6 border-b-1 border-black">
+              <div class="rounded-t bg-white mb-0 px-4 py-6">
+                  <!-- Title -->
+                  <h6 class="text-blueGray-600 text-sm mt-3 mb-6 font-bold uppercase">Production Team & Expenses</h6>
+              </div>
+              <!-- Production Team Information Section -->
+              <div class="flex flex-wrap mb-6">
+                  <div class="w-full lg:w-6/12 px-2">
+                      <div class="relative w-full mb-3">
+                          <label class="block uppercase text-black text-xs font-bold mb-2" for="Production_Team_Name">
+                              <i class="fas fa-users"></i> Production Team Name <b class="text-red-500">*</b>
+                          </label>
+                          <select name="team"   class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" required>
+                            {% for   production_labour in labour %}
+                    <option value="{{production_labour.id}}">{{production_labour.Team_Leader}}</option>
+                    {% endfor %}
+                        </select> </div>
+                  </div>
+                  
+                  <div class="w-full lg:w-6/12 px-2">
+                      <div class="relative w-full mb-3">
+                          <label class="block uppercase text-black text-xs font-bold mb-2" for="Remarks_of_Expense">
+                              <i class="fas fa-comment-alt"></i> Production Expense Remark <b class="text-red-500">*</b>
+                          </label>
+                          <textarea name="Remarks_of_Expense" rows="1" id="Remarks_of_Expense" class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" required placeholder="Production Expense Remark"></textarea>
+                      </div>
+                  </div>
+                  <div class="w-full lg:w-6/12 px-2">
+                    <div class="relative w-full mb-3">
+                      <label class="block uppercase text-black text-xs font-bold mb-2" for="Settlement">
+                        <i class="fas fa-check-circle"></i> Production Completed? <b class="text-red-500">*</b>
+                      </label>
+                      <select name="Settlement" id="Settlement" class="border-0 px-3 py-3 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" required style="width: 800px;"  >
+                        <option value="incomplete">Incomplete</option>
+                        <option value="complete">Complete</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+                
+                  <div class="w-full lg:w-6/12 px-2">
+                      <div class="relative w-full mb-3">
+                          <label class="block uppercase text-black text-xs font-bold mb-2" for="Settlement">
+                              <i class="fas fa-money-check-alt"></i>Payment Status <b class="text-red-500">*</b>
+
+                          </label>
+                          <div class="flex items-center">
+                              <input type="radio" name="Payment_Status" id="credit" value="PAID" class="mr-2">
+                              <label for="credit" class="mr-4">Paid</label>
+                              <input type="radio" name="Payment_Status" id="paid" value="CREDIT" class="mr-2">
+                              <label for="paid">Credit</label>
+                          </div>
+                      </div>
+                  </div>
+                  
+              </div>
+              <div id="paid-info" style="display: none;">
+                <!-- Paid Amount -->
+                <div class="flex flex-wrap mb-6">
+                    <div class="w-full lg:w-6/12 px-2">
+                        <div class="relative w-full mb-3">
+                            <label class="block uppercase text-black text-xs font-bold mb-2" for="Paid_Amount">
+                                <i class="fas fa-credit-card"></i> Paid Amount
                             </label>
-                            <!-- Selected File Display -->
+                            <input type="number" name="Paid_Amount" id="Paid_Amount" class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" placeholder="Paid Amount">
                         </div>
-                        
+                    </div>
+                    <div class="w-full lg:w-6/12 px-2">
+                        <div class="relative w-full mb-3">
+                            <label class="block uppercase text-black text-xs font-bold mb-2" for="Remaining">
+                                <i class="fas fa-calculator"></i> Remaining Amount
+                            </label>
+                            <input type="text" name="Remaining" id="Remaining" class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" readonly placeholder="Remaining Amount">
+                        </div>
                     </div>
                 </div>
             </div>
-            
-            
-             <div class="w-full lg:w-6/12 px-2 ">
-                <div class="relative w-full mb-3">
-                  <label class="block uppercase text-black text-xs font-bold mb-2" for="Remarks_of_Expense">
-                    <i class="fas fa-comment-alt"></i> Production Expense Remark <b class="text-red-500">*</b>
-                  </label>
-                  <textarea name="Remarks_of_Expense" rows="1" class="border-0 px-3 py-3  placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" required placeholder="Production Expense Remark" ></textarea>
-                </div>
+              <hr class="mt-6 border-b-1 border-black">
+              <!-- Submit Button -->
+              <div class="text-center mt-6">
+                  <button type="submit" class="bg-blue-500 text-white active:bg-blue-600 font-bold uppercase text-sm px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none ease-linear transition-all duration-150">Submit</button>
               </div>
-              
-              
-              <div class="w-full lg:w-6/12 px-2">
-                <div class="relative w-full mb-3">
-                  <label class="block uppercase text-black text-xs font-bold mb-2" for="Settlement">
-                    <i class="fas fa-check-circle"></i> Production Completed? <b class="text-red-500">*</b>
-                  </label>
-                  <select name="Settlement" id="Settlement" class="border-0 px-3 py-3 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" required  >
-                    <option value="incomplete">Incomplete</option>
-                    <option value="complete">Complete</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-            
-            <!-- Submit Button -->
-            <div class="flex justify-center">
-              <button type="submit" id="submit-button" class="w-full bg-green-500 text-white py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
-                <i class="fas fa-plus"></i> Add Production
-              </button>
-            </div>
           </form>
-        </div>
+      </div>
+  
+      <script>
+          document.addEventListener('DOMContentLoaded', function() {
+              const totalItemInput = document.getElementById('Total_Production_Item');
+              const balePriceInput = document.getElementById('Bale_Production_Price');
+              const totalAmountInput = document.getElementById('Total_Amount');
+              const paymentStatusRadios = document.querySelectorAll('input[name="Payment_Status"]');
+              const paidAmountInput = document.getElementById('Paid_Amount');
+              const remainingInput = document.getElementById('Remaining');
+              const paidInfoDiv = document.getElementById('paid-info');
+  
+              function calculateTotalAmount() {
+                  const totalItem = parseFloat(totalItemInput.value) || 0;
+                  const balePrice = parseFloat(balePriceInput.value) || 0;
+                  const totalAmount = totalItem * balePrice;
+                  totalAmountInput.value = totalAmount.toFixed(2);
+                  calculateRemaining(); // Update remaining amount when total amount changes
+              }
+  
+              function handlePaymentStatusChange() {
+                  if (document.getElementById('credit').checked) {
+                      paidInfoDiv.style.display = 'none';
+                  } else if (document.getElementById('paid').checked) {
+                      paidInfoDiv.style.display = 'block';
+                  }
+              }
+  
+              function calculateRemaining() {
+                  if (document.getElementById('paid').checked) {
+                      const totalAmount = parseFloat(totalAmountInput.value) || 0;
+                      const paidAmount = parseFloat(paidAmountInput.value) || 0;
+                      const remainingAmount = totalAmount - paidAmount;
+                      remainingInput.value = remainingAmount.toFixed(2);
+                  }
+              }
+  
+              totalItemInput.addEventListener('input', calculateTotalAmount);
+              balePriceInput.addEventListener('input', calculateTotalAmount);
+  
+              paymentStatusRadios.forEach(radio => {
+                  radio.addEventListener('change', handlePaymentStatusChange);
+              });
+  
+              paidAmountInput.addEventListener('input', calculateRemaining);
+          });
+      </script>
       </div>
     </div>
     

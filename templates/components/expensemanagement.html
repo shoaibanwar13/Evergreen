@@ -49,7 +49,7 @@
         <div class="grid gap-2 grid-cols-1 lg:grid-cols-1">
             <div class="bg-white p-4 shadow-lg rounded-lg">
                 {% if results %}
-                <h1 class="font-bold text-base">My Expenses 
+                <h1 class="font-bold text-base">Loading and Production Expense
                 </h1>
                 <div class="mt-4">
                     <div class="flex flex-col">
@@ -85,70 +85,191 @@
                                                     </div>
                                                 </th>
                                                 
+                                                <th class="px-6 py-3 bg-gray-50 text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                                                    <div class="flex cursor-pointer">
+                                                        <span class="mr-2">Payment Status</span>
+                                                    </div>
+                                                </th>
+                                                <th class="px-6 py-3 bg-gray-50 text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                                                    <div class="flex cursor-pointer">
+                                                        <span class="mr-2">Paid</span>
+                                                    </div>
+                                                </th>
+                                                <th class="px-6 py-3 bg-gray-50 text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                                                    <div class="flex cursor-pointer">
+                                                        <span class="mr-2">Pending</span>
+                                                    </div>
+                                                </th>
+
+ 
+                                                
                                             </tr>
                                         </thead>
                                         <tbody class="bg-white divide-y divide-gray-200">
-                                            {% for clients in results %}
+                                            {% for expense in results %}
                                             
-                                           
+                                            {% if expense.category != 'Labour' and expense.category != 'Loading' %}
                                             <tr>
-                                               
-                                                <td
-                                                    class="px-6 py-4 whitespace-no-wrap text-sm leading-5">
-                                                     
-                                                    <p>{{ clients.description}}</p>
-                                                    <p class="text-xs text-gray-400">{{clients.date}}
-                                                    </p>
-                                                   
-                                                 
+                                                <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5">
+                                                    <p>{{ expense.description }}</p>
+                                                    <p class="text-xs text-gray-400">{{ expense.date }}</p>
                                                 </td>
-                                                <td
-                                                    class="px-6 py-4 whitespace-no-wrap text-sm leading-5">
-                                                    <p>{{ clients.amount}} </p>
+                                                <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5">
+                                                    <p>{{ expense.amount }}</p>
                                                 </td>
-                                                <td
-                                                    class="px-6 py-4 whitespace-no-wrap text-sm leading-5">
+                                                <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5">
                                                     <div class="flex text-green-500">
-                                                          
-                                                     
-                                                       <p>{{clients.category}}</p>
+                                                        <p>{{ expense.category }}</p>
                                                     </div>
-                                                
                                                 </td>
-                                                <td
-                                                    class="px-6 py-4 whitespace-no-wrap text-sm leading-5">
+                                                <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5">
                                                     <div class="flex space-x-4">
-                                                         
-                                                         
-                                                        <p>{{ clients.notes}}</p>
-                                                        
-                                                         
+                                                        <p>{{ expense.notes }}</p>
                                                     </div>
                                                 </td>
-                                                <td
-                                                class="px-6 py-4 whitespace-no-wrap text-sm leading-5">
-                                                <div class="flex space-x-4">
-                                                     
-                                                     
-                                                    <p>{{ clients.date}}</p>
-                                                    
-                                                     
-                                                </div>
-                                            </td>
-                                           
-                                             
+                                                <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5">
+                                                    <div class="flex space-x-4">
+                                                        <p>{{ expense.date }}</p>
+                                                    </div>
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5">
+                                                    {% if expense.Payment_Status == "CREDIT" %}
+                                                    <a href="/BunkarExpense/{{expense.id}}/"  style="text-decoration: none;">
+                                                        <p class="text-red-500">{{ expense.Payment_Status }}</p>
+                                                    </a>
+                                                    {% else %}
+                                                    <p class="text-green-500">PAID</p>
+                                                {% endif %}
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5">
+                                                    <p>{{ expense.Paid_Amount }}</p>
+                                                </td>
+                                                
+                                            </tr> 
+                                            
+                                        {% endif %}  
                                             </tr>
                                        
                                             {% endfor %}
                                         
                                         </tbody>
                                     </table>
-                                </div>
+                                    <hr class="text-black ">
+                                   </div>
                             </div>
                         </div>
                     </div>
                 </div>
+                <div class="mt-4">
+                    <div class="flex flex-col">
+                        <div class="-my-2 overflow-x-auto">
+                            <div class="py-2 align-middle inline-block min-w-full">
+                                <div class="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg bg-white">
+                                    <h1 class="font-bold text-base">Production & Loading Expense</h1>
+                                    <table class="min-w-full divide-y divide-gray-200">
+                                        <thead>
+                                            <tr>
+                                                <th class="px-6 py-3 bg-gray-50 text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                                                    <div class="flex cursor-pointer">
+                                                        <span class="mr-2">Discription</span>
+                                                    </div>
+                                                </th>
+                                                <th class="px-6 py-3 bg-gray-50 text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                                                    <div class="flex cursor-pointer">
+                                                        <span class="mr-2">Amount</span>
+                                                    </div>
+                                                </th>
+                                                <th class="px-6 py-3 bg-gray-50 text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                                                    <div class="flex cursor-pointer">
+                                                        <span class="mr-2">Bill</span>
+                                                    </div>
+                                                </th>
+                                                <th class="px-6 py-3 bg-gray-50 text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                                                    <div class="flex cursor-pointer">
+                                                        <span class="mr-2">Note</span>
+                                                    </div>
+                                                </th>
+                                                <th class="px-6 py-3 bg-gray-50 text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                                                    <div class="flex cursor-pointer">
+                                                        <span class="mr-2">Date</span>
+                                                    </div>
+                                                </th>
+                                                
+                                                <th class="px-6 py-3 bg-gray-50 text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                                                    <div class="flex cursor-pointer">
+                                                        <span class="mr-2">Payment Status</span>
+                                                    </div>
+                                                </th>
+                                                <th class="px-6 py-3 bg-gray-50 text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                                                    <div class="flex cursor-pointer">
+                                                        <span class="mr-2">Paid</span>
+                                                    </div>
+                                                </th>
+                                                <th class="px-6 py-3 bg-gray-50 text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                                                    <div class="flex cursor-pointer">
+                                                        <span class="mr-2">Pending</span>
+                                                    </div>
+                                                </th>
+
+ 
+                                                
+                                            </tr>
+                                        </thead>
+                                        <tbody class="bg-white divide-y divide-gray-200">
+                                            {% for expense in results %}
+                                            
+                                            {% if expense.category == 'Labour' or  expense.category == 'Loading' %}
+                                            <tr>
+                                                <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5">
+                                                    <p>{{ expense.description }}</p>
+                                                    <p class="text-xs text-gray-400">{{ expense.date }}</p>
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5">
+                                                    <p>{{ expense.amount }}</p>
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5">
+                                                    <div class="flex text-green-500">
+                                                        <p>{{ expense.category }}</p>
+                                                    </div>
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5">
+                                                    <div class="flex space-x-4">
+                                                        <p>{{ expense.notes }}</p>
+                                                    </div>
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5">
+                                                    <div class="flex space-x-4">
+                                                        <p>{{ expense.date }}</p>
+                                                    </div>
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5">
+                                                    {% if expense.Payment_Status == "CREDIT" %}
+                                                    <a href="" hx-get="/CreditToPaidLoading/{{labour.id}}/" hx-push-url="/CreditToPaid/{{labour.id}}/" hx-target="#change" style="text-decoration: none;">
+                                                        <p class="text-red-500">{{ expense.Payment_Status }}</p>
+                                                    </a>
+                                                    {% else %}
+                                                    <p class="text-green-500">Paid</p>
+                                                {% endif %}
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5">
+                                                    <p>{{ expense.Paid_Amount }}</p>
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-no-wrap text-sm leading-5">
+                                                    <p>{{ expense.Remaining_Amount }}</p>
+                                                </td>
+                                                
+                                            </tr> 
+                                            
+                                        {% endif %}  
+                                            </tr>
+                                       
+                                            {% endfor %}
+                                        
+                                        </tbody>
+                                    </table>
+             
                 </div>
+                
             </div>
     </div>
     {% if fromdate and todate  %} 
@@ -198,7 +319,33 @@
         </div>
         <div>
             
-   
+            <div class="flex justify-center mt-4">
+                <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                    {% if page_obj.has_previous %}
+                    <a href="?page=1" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">First</a>
+                    <a href="?page={{ page_obj.previous_page_number }}" class="relative inline-flex items-center px-2 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">Previous</a>
+                    {% else %}
+                    <span class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-gray-200 text-sm font-medium text-gray-500 cursor-not-allowed">First</span>
+                    <span class="relative inline-flex items-center px-2 py-2 border border-gray-300 bg-gray-200 text-sm font-medium text-gray-500 cursor-not-allowed">Previous</span>
+                    {% endif %}
+            
+                    {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                    <span class="z-10 bg-indigo-50 border-indigo-500 text-indigo-600 relative inline-flex items-center px-4 py-2 border text-sm font-medium">{{ num }}</span>
+                    {% else %}
+                    <a href="?page={{ num }}" class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium">{{ num }}</a>
+                    {% endif %}
+                    {% endfor %}
+            
+                    {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}" class="relative inline-flex items-center px-2 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">Next</a>
+                    <a href="?page={{ page_obj.paginator.num_pages }}" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">Last</a>
+                    {% else %}
+                    <span class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-gray-200 text-sm font-medium text-gray-500 cursor-not-allowed">Next</span>
+                    <span class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-gray-200 text-sm font-medium text-gray-500 cursor-not-allowed">Last</span>
+                    {% endif %}
+                </nav>
+            </div>
         {% else %}
         <div class="flex space-x-4">
             <a href="#" class="text-accent hover:text-accent">
@@ -213,6 +360,7 @@
         </div>
     </div>
     <div>
+       
         
     
     </section>

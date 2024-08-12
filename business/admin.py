@@ -42,6 +42,10 @@ admin.site.register(Sale)
 admin.site.register(Expense)
 admin.site.register(PaymentOut)
 admin.site.register(Sale_Return)
+admin.site.register(Production_Labour)
+admin.site.register(ProducctionLabourRecord)
+admin.site.register(Loading_Labour)
+admin.site.register(LoadingLabourRecord)
 
 
 # Register your models here.

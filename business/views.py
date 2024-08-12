@@ -1,13 +1,15 @@
 from django.shortcuts import render,redirect,HttpResponse,get_object_or_404
 from django.contrib import messages
 from django.http import JsonResponse
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
 from datetime import datetime,timedelta
 from django.db.models import F
 from django.db.models import Sum
 from django.template.loader import render_to_string,get_template
 from xhtml2pdf import pisa
 import os
+from django.core.paginator import Paginator
+from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
@@ -169,7 +171,7 @@ def Vendor(request):
         total_purchase += obj.Total_Purchase_Price or Decimal(0.00)
         total_sale += obj.Total_Sale_Amount or Decimal(0.00)
         manufacture_expense += obj.Manufacturing_Expense or Decimal(0.00)
-        profit += obj.Profit_OR_Lose or Decimal(0.00)
+        profit +=total_sale- total_purchase-manufacture_expense
         
 
     for pen in pending:
@@ -179,7 +181,7 @@ def Vendor(request):
     for pay in paymentRecived:
         total_Recived_Payment+=pay.Paid_Amount
     
-    
+    print(total_sale,total_sales)
     if total_sale<total_sales:
         messages.warning(request,"Fraud Have Been Detected From Admin")
         FraudDector(request)
@@ -281,21 +283,63 @@ def Addclient(request):
    
      
 def AddDailyProduction(request):
-    
+    labour=Production_Labour.objects.filter(user=request.user)
     Products=Manufacturing.objects.filter(user=request.user,Complete_Production=False).all()
     if request.method=="POST":
         Puroduction_Product_Name=request.POST.get("Production_Product_Name")
         print(Puroduction_Product_Name)
         Production_Place=request.POST.get("Production_Place")
-        city=request.POST.get("city")
+        city=request.POST.get("City")
         Total_Production_Item=request.POST.get("Total_Production_Item")
-        Production_and_Expense_Proof_Screenshot=request.FILES["Production_and_Expense_Proof_Screenshot"]
-        Production_Team_Name=request.POST.get("Production_Team_Name")
-        Total_Expense_Amount=request.POST.get("Total_Expense_Amount")
+        Production_Team_Name=request.POST.get("team")
+        Total_Expense_Amount=Decimal(request.POST.get("Total_Amount"))
         Expense_Remarks=request.POST.get("Remarks_of_Expense")
         Production_completed=request.POST.get("Settlement")
+        one_bale_price=request.POST.get("Bale_Production_Price")
+        payment_status=request.POST.get("Payment_Status")
+        paid_amount=request.POST.get('Paid_Amount')
+        remaining=request.POST.get('Remaining')
+        print(paid_amount,remaining)
+        if not paid_amount:  # Check if the value is empty or None
+            paid_amount = Decimal('0.0')
+        else:
+            paid_amount = Decimal(paid_amount)
+        # Handling Remaining Amount
+         
+        if not remaining:  # Check if the value is empty or None
+            remaining = Decimal('0.0')
+        else:
+            remaining = Decimal(remaining)
+        account=Production_Labour.objects.get(user=request.user,id=Production_Team_Name)
+        update=Production_Labour.objects.filter(user=request.user,id=Production_Team_Name)
+        profile_instance = Profile.objects.get(user=request.user)
+        query=Expense.objects.create(user=request.user,userprofile=profile_instance,Production_Name=Puroduction_Product_Name,category="Labour",amount=Total_Expense_Amount,Payment_Status=payment_status,Paid_Amount=paid_amount,Remaining_Amount=remaining)
+        query.save()
+        manufaccture_instance=Manufacturing.objects.filter(user=request.user,Manufacturing_Product_Name=Puroduction_Product_Name)
+        manufaccture_instance.update(Labour_Expense=F("Labour_Expense")+Total_Expense_Amount)
+        if payment_status=="CREDIT":
+             update.update(Credit=F("Credit")+remaining,Paid=F("Paid")+paid_amount,Bales=F("Bales")+Total_Production_Item)
+        else:
+             update.update(Paid=F("Paid")+ Total_Expense_Amount,Bales=F("Bales")+Total_Production_Item)
+        # Create and save a new LoadingLabourRecord instance
+        ProducctionLabourRecord.objects.create(
+            user=request.user,
+            userprofile=profile_instance,
+            Team_Leader=account.Team_Leader,
+            Bankar=Puroduction_Product_Name,
+            Bales=Total_Production_Item,
+            Per_Bale_Price=one_bale_price,
+            Total_Amount=Total_Expense_Amount,
+            Paid_Amount=paid_amount,
+            Credit=remaining,
+            Remaining=remaining,
+            Payment_Status=payment_status
+        )
+        
+        
+
         profile_instance= get_object_or_404(Profile, user=request.user)
-        query=DailyProduction.objects.create(user=request.user,userprofile=profile_instance, Puroduction_Product_Name=Puroduction_Product_Name,Production_Place=Production_Place, City=city,Total_Production_Item=Total_Production_Item,Production_and_Expense_Proof_Screenshot=Production_and_Expense_Proof_Screenshot, Production_Team_Name= Production_Team_Name,Total_Expense_Amount=Total_Expense_Amount,Remarks_of_Expense=Expense_Remarks )
+        query=DailyProduction.objects.create(user=request.user,userprofile=profile_instance, Puroduction_Product_Name=Puroduction_Product_Name,Production_Place=Production_Place, City=city,Total_Production_Item=Total_Production_Item, Production_Team_Name= account.Team_Leader,Total_Expense_Amount=Total_Expense_Amount,Remarks_of_Expense=Expense_Remarks )
         query.save()
         expense=Decimal(Total_Expense_Amount)
         expenseinprofile=Profile.objects.get(user=request.user)
@@ -315,19 +359,13 @@ def AddDailyProduction(request):
     )
          
 
-    
-         
-    
         
-            
-
-       
-
+        messages.success(request, "Daily Production And Labour data added successfully!")
         return redirect("current_purchase_pdf")
     if request.htmx:
-        return render(request, 'components/AddPurchase.html',{ 'Products': Products})
+        return render(request, 'components/AddPurchase.html',{ 'Products': Products,'labour':labour})
     else:
-        return render(request,"Addpurchase.html",{ 'Products': Products})
+        return render(request,"Addpurchase.html",{ 'Products': Products,'labour':labour})
  
 def Client_Whatsapp_filter(request):
     Client_Whatsapp=request.POST.get('WhatsAppNo')
@@ -342,7 +380,8 @@ def Client_mobileno_filter(request):
 def check_product_name(request):
     product_name = request.GET.get('Product_Name', None)
     if product_name:
-        exists = DailyProduction.objects.filter(Product_Name=product_name).exists()
+        exists = Manufacturing.objects.filter(Manufacturing_Product_Name=product_name).exists()
+        print(exists)
         return JsonResponse({'exists': exists})
     return JsonResponse({'exists': False})
  
@@ -906,10 +945,6 @@ def SalewithClient(request):
      
     
 
-
-    print(pendingTotal)
-    print(client)
-
     client_data = {
         'Full_Name': client.Full_Name,
         'WhatsApp': client.Whats_App_Number,
@@ -1103,7 +1138,7 @@ def CurrentSale(request, pk):
         ["Shipping Address", client_address, "Vehicle Weight", str(Vehicle_Weight)],
         ["Shipping City", client_city, "Vehicle Weight Unit", Vehicle_Weight_Unit],
         ["Shipping State", client_state, "Payment Status", paymentstatus],
-        ["GST", Gst, "Vendor ", request.user.username],
+        ["GST", str(Gst), "Vendor ", request.user.username],
         
     ]
 
@@ -1132,7 +1167,11 @@ def CurrentSale(request, pk):
     return response
 def currentInvoice(request,pk):
     customerid=pk
-    return render(request,'CurrentsalePDF.html',{'customerid':customerid})
+    compydetail = CompanyDetail.objects.first()
+    Date = datetime.now().strftime("%d/%m/%Y")
+    invoice_number = random.randint(100000, 999999)
+    Invoice = Sale.objects.filter(user=request.user, Client_ID=pk).last()
+    return render(request,'CurrentsalePDF.html',{'customerid':customerid,'invoice_number':invoice_number,'compydetail':compydetail,'invoice_number ':invoice_number,'Invoice':Invoice,'Date':Date })
 def ClientSearchAndPurchase(request,pk):
     query = request.GET.get('query')
     query2=request.GET.get('query2')
@@ -1667,89 +1706,165 @@ def paymentInSlip(request, pk,id):
     pdf.build(content)
     return response
 def add_expense(request):
-    balance=Profile.objects.get(user=request.user)
-    productions=Manufacturing.objects.filter(user=request.user,Complete_Production=False)
-    totalBalance=balance.Balance
-     
+    compydetail = CompanyDetail.objects.first()
+    balance = Profile.objects.get(user=request.user)
+    productions = Manufacturing.objects.filter(user=request.user, Complete_Production=False)
+    totalBalance = balance.Balance
+
     if request.method == 'POST':
-        production_name=request.POST.get('name')
+        production_name = request.POST.get('name')
         description = request.POST.get('description')
         category = request.POST.get('category')
-        amount =Decimal(request.POST.get('amount'))
+        harvesting_type = request.POST.get('harvesting-type')
+        fuel_price = request.POST.get('fuel-price')
+        total_Fuel = request.POST.get('total-fuel')
+        Total_Acer = request.POST.get('total-acre')
+        Price_Per_Acer = request.POST.get('harvest-price-per-acre')
+        amount = Decimal(request.POST.get('amount'))
+        payment_status = request.POST.get('payment_status')
+        Paid_amount = request.POST.get('paid_amount')
+
+        if not Paid_amount:  # Check if the value is empty or None
+            Paid_amount = Decimal('0.0')
+        else:
+            Paid_amount = Decimal(Paid_amount)
+        # Handling Remaining Amount
+        print(Paid_amount)
+        Remaining = request.POST.get('remaining_amount')
+        if not Remaining:  # Check if the value is empty or None
+            Remaining = Decimal('0.0')
+        else:
+            Remaining = Decimal(Remaining)
         bill = request.FILES['expensebill']
         notes = request.POST.get('notes')
         profile_instance= get_object_or_404(Profile, user=request.user)
         manufaccture_instance=Manufacturing.objects.filter(user=request.user,Manufacturing_Product_Name=production_name)
  
         if category=="Harvesting":
-             
-            manufaccture_instance.update(Harvesting_Cost=F("Harvesting_Cost")+amount,Manufacturing_Expense=F("Manufacturing_Expense")+amount)
-            
-            query=Expense.objects.create(user=request.user,userprofile=profile_instance,Production_Name=production_name,description=description,category=category,amount=amount,Bill_Proof=bill,notes=notes)
-            query.save()
+            if harvesting_type=="Fuel":
+                 manufaccture_instance.update(Harvesting_Cost=F("Harvesting_Cost")+amount,Manufacturing_Expense=F("Manufacturing_Expense")+amount,Harvest_Type=harvesting_type,Total_Fuel=F("Total_Fuel")+total_Fuel,Fuel_Price=F("Fuel_Price")+fuel_price)
+                 query=Expense.objects.create(user=request.user,userprofile=profile_instance,Production_Name=production_name,description=description,category=category,amount=amount,Bill_Proof=bill,notes=notes,Payment_Status=payment_status,Paid_Amount=Paid_amount,Remaining_Amount=Remaining)
+                 query.save()
+                 Profile.objects.filter(user=request.user).update(
+                 Total_Expense=F("Total_Expense")+amount
+        )
+                 return redirect('expensebill')
+            if harvesting_type=="Without Fuel":
+                 manufaccture_instance.update(Harvesting_Cost=F("Harvesting_Cost")+amount,Manufacturing_Expense=F("Manufacturing_Expense")+amount,Harvest_Type=harvesting_type,Total_Harvest_Acer=F("Total_Harvest_Acer")+Total_Acer,Harvest_Acer_Cost=F("Harvest_Acer_Cost")+Price_Per_Acer)
+                 query=Expense.objects.create(user=request.user,userprofile=profile_instance,Production_Name=production_name,description=description,category=category,amount=amount,Bill_Proof=bill,notes=notes,Payment_Status=payment_status,Paid_Amount=Paid_amount,Remaining_Amount=Remaining)
+                 query.save()
+                 Profile.objects.filter(user=request.user).update(
+                Total_Expense=F("Total_Expense")+amount
+        )
+                 return redirect('expensebill')
+           
         elif  category=="Pressing":
             manufaccture_instance.update(Pressing_Cost=F("Pressing_Cost")+amount,Manufacturing_Expense=F("Manufacturing_Expense")+amount)
-            query=Expense.objects.create(user=request.user,userprofile=profile_instance,Production_Name=production_name,description=description,category=category,amount=amount,Bill_Proof=bill,notes=notes)
+            query=Expense.objects.create(user=request.user,userprofile=profile_instance,Production_Name=production_name,description=description,category=category,amount=amount,Bill_Proof=bill,notes=notes,)
             query.save()
+            Profile.objects.filter(user=request.user).update(
+            Total_Expense=F("Total_Expense")+amount
+        )
         elif  category=="Dumping":
             manufaccture_instance.update(Dumping_Cost=F("Dumping_Cost")+amount,Manufacturing_Expense=F("Manufacturing_Expense")+amount)
-            query=Expense.objects.create(user=request.user,userprofile=profile_instance,Production_Name=production_name,description=description,category=category,amount=amount,Bill_Proof=bill,notes=notes)
+            query=Expense.objects.create(user=request.user,userprofile=profile_instance,Production_Name=production_name,description=description,category=category,amount=amount,Bill_Proof=bill,notes=notes,Payment_Status=payment_status,Paid_Amount=Paid_amount,Remaining_Amount=Remaining)
             query.save()
+            Profile.objects.filter(user=request.user).update(
+            Total_Expense=F("Total_Expense")+amount
+        )
         elif  category=="Polythene":
             manufaccture_instance.update(Polythene_Cost=F("Polythene_Cost")+amount,Manufacturing_Expense=F("Manufacturing_Expense")+amount)
-            query=Expense.objects.create(user=request.user,userprofile=profile_instance,Production_Name=production_name,description=description,category=category,amount=amount,Bill_Proof=bill,notes=notes)
+            query=Expense.objects.create(user=request.user,userprofile=profile_instance,Production_Name=production_name,description=description,category=category,amount=amount,Bill_Proof=bill,notes=notes,Payment_Status=payment_status,Paid_Amount=Paid_amount,Remaining_Amount=Remaining)
             query.save()
+            Profile.objects.filter(user=request.user).update(
+            Total_Expense=F("Total_Expense")+amount
+        )
         elif  category=="Mud Cost":
             manufaccture_instance.update(Mud_Cost=F("Mud_Cost")+amount,Manufacturing_Expense=F("Manufacturing_Expense")+amount)
-            
-            query=Expense.objects.create(user=request.user,userprofile=profile_instance,Production_Name=production_name,description=description,category=category,amount=amount,Bill_Proof=bill,notes=notes)
+            query=Expense.objects.create(user=request.user,userprofile=profile_instance,Production_Name=production_name,description=description,category=category,amount=amount,Bill_Proof=bill,notes=notes,Payment_Status=payment_status,Paid_Amount=Paid_amount,Remaining_Amount=Remaining)
             query.save()
-        elif  category=="Weight Losses":
-            manufaccture_instance.update(Weight_Losses=F("Weight_Losses")+amount,Manufacturing_Expense=F("Manufacturing_Expense")+amount)
-            query=Expense.objects.create(user=request.user,userprofile=profile_instance,Production_Name=production_name,description=description,category=category,amount=amount,Bill_Proof=bill,notes=notes)
-            query.save()
-        elif  category=="Packing Material":
+            Profile.objects.filter(user=request.user).update(
+            Total_Expense=F("Total_Expense")+amount
+        )
+    
+                
+
+        elif  category=="Balling Paper":
             manufaccture_instance.update(Packing_Material=F("Packing_Material")+amount,Manufacturing_Expense=F("Manufacturing_Expense")+amount)
-            query=Expense.objects.create(user=request.user,userprofile=profile_instance,Production_Name=production_name,description=description,category=category,amount=amount,Bill_Proof=bill,notes=notes)
+            query=Expense.objects.create(user=request.user,userprofile=profile_instance,Production_Name=production_name,description=description,category=category,amount=amount,Bill_Proof=bill,notes=notes,Payment_Status=payment_status,Paid_Amount=Paid_amount,Remaining_Amount=Remaining)
             query.save()
+            Profile.objects.filter(user=request.user).update(
+            Total_Expense=F("Total_Expense")+amount
+        )
+        elif  category=="Stitch Paper":
+            manufaccture_instance.update(Packing_Material=F("Packing_Material")+amount,Manufacturing_Expense=F("Manufacturing_Expense")+amount)
+            query=Expense.objects.create(user=request.user,userprofile=profile_instance,Production_Name=production_name,description=description,category=category,amount=amount,Bill_Proof=bill,notes=notes,Payment_Status=payment_status,Paid_Amount=Paid_amount,Remaining_Amount=Remaining)
+            query.save()
+            Profile.objects.filter(user=request.user).update(
+            Total_Expense=F("Total_Expense")+amount
+        )
         elif  category=="Machine Depreciation":
             manufaccture_instance.update(Machine_Depreciation=F("Machine_Depreciation")+amount,Manufacturing_Expense=F("Manufacturing_Expense")+amount)
-            query=Expense.objects.create(user=request.user,userprofile=profile_instance,Production_Name=production_name,description=description,category=category,amount=amount,Bill_Proof=bill,notes=notes)
+            query=Expense.objects.create(user=request.user,userprofile=profile_instance,Production_Name=production_name,description=description,category=category,amount=amount,Bill_Proof=bill,notes=notes,Payment_Status=payment_status,Paid_Amount=Paid_amount,Remaining_Amount=Remaining)
             query.save()
+            Profile.objects.filter(user=request.user).update(
+            Total_Expense=F("Total_Expense")+amount
+        )
         elif  category=="Loading":
             manufaccture_instance.update(Loading_Cost=F("Loading_Cost")+amount,Manufacturing_Expense=F("Manufacturing_Expense")+amount)
             query=Expense.objects.create(user=request.user,userprofile=profile_instance,Production_Name=production_name,description=description,category=category,amount=amount,Bill_Proof=bill,notes=notes)
             query.save()
+            Profile.objects.filter(user=request.user).update(
+            Total_Expense=F("Total_Expense")+amount
+        )
         elif  category=="Labour":
             manufaccture_instance.update(Labour_Expense=F("Labour_Expense")+amount,Manufacturing_Expense=F("Manufacturing_Expense")+amount)
             query=Expense.objects.create(user=request.user,userprofile=profile_instance,Production_Name=production_name,description=description,category=category,amount=amount,Bill_Proof=bill,notes=notes)
             query.save()
+            Profile.objects.filter(user=request.user).update(
+            Total_Expense=F("Total_Expense")+amount
+        )
         else:
             manufaccture_instance.update(Other_Expense=F("Other_Expense")+amount,Manufacturing_Expense=F("Manufacturing_Expense")+amount)
-            query=Expense.objects.create(user=request.user,userprofile=profile_instance,Production_Name=production_name,description=description,category=category,amount=amount,Bill_Proof=bill,notes=notes)
+            query=Expense.objects.create(user=request.user,userprofile=profile_instance,Production_Name=production_name,description=description,category=category,amount=amount,Bill_Proof=bill,notes=notes,Payment_Status=payment_status,Paid_Amount=Paid_amount,Remaining_Amount=Remaining)
             query.save()
         Profile.objects.filter(user=request.user).update(
             Total_Expense=F("Total_Expense")+amount
         )
-         
-         
         # Redirect to a success page or do further processing
         return redirect('expensebill')  # Replace with your success URL or view name
     if request.htmx:
-        return render(request,'components/expense_form.html',{'totalBalance':totalBalance,'productions':productions})
+        return render(request,'components/expense_form.html',{'totalBalance':totalBalance,'productions':productions,'compydetail':compydetail})
     else:
-        return render(request, 'expense_form.html',{'totalBalance':totalBalance,'productions':productions})
+        return render(request, 'expense_form.html',{'totalBalance':totalBalance,'productions':productions,'compydetail':compydetail})
 def expenseManagement(request):
-    fromdate=request.GET.get("fromdate")
-    todate=request.GET.get('todate')
+    fromdate = request.GET.get("fromdate")
+    todate = request.GET.get('todate')
+
+    # Start with an empty filter set
     results = Expense.objects.filter(user=request.user)
+
+    # Apply date filters if provided
     if fromdate and todate:
-        results = results.filter(date__lte=todate, date__gte=fromdate)    
-      
+        results = results.filter(date__lte=todate, date__gte=fromdate)
+
+    # Apply pagination after filtering
+    paginator = Paginator(results, 8)  # Show 3 expenses per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        'fromdate': fromdate,
+        'todate': todate,
+        'results': page_obj,  # Pass paginated results
+        'page_obj': page_obj,  # Pass the page object for pagination controls
+    }
+
+    # Render appropriate template based on whether HTMX is used
     if request.htmx:
-        return render(request,'components/expensemanagement.html',{'fromdate':fromdate,'todate':todate,'results':results})
+        return render(request, 'components/expensemanagement.html', context)
     else:
-        return render(request, 'expensemanagement.html',{'fromdate':fromdate,'todate':todate,'results':results})
+        return render(request, 'expensemanagement.html', context)
 def expensebill(request):
     return render(request,"expensebill.html") 
  
@@ -2591,4 +2706,691 @@ def FraudDector(request):
     )
     send_mail(subject, message,  settings.EMAIL_HOST_USER, [alert])
      
+
+def AddManufecturePurchase(request):
+    if request.method=="POST":
+        Purchase_Type=request.POST.get("Purchase_Type")
+        Location=request.POST.get("Production_Place")
+        supplier=request.POST.get("sname")
+        BunkarName=request.POST.get("Product_Name")
+        Acers=request.POST.get("total_acer")
+        acer_purchase_price= request.POST.get("acer_purchase_price")
+        total_amount_acers=request.POST.get("total_amount_acers")
+        Total_Weight=request.POST.get("Total_Weight")
+        Purchase_Weight_Price= request.POST.get("Purchase_Weight_Price")
+        Total_Amount_Weight=request.POST.get("Wtotal")
+        profile_instance= get_object_or_404(Profile, user=request.user)
+        check=Manufacturing.objects.filter(Manufacturing_Product_Name=BunkarName).exists()
+        if check:
+            messages.warning(request,'Bankar Name Already Exist,Please Enter Unique Bunkar Name')
+            return redirect('AddManufecturePurchase')
+        if Purchase_Type=="PER_ACER":
+            if Decimal(total_amount_acers)<=0.00:
+                messages.info(request,"Please Fill All Calculation Fields")
+                return redirect("AddManufecturePurchase")
+
+            query=Manufacturing.objects.create(user=request.user,userprofile=profile_instance,Manufacturing_Product_Name=BunkarName,Manufacturing_Purchase_Type=Purchase_Type,Supplier_Name=supplier,Place_Of_Supply=Location,Total_Acers=Acers,Per_Acer_Purchase_Price=acer_purchase_price,Total_Purchase_Price=total_amount_acers)
+            query.save()
+            messages.info(request,"Bunkar Record Added! Please Add Expense Of Your New Bunkar")
+            return redirect("add_expense")
+        if Purchase_Type=="PURCHASE_WEIGHT":
+            if Decimal(total_amount_acers)<=0.00:
+                messages.info(request,"Please Fill All Calculation Fields")
+                return redirect("add_expense")
+            query=Manufacturing.objects.create(user=request.user,userprofile=profile_instance,Manufacturing_Product_Name=BunkarName,Manufacturing_Purchase_Type=Purchase_Type,Supplier_Name=supplier,Place_Of_Supply=Location,Weight=Total_Weight,Manufacture_Weight=Total_Weight,Purchase_Weight_Price=Purchase_Weight_Price,Total_Purchase_Price=Total_Amount_Weight)
+            query.save()
+            messages.info(request,"Bunkar Record Added! Please Add Expense Of Your New Bunkar")
+            return redirect("add_expense")
+
+    if request.htmx:
+        return render(request,"components/Purchaseform.html")
+    else:
+        return render(request,'ManufacturePurchaseForm.html')
+def HarvestingExpense(request):
+    productions=Manufacturing.objects.filter(user=request.user,Complete_Production=False)
+    if request.htmx:
+        return render(request,"components/Harvesting.html",{'productions':productions})
+    else:
+        return render(request,'Harvesting.html',{'productions':productions})
+def Dumping(request):
+    productions=Manufacturing.objects.filter(user=request.user,Complete_Production=False)
+    if request.htmx:
+        return render(request,"components/Dumping.html",{'productions':productions})
+    else:
+        return render(request,'Dumping.html',{'productions':productions})
+def Polythene(request):
+    productions=Manufacturing.objects.filter(user=request.user,Complete_Production=False)
+    if request.htmx:
+        return render(request,"components/Polythene.html",{'productions':productions})
+    else:
+        return render(request,'Polythene.html',{'productions':productions})
+def PackingMaterial(request):
+    productions=Manufacturing.objects.filter(user=request.user,Complete_Production=False)
+    if request.htmx:
+        return render(request,"components/Packing.html",{'productions':productions})
+    else:
+        return render(request,'Packing.html',{'productions':productions})
+def WeightLose(request):
+    productions=Manufacturing.objects.filter(user=request.user,Complete_Production=False)
+    if request.method == 'POST':
+        production_name=request.POST.get('name')
+        weightlosevalue = request.POST.get('weightlosevalue')
+        manufaccture_instance=Manufacturing.objects.get(user=request.user,Manufacturing_Product_Name=production_name)
+        original_weight2 = manufaccture_instance.Manufacture_Weight # Assume this is a Decimal field
+        print(original_weight2)
+        weightlose_percentage = Decimal(weightlosevalue) / 100
+        print(weightlose_percentage)
+        deduction2 = original_weight2 *  weightlose_percentage # Calculate 3% deduction
+        new_weight2 = original_weight2 - deduction2
+        manufaccture_instance.Manufacture_Weight = new_weight2
+        manufaccture_instance.save()
+        manufaccture_instance.Weight_Losses=weightlosevalue
+        manufaccture_instance.save()
+        print(new_weight2)# Save the updated instance
+        return redirect("Vendor")
+    if request.htmx:
+        return render(request,"components/WeightLose.html",{'productions':productions})
+    else:
+          return render(request,'WeightLose.html',{'productions':productions})
+         
+     
+  
+@login_required
+def add_production_labour(request):
+    if request.method == 'POST':
+        team_leader = request.POST.get('team_leader')
+        profile_instance = Profile.objects.get(user=request.user)
+        # Create and save a new Production_Labour instance
+        Production_Labour.objects.create(
+            userprofile=profile_instance,
+            user=request.user,
+            Team_Leader=team_leader,
+        )
+        messages.success(request, "Production Labour data added successfully!")
+        return redirect('AddDailyProduction')  # Redirect to a list view or another view
+    if request.htmx:
+        return render(request,"components/add_production_labour.html")
+    else:
+        return render(request, 'add_production_labour.html')
+   
+
+@login_required
+def add_loading_labour(request):
+    if request.method == 'POST':
+        team_leader = request.POST.get('team_leader')
+        profile_instance = Profile.objects.get(user=request.user)
+       
+
+        # Create and save a new Loading_Labour instance
+        Loading_Labour.objects.create(
+            userprofile=profile_instance,
+            user=request.user,
+            Team_Leader=team_leader,
+        )
+        
+        messages.success(request, "Loading Labour data added successfully!")
+        return redirect('AddDailyProduction')  # Redirect to a list view or another view
+    if request.htmx:
+        return render(request,"components/add_loading_labour.html")
+    else:
+        return render(request, 'add_loading_labour.html')
+
+    
+
+ 
+@login_required
+def add_loading_labour_record(request):
+    productions=Manufacturing.objects.filter(user=request.user,Complete_Production=False)
+    labour=Loading_Labour.objects.filter(user=request.user)
+    if request.method == 'POST':
+        
+        team_leader = request.POST.get('team_leader')
+        bankar = request.POST.get('name')
+        bales = request.POST.get('bales')
+        per_bale_price = request.POST.get('per_bale_price')
+        payment_status = request.POST.get('payment_status')
+        total_amount=request.POST.get('total_amount')
+        paid_amount=request.POST.get('paid_amount')
+        remaining=request.POST.get('remaining')
+        if not paid_amount:  # Check if the value is empty or None
+            paid_amount = Decimal('0.0')
+        else:
+            paid_amount = Decimal(paid_amount)
+        # Handling Remaining Amount
+         
+        if not remaining:  # Check if the value is empty or None
+            remaining = Decimal('0.0')
+        else:
+            remaining = Decimal(remaining)
+        account=Loading_Labour.objects.get(user=request.user,id=team_leader)
+        update=Loading_Labour.objects.filter(user=request.user,id=team_leader)
+        profile_instance = Profile.objects.get(user=request.user)
+        productions = Manufacturing.objects.filter(user=request.user, Complete_Production=False)
+        manufaccture_instance=Manufacturing.objects.filter(user=request.user,Manufacturing_Product_Name=bankar)
+        manufaccture_instance.update(Pressing_Cost=F("Loading_Cost")+total_amount,Manufacturing_Expense=F("Manufacturing_Expense")+total_amount)
+        
+        Profile.objects.filter(user=request.user).update(
+        Total_Expense=F("Total_Expense")+total_amount)
+        if payment_status=="CREDIT":
+             update.update(Credit=F("Credit")+remaining,Paid=F("Paid")+paid_amount,Bales=F("Bales")+bales)
+        else:
+             update.update(Paid=F("Paid")+ total_amount,Bales=F("Bales")+bales)
+        # Create and save a new LoadingLabourRecord instance
+        LoadingLabourRecord.objects.create(
+            user=request.user,
+            userprofile=profile_instance,
+            Team_Leader=account.Team_Leader,
+            Bankar=bankar,
+            Bales=bales,
+            Per_Bale_Price=per_bale_price,
+            Total_Amount=total_amount,
+            Paid_Amount=paid_amount,
+            Remaining=remaining,
+            Payment_Status=payment_status
+        )
+        
+        messages.success(request, "Loading Labour Record data added successfully!")
+        return redirect('Vendor')  # Redirect to a list view or another view
+
+    return render(request, 'add_loading_labour_record.html',{'productions':productions,'labour':labour})
+def search1(request):
+    fromdate=request.GET.get("fromdate")
+    todate=request.GET.get('todate')
+    results = ProducctionLabourRecord.objects.filter(user=request.user)
+    count=ProducctionLabourRecord.objects.filter(user=request.user).count()
+    
+
+    if fromdate and todate:
+        results = results.filter(date__lte=todate, date__gte=fromdate)
+        messages.info(request,f"{count} Record Found In Production Labour")    
+      
+    if request.htmx:
+        return render(request,'components/ProductionLabourRecord.html',{'fromdate':fromdate,'todate':todate,'results':results})
+    else:
+        return render(request, 'ProductionLabourRecord.html',{'fromdate':fromdate,'todate':todate,'results':results})
+
+def generate_Production_Labour_report(request):
+    # Fetch data from the database
+    results  = LoadingLabourRecord.objects.filter(user=request.user)
+    fromdate=request.GET.get("fromdate")
+    todate=request.GET.get('todate')
+    if fromdate and todate:
+        results = results.filter(date__lte=todate, date__gte=fromdate)   
+    # Calculate totals
+    total_amount = Decimal(0.00)
+    for expense in results:
+        total_amount += expense.Total_Amount
+
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment;filename="Production_Labour_Expense_Report.pdf"'
+
+    # Create a PDF document
+    pdf = SimpleDocTemplate(response, pagesize=landscape(letter))
+    
+    # Fetch company details (assuming there's only one company)
+    try:
+        company_detail = CompanyDetail.objects.get()
+    except CompanyDetail.DoesNotExist:
+        company_detail = None
+
+    # Default values if no company details found
+    if company_detail:
+        company_name = company_detail.name
+        company_email = company_detail.email
+        head_office = company_detail.Head_Office
+        phone_number = company_detail.phone
+        company_logo_path = company_detail.logo  # Adjust with actual attribute name for logo URL
+    else:
+        company_name = "Your Company Name"
+        company_email = "company@example.com"
+        head_office = "1234 Main St, Anytown, AN"
+        phone_number = "(123) 456-7890"
+        company_logo_path = "media/default_logo.png"  # Replace with default logo path
+
+    date = datetime.now().strftime("%d/%m/%Y")
+
+    # Define styles
+    styles = getSampleStyleSheet()
+    title_style = styles['Title']
+    heading_style = styles['Heading1']
+    paragraph_style = styles['Normal']
+    footer_style = ParagraphStyle('footer', fontSize=10, alignment=1, textColor=colors.grey)
+
+    # Create report content
+    content = []
+
+    # Company logo and details
+    if company_logo_path:
+        try:
+            company_logo = Image(company_logo_path, width=100, height=100)
+        except Exception as e:
+            print(f"Failed to load company logo: {str(e)}")
+            company_logo = None
+    else:
+        company_logo = None
+
+    if company_logo:
+        content.append(company_logo)
+    
+    content.append(Paragraph(company_name, title_style))
+    content.append(Paragraph(head_office, paragraph_style))
+    content.append(Paragraph(phone_number, paragraph_style))
+    content.append(Paragraph(company_email, paragraph_style))
+    content.append(Spacer(1, 20))
+
+    # Report title and summary
+    content.append(Paragraph("Production Labour Record", heading_style))
+    content.append(Paragraph("Report Date: {}".format(date), paragraph_style))
+    content.append(Spacer(1, 20))
+
+    # Expenses table
+    data = [
+        ["Leader","Bunkar","Bales", "Bale Price", "Total","Status","Date"]
+    ]
+    for expns in results:
+        data.append([expns.Team_Leader,expns.Bankar,"{:.2f}".format(expns.Bales), "{:.2f}".format(expns.Per_Bale_Price), "{:.2f}".format(expns.Total_Amount), expns.Payment_Status ,expns.date.strftime("%d/%m/%Y")])
+
+    col_widths = [100,130, 100, 90,90,90,100]  # Adjust column widths
+    table_style = TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.whitesmoke, colors.lightgrey]),
+    ])
+    
+    expenses_table = Table(data, colWidths=col_widths)
+    expenses_table.setStyle(table_style)
+    content.append(expenses_table)
+    content.append(Spacer(1, 20))
+
+    # Summary table
+    summary = [
+        ["Total Amount", "{:.2f}".format(total_amount)]
+    ]
+    summary_table_style = TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.white),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+    ])
+    summary_table = Table(summary, colWidths=[150, 100])
+    summary_table.setStyle(summary_table_style)
+    content.append(summary_table)
+    content.append(Spacer(1, 20))
+
+    # Footer
+    content.append(Paragraph("", footer_style))
+
+    # Build the PDF document
+    pdf.build(content)
+    return response
+def Production_Labour_Excel(request):
+    # Query the database
+    data = ProducctionLabourRecord.objects.filter(user=request.user).values()
+    df = pd.DataFrame(list(data))
+
+    # Create an Excel writer using Pandas
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename=ProductionLabour.xlsx'
+    with pd.ExcelWriter(response, engine='openpyxl') as writer:
+        df.to_excel(writer, index=False, sheet_name='Sheet1')
+
+    return response
+def search2(request):
+    fromdate=request.GET.get("fromdate")
+    todate=request.GET.get('todate')
+    results =  LoadingLabourRecord.objects.filter(user=request.user)
+    count= LoadingLabourRecord.objects.filter(user=request.user).count()
+    
+
+    if fromdate and todate:
+        results = results.filter(date__lte=todate, date__gte=fromdate)
+        messages.info(request,f"{count} Record Found In Loading Labour")    
+      
+    if request.htmx:
+        return render(request,'components/LoadingLabourRecord.html',{'fromdate':fromdate,'todate':todate,'results':results})
+    else:
+        return render(request, 'LoadingLabourRecord.html',{'fromdate':fromdate,'todate':todate,'results':results})
+
+def generate_Loading_Labour_report(request):
+    # Fetch data from the database
+    results  = LoadingLabourRecord.objects.filter(user=request.user)
+    fromdate=request.GET.get("fromdate")
+    todate=request.GET.get('todate')
+    if fromdate and todate:
+        results = results.filter(date__lte=todate, date__gte=fromdate)   
+    # Calculate totals
+    total_amount = Decimal(0.00)
+    for expense in results:
+        total_amount += expense.Total_Amount
+
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment;filename="Loading_Labour_Expense_Report.pdf"'
+
+    # Create a PDF document
+    pdf = SimpleDocTemplate(response, pagesize=landscape(letter))
+    
+    # Fetch company details (assuming there's only one company)
+    try:
+        company_detail = CompanyDetail.objects.get()
+    except CompanyDetail.DoesNotExist:
+        company_detail = None
+
+    # Default values if no company details found
+    if company_detail:
+        company_name = company_detail.name
+        company_email = company_detail.email
+        head_office = company_detail.Head_Office
+        phone_number = company_detail.phone
+        company_logo_path = company_detail.logo  # Adjust with actual attribute name for logo URL
+    else:
+        company_name = "Your Company Name"
+        company_email = "company@example.com"
+        head_office = "1234 Main St, Anytown, AN"
+        phone_number = "(123) 456-7890"
+        company_logo_path = "media/default_logo.png"  # Replace with default logo path
+
+    date = datetime.now().strftime("%d/%m/%Y")
+
+    # Define styles
+    styles = getSampleStyleSheet()
+    title_style = styles['Title']
+    heading_style = styles['Heading1']
+    paragraph_style = styles['Normal']
+    footer_style = ParagraphStyle('footer', fontSize=10, alignment=1, textColor=colors.grey)
+
+    # Create report content
+    content = []
+
+    # Company logo and details
+    if company_logo_path:
+        try:
+            company_logo = Image(company_logo_path, width=100, height=100)
+        except Exception as e:
+            print(f"Failed to load company logo: {str(e)}")
+            company_logo = None
+    else:
+        company_logo = None
+
+    if company_logo:
+        content.append(company_logo)
+    
+    content.append(Paragraph(company_name, title_style))
+    content.append(Paragraph(head_office, paragraph_style))
+    content.append(Paragraph(phone_number, paragraph_style))
+    content.append(Paragraph(company_email, paragraph_style))
+    content.append(Spacer(1, 20))
+
+    # Report title and summary
+    content.append(Paragraph("Loading Labour Record", heading_style))
+    content.append(Paragraph("Report Date: {}".format(date), paragraph_style))
+    content.append(Spacer(1, 20))
+
+    # Expenses table
+    data = [
+        ["Leader","Bunkar","Bales", "Bale Price", "Total","Status","Date"]
+    ]
+    for expns in results:
+        data.append([expns.Team_Leader,expns.Bankar,"{:.2f}".format(expns.Bales), "{:.2f}".format(expns.Per_Bale_Price), "{:.2f}".format(expns.Total_Amount), expns.Payment_Status ,expns.date.strftime("%d/%m/%Y")])
+
+    col_widths = [100,130, 100, 90,90,90,100]  # Adjust column widths
+    table_style = TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.whitesmoke, colors.lightgrey]),
+    ])
+    
+    expenses_table = Table(data, colWidths=col_widths)
+    expenses_table.setStyle(table_style)
+    content.append(expenses_table)
+    content.append(Spacer(1, 20))
+
+    # Summary table
+    summary = [
+        ["Total Amount", "{:.2f}".format(total_amount)]
+    ]
+    summary_table_style = TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.white),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+    ])
+    summary_table = Table(summary, colWidths=[150, 100])
+    summary_table.setStyle(summary_table_style)
+    content.append(summary_table)
+    content.append(Spacer(1, 20))
+
+    # Footer
+    content.append(Paragraph("", footer_style))
+
+    # Build the PDF document
+    pdf.build(content)
+    return response
+def Loading_Labour_Excel(request):
+    # Query the database
+    data = LoadingLabourRecord.objects.filter(user=request.user).values()
+    df = pd.DataFrame(list(data))
+
+    # Create an Excel writer using Pandas
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename=LoadingLabour.xlsx'
+    with pd.ExcelWriter(response, engine='openpyxl') as writer:
+        df.to_excel(writer, index=False, sheet_name='Sheet1')
+
+    return response
+def CreditToPaid(request, id):
+    if request.method == "POST":
+        Pay_Amount = Decimal(request.POST.get('Pay_Amount'))
+        Remaining_Payment = Decimal(request.POST.get('Remaining_Amount'))
+        Pending_Amount = Decimal(request.POST.get('Pending_Amount'))
+        
+        try:
+            Pay_Amount = float(Pay_Amount)
+            Remaining_Payment = float(Remaining_Payment)
+        except (ValueError, TypeError):
+            # Handle the error or provide feedback to the user
+            return render(request, ' CreditToPaid.html', {
+                  'id': id, 'error': 'Invalid payment amounts provided.'
+            })
+        
+        ProducctionLabourRecord.objects.filter(
+        user=request.user,
+        pk=id,
+        Payment_Status="CREDIT"
+        ).update(
+            Paid_Amount=F('Paid_Amount') + Pay_Amount,
+            Remaining=F('Remaining') - Pay_Amount,
+            Credit=F("Credit")-Pay_Amount
+
+            
+        )
+        Expense.objects.filter(user=request.user,Remaining_Amount=Pending_Amount,Payment_Status="CREDIT").update(
+        Paid_Amount=F('Paid_Amount') + Pay_Amount,
+        Remaining_Amount=F('Remaining_Amount') - Pay_Amount,
+
+        )  
+        
+        if Remaining_Payment == 0:
+            ProducctionLabourRecord.objects.filter(
+                user=request.user,
+                pk=id,
+                Payment_Status="CREDIT"
+            ).update(Payment_Status="PAID")
+            Expense.objects.filter(user=request.user,Remaining_Amount=Pending_Amount).update(
+            Payment_Status="PAID"
+        )
+            Expense.objects.filter(user=request.user,Remaining_Amount=Pending_Amount,Payment_Status="CREDIT").update(
+            Paid_Amount=F('Paid_Amount') + Pay_Amount,
+            Remaining_Amount=F('Remaining_Amount') - Pay_Amount
+             
+
+        )
+       
+        messages.info(request,"Bill Have Been Paid To Production Labour ")
+        return redirect("search1")  
+       
+    Paymentout = ProducctionLabourRecord.objects.get(
+        user=request.user,
+        pk=id,
+        Payment_Status="CREDIT"
+
+    )
+    
+     
+    
+    
+    
+    
+    template = 'components/CreditToPaid.html' if request.htmx else 'CreditToPaid.html'
+    return render(request, template, {
+        'id': id,
+        'data':Paymentout,
+         
+    })
+ 
+def CreditToPaidLoading(request, id):
+    if request.method == "POST":
+        Pay_Amount = Decimal(request.POST.get('Pay_Amount'))
+        Remaining_Payment = Decimal(request.POST.get('Remaining_Amount'))
+        Pending_Amount = Decimal(request.POST.get('Pending_Amount'))
+        
+        try:
+            Pay_Amount = float(Pay_Amount)
+            Remaining_Payment = float(Remaining_Payment)
+        except (ValueError, TypeError):
+            # Handle the error or provide feedback to the user
+            return render(request, ' CreditToPaidLoading.html', {
+                  'id': id, 'error': 'Invalid payment amounts provided.'
+            })
+        
+        LoadingLabourRecord.objects.filter(
+        user=request.user,
+        pk=id,
+        Payment_Status="CREDIT"
+        ).update(
+            Paid_Amount=F('Paid_Amount') + Pay_Amount,
+            Remaining=F('Remaining') - Pay_Amount,
+            Credit=F("Credit")-Pay_Amount
+
+            
+        )
+        Expense.objects.filter(user=request.user,Remaining_Amount=Pending_Amount,Payment_Status="CREDIT").update(
+        Paid_Amount=F('Paid_Amount') + Pay_Amount,
+        Remaining_Amount=F('Remaining_Amount') - Pay_Amount,
+
+        )  
+        
+        if Remaining_Payment == 0:
+            LoadingLabourRecord.objects.filter(
+                user=request.user,
+                pk=id,
+                Payment_Status="CREDIT"
+            ).update(Payment_Status="PAID")
+            Expense.objects.filter(user=request.user,Remaining_Amount=Pending_Amount).update(
+            Payment_Status="PAID"
+        )
+            Expense.objects.filter(user=request.user,Remaining_Amount=Pending_Amount,Payment_Status="CREDIT").update(
+            Paid_Amount=F('Paid_Amount') + Pay_Amount,
+            Remaining_Amount=F('Remaining_Amount') - Pay_Amount
+             
+
+        )
+       
+        messages.info(request,"Bill Have Been Paid To Loading Labour ")
+        return redirect("Vendor")  
+       
+    Paymentout = LoadingLabourRecord.objects.get(
+        user=request.user,
+        pk=id,
+        Payment_Status="CREDIT"
+
+    )
+    
+     
+    
+    
+    
+    
+    template = 'components/CreditToPaidLoading.html' if request.htmx else 'CreditToPaidLoading.html'
+    return render(request, template, {
+        'id': id,
+        'data':Paymentout,
+         
+    })
+
+def BunkarExpense(request, id):
+    if request.method == "POST":
+        Pay_Amount = Decimal(request.POST.get('Pay_Amount'))
+        Remaining_Payment = Decimal(request.POST.get('Remaining_Amount'))
+        
+        try:
+            Pay_Amount = float(Pay_Amount)
+            Remaining_Payment = float(Remaining_Payment)
+        except (ValueError, TypeError):
+            # Handle the error or provide feedback to the user
+            return render(request, ' CreditToPaidLoading.html', {
+                  'id': id, 'error': 'Invalid payment amounts provided.'
+            })
+        
+        Expense.objects.filter(
+        user=request.user,
+        pk=id,
+        Payment_Status="CREDIT"
+        ).update(
+            Paid_Amount=F('Paid_Amount') + Pay_Amount,
+            Remaining_Amount=F('Remaining_Amount') - Pay_Amount,
+            
+
+            
+        )
+         
+        if Remaining_Payment == 0:
+            Expense.objects.filter(
+                user=request.user,
+                pk=id,
+                Payment_Status="CREDIT"
+            ).update(Payment_Status="PAID")
+
+       
+        messages.info(request,"Bill Have Been!!! ")
+        return redirect("Vendor")  
+       
+    Paymentout = Expense.objects.get(
+        user=request.user,
+        pk=id,
+        Payment_Status="CREDIT"
+
+    )
+    
+     
+    
+    
+    
+    
+    template = 'components/Bunkarexpense.html' if request.htmx else 'Bunkarexpense.html'
+    return render(request, template, {
+        'id': id,
+        'data':Paymentout,
+         
+    })
+ 
+ 
+
+
+
 

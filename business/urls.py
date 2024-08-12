@@ -54,6 +54,27 @@ urlpatterns = [
     path('SaleReturnManagement/',SaleReturnManagement, name='SaleReturnManagement'), 
     path('VendorSaleReturn_export_to_excel/',VendorSaleReturn_export_to_excel, name='VendorSaleReturn_export_to_excel'),
     path('SaleReturnReport/',SaleReturnReport, name='SaleReturnReport'),
+    path('AddManufecturePurchase/',AddManufecturePurchase, name='AddManufecturePurchase'),
+    path('Dumping/', Dumping, name=' Dumping'),
+    path('HarvestingExpense/',HarvestingExpense, name='HarvestingExpense'),
+    path('Polythene/',Polythene, name='Polythene'),
+    path('PackingMaterial/', PackingMaterial, name=' PackingMaterial'),
+    path('WeightLose/', WeightLose, name=' WeightLose'),
+    path('add_production_labour/', add_production_labour, name=' add_production_labour'),
+    path('add_loading_labour/', add_loading_labour, name=' add_loading_labour'),
+    path('add_loading_labour_record/', add_loading_labour_record, name=' add_loading_labour_record'),
+    path('search1/', search1, name=' search1'),
+    path('generate_Production_Labour_report/', generate_Production_Labour_report, name=' generate_Production_Labour_report'),
+    path('Production_Labour_Excel/', Production_Labour_Excel, name='Production_Labour_Excel'),
+    path('search2/', search2, name=' search2'),
+    path('generate_Loading_Labour_report/', generate_Loading_Labour_report, name=' generate_Loading_Labour_report'),
+    path('Loading_Labour_Excel/', Loading_Labour_Excel, name='Loading_Labour_Excel'),
+    path('CreditToPaid/<str:id>/',CreditToPaid,name='CreditToPaid'),
+    path('CreditToPaidLoading/<str:id>/',CreditToPaidLoading,name='CreditToPaidLoading'),
+    path('BunkarExpense/<str:id>/',BunkarExpense,name='BunkarExpense')
+    
+    
+     
     
      
     

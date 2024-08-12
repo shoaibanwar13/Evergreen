@@ -12,7 +12,8 @@
             {% for message in messages  %}
             <p class="text-red-400">{{message}}</p>
             {% endfor %}
-            <h6 class="text-blueGray-600 text-sm mt-3 mb-6 font-bold uppercase"><a href="" hx-get="/Addclient/" hx-push-url="/Addclient/" hx-target="#change" class="block uppercase text-green-500 text-xs font-bold mb-2"><i class="fas fa-plus "></i> Add Client</a></h6>
+            <h6 class="text-blueGray-600 text-sm mt-3 mb-6 font-bold uppercase"><a href="" hx-get="/Addclient/" hx-push-url="/Addclient/" hx-target="#change" class="block uppercase text-green-500 text-xs font-bold mb-2"><i class="fas fa-plus "></i> Add Client</a>    </h6>
+            <h6 class="text-blue-600 text-sm mt-3 mb-6 font-bold uppercase"><i class="fas fa-undo-alt h-6 w-6"></i> <a href="" hx-get="/SaleGenerate/" hx-push-url="/SaleGenerate/" hx-target="#change" >Reset</a></h6>
             <h4 class="text-blueGray-600 text-sm mt-3 mb-6 font-bold uppercase">{% if client_id %}Limit Left:{{client_data.Client_Credit}}{% endif %}</h4>
             <div class="flex flex-wrap mb-6">
            

@@ -115,8 +115,6 @@ def send_Manufacturing_email_to_admin(manufacturing):
         f'Product: {manufacturing.Manufacturing_Product_Name}\n'
         f'Supplier: {manufacturing.Supplier_Name}\n'
         f'Place of Supply: {manufacturing.Place_Of_Supply}\n'
-        f'City: {manufacturing.City}\n'
-        f'Weight: {manufacturing.Manufacture_Weight}\n'
         f'Total Purchase Price: {manufacturing.Total_Purchase_Price}\n'
         f'Manufacturing Expense: {manufacturing.Manufacturing_Expense}\n'
     )

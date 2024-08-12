@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alpine.js with Django - HTML Update</title>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+</head>
+<body>
+    <div x-data="{ htmlContent: '' }">
+        <h1>Update Content with HTML</h1>
+        <div x-html="htmlContent">
+            <!-- Placeholder for content -->
+            <p>Initial content. Click the button to load more.</p>
+        </div>
+        <button @click="updateContent()">Update Content</button>
+    </div>
+
+        <script>
+            function updateContent() {
+                fetch('/update-data/')
+                    .then(response => response.text())
+                    .then(html => {
+                        document.querySelector('[x-data]').innerHTML = html;
+                    })
+                    .catch(error => console.error('Error:', error));
+            }
+        </script>
+        
+        
+</body>
+</html>
