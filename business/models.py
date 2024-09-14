@@ -47,6 +47,7 @@ class Manufacturing(models.Model):
     )
     Manufacturing_Purchase_Type= models.CharField(max_length=20, choices=PURCHASE_CHOICES, default=PER_ACER)
     
+    
     Supplier_Name=models.CharField(max_length=200)
     Place_Of_Supply=models.CharField(max_length=200)
     Total_Acers=models.DecimalField(max_digits=100,decimal_places=2,default=0)
@@ -54,11 +55,15 @@ class Manufacturing(models.Model):
      
     Weight=models.DecimalField(max_digits=100,decimal_places=2,default=0)
     Manufacture_Weight=models.DecimalField(max_digits=100,decimal_places=2,default=0)
+    Estimated_weight=models.DecimalField(max_digits=100,decimal_places=2,default=0)
+    Weight_After_Weight_Lose=models.DecimalField(max_digits=100,decimal_places=2,default=0)
     Purchase_Weight_Price=models.DecimalField(max_digits=100,decimal_places=2,default=0)
     Payment_Proof=models.ImageField(upload_to="Payment Proof/",null=True,blank=True)
     Total_Production_Items=models.IntegerField(default=0)
     Manufacture_Balles=models.IntegerField(default=0)
     Total_Purchase_Price=models.DecimalField( max_digits=20,decimal_places=2,default=0)
+    Purchase_Price_After_Weight_Lose=models.DecimalField( max_digits=20,decimal_places=2,default=0)
+    Per_Kg_Or_Mund_Price=models.DecimalField(max_digits=100,decimal_places=2,default=0)
     Harvesting_Cost=models.DecimalField( max_digits=20,decimal_places=2,default=0)
     WITH_FUEL= ' WITH_FUEL'
     WITHOUT_FUEL = '  WITHOUT_FUEL'

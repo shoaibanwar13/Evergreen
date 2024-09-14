@@ -71,7 +71,8 @@ urlpatterns = [
     path('Loading_Labour_Excel/', Loading_Labour_Excel, name='Loading_Labour_Excel'),
     path('CreditToPaid/<str:id>/',CreditToPaid,name='CreditToPaid'),
     path('CreditToPaidLoading/<str:id>/',CreditToPaidLoading,name='CreditToPaidLoading'),
-    path('BunkarExpense/<str:id>/',BunkarExpense,name='BunkarExpense')
+    path('BunkarExpense/<str:id>/',BunkarExpense,name='BunkarExpense'),
+    path('fetch_details/<str:bunkar>/',fetch_details,name="fetch_details")
     
     
      

@@ -1,7 +1,13 @@
 <head>
     <title>{{request.user.username}}|Vendor</title>
+    <style>
+      .hidden-section {
+        display: none;
+    }
+    </style>
     </head>
     <div class="col-span-12 mt-8">
+      
     <!-- component -->
     <link rel="stylesheet" href="https://demos.creative-tim.com/notus-js/assets/styles/tailwind.css">
     <link rel="stylesheet" href="https://demos.creative-tim.com/notus-js/assets/vendor/@fortawesome/fontawesome-free/css/all.min.css">
@@ -35,7 +41,7 @@
                     <label class="block uppercase text-black text-xs font-bold mb-2" for="Production_Product_Name">
                       <i class="fas fa-cog"></i> SELECT PURCHASE TYPE <b class="text-red-500">*</b>
                     </label>
-                    <select name="Purchase_Type" id="type-select" class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" required>
+                    <select name="Purchase_Type" id="type-select"  class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" required>
                         <option value="PER ACER" selected disabled>SELECT PURCHASE TYPE </option>
                     <option value="PER_ACER">PER ACER</option>
                     <option value="PURCHASE_WEIGHT">PURCHASE WEIGHT</option>
@@ -133,13 +139,146 @@
                         <label class="block uppercase text-black text-xs font-bold mb-2" for="Total_Amount">
                             <i class="fas fa-coins"></i>  Total Amount
                         </label>
-                        <input type="number" step="0.2"  name="Wtotal" id="Total_Amount" placeholder="Total" readonly  class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" >
+                        <input type="number" step="0.2"  name="Wtotal" id="Total_Amount" placeholder="Total" readonly  class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" style="width:950px;" >
                    
                             </div>
                 </div>
             </div>
-            
+            <label  class="block uppercase text-black text-xs font-bold mb-2"> <i class="fas fa-clipboard-list"></i>  Weight Loss And Rate Calculation Summary </label>
+            <div class="flex items-center space-x-4 mt-4">
+              
+              <input type="radio" id="summaryOption" name="summaryOption" value="WeightLossSummary" onclick="toggleSummaryFields()" class="form-radio h-4 w-4 text-blue-600 transition duration-150 ease-in-out" >  
+              
+          </div>
+      
+          <!-- Weight Loss Summary Fields -->
+          <div id="summary-section"  class="w-full lg:w-4/12 px-2 hidden-section">
+              <div class="input-group">
+                  <label for="estimatedWeight"  class="block uppercase text-black text-xs font-bold mb-2"
+                  class="block uppercase text-black text-xs font-bold mb-2">  <i class="fas fa-weight-hanging"></i>
+                    Estimated Weight (Kg/Mund)</label>
+                  <input type="number" id="estimatedWeight" placeholder="Enter estimated weight" step="0.01"  class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" style="width:930px;">
+              </div>
+      
+              <div class="input-group">
+                  <label for="weightLoss"  class="block uppercase text-black text-xs font-bold mb-2"
+                  class="block uppercase text-black text-xs font-bold mb-2"> <i class="fas fa-percent"></i>
+                     Weight Loss (%)</label>
+                  <input type="number" id="weightLoss" placeholder="Enter weight loss %" step="0.01" oninput="performCalculation()"  class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" style="width:930px;">
+              </div>
+      
+               
+              <!-- Calculated Fields -->
+              <div id="calculation-section">
+                  <div class="input-group">
+                      <label for="finalWeight"  class="block uppercase text-black text-xs font-bold mb-2"
+                    >  <i class="fas fa-percent"></i>
+                         Final Weight After Loss (Kg/Mund)</label>
+                      <input type="number" id="finalWeight" readonly placeholder="Final Weight"   class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" style="width:930px;">
+                  </div>
+      
+                  <div class="input-group">
+                      <label for="ratePerKg"  class="block uppercase text-black text-xs font-bold mb-2"
+                     > <i class="fas fa-dollar-sign"></i>
+                         Rate Per (Kg/Mund)  </label>
+                      <input type="number" id="ratePerKg" placeholder="Rate Per (Kg/Mund)" readonly  class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" style="width:930px;">
+                  </div>
+      
+                  <div class="input-group">
+                      <label for="totalAmount"  class="block uppercase text-black text-xs font-bold mb-2"> <i class="fas fa-dollar-sign"></i>
+                         Total Purchase Amount  </label>
+                      <input type="number" id="totalAmount" readonly placeholder="Total Purchase Amount"  class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" style="width:930px;">
+                  </div>
+              </div>
+          </div>
+      <br>
+          <!-- Radio Button for Payment Method -->
+          <div class="input-radio-group">
+              <label  class="block uppercase text-black text-xs font-bold mb-2">Payment Method</label>
+              <input type="radio" id="paid" name="paymentMethod" value="Paid" onclick="showPaymentFields()"> <i class="fas fa-check-circle"></i>
+              <label  class="block uppercase text-black text-xs font-bold mb-2"> Paid</label>
+              <input type="radio" id="credit" name="paymentMethod" value="Credit" onclick="showPaymentFields()"> <i class="fas fa-credit-card"></i>
+              <label  class="block uppercase text-black text-xs font-bold mb-2">  Credit</label>
+          </div>
+      
+          <!-- Paid Section -->
+          <div id="payment-section" class="hidden-section">
+              <p style="color: green;">The payment is marked as fully paid!</p>
+          </div>
+      
+          <!-- Credit Section -->
+          <div id="credit-section" class="hidden-section">
+              <div class="input-group">
+                  <label for="paidAmount" class="block uppercase text-black text-xs font-bold mb-2"> <i class="fas fa-money-bill-wave"></i>
+                     Paid Amount  </label>
+                  <input type="number" id="paidAmount" placeholder=" Paid Amount" oninput="calculateRemaining()" step="0.01"  class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150">
+              </div>
+      
+              <div class="input-group">
+                  <label for="remainingAmount" class="block uppercase text-black text-xs font-bold mb-2"> <i class="fas fa-money-bill-wave-alt"></i>
+                     Remaining Amount  </label>
+                  <input type="number" id="remainingAmount" placeholder=" Remaining Amount" readonly  class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150">
+              </div>
+          </div>
+    
         </div>
+        <script>
+          // Show or hide the weight loss summary fields
+          function toggleSummaryFields() {
+              document.getElementById('summary-section').style.display = 'block';
+              performCalculation(); // Trigger calculation after fields are shown
+          }
+      
+          // Perform calculation based on weight loss
+          function performCalculation() {
+              const estimatedWeight = parseFloat(document.getElementById('estimatedWeight').value) || 0;
+              const weightLoss = parseFloat(document.getElementById('weightLoss').value) || 0;
+              const originalPurchasePrice = parseFloat(document.getElementById('total-amount').value) || 0;
+      
+              // Check if the estimated weight and purchase price are valid
+              if (estimatedWeight > 0 && originalPurchasePrice > 0) {
+                  // Calculate the final weight after weight loss
+                  const finalWeight = estimatedWeight - (estimatedWeight * (weightLoss / 100));
+      
+                  // Calculate the new rate per kg after weight loss
+                  const ratePerKg = originalPurchasePrice / estimatedWeight;
+      
+                  // Calculate the adjusted purchase price after weight loss
+                  const adjustedPurchasePrice = finalWeight * ratePerKg;
+      
+                  // Update the fields with calculated values
+                  document.getElementById('finalWeight').value = finalWeight.toFixed(2);
+                  document.getElementById('ratePerKg').value = ratePerKg.toFixed(2);
+                  document.getElementById('totalAmount').value = adjustedPurchasePrice.toFixed(2);
+      
+                  document.getElementById('calculation-section').style.display = 'block';
+              }
+          }
+      
+          // Show payment-related fields based on selection
+          function showPaymentFields() {
+              const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
+      
+              if (paymentMethod === 'Paid') {
+                  document.getElementById('payment-section').style.display = 'block';
+                  document.getElementById('credit-section').style.display = 'none';
+              } else if (paymentMethod === 'Credit') {
+                  document.getElementById('payment-section').style.display = 'none';
+                  document.getElementById('credit-section').style.display = 'block';
+              }
+          }
+      
+          // Calculate the remaining amount for credit payment
+          function calculateRemaining() {
+              const totalAmount = parseFloat(document.getElementById('totalAmount').value) || 0;
+              const paidAmount = parseFloat(document.getElementById('paidAmount').value) || 0;
+              const remainingAmount = totalAmount - paidAmount;
+      
+              document.getElementById('remainingAmount').value = remainingAmount.toFixed(2);
+          }
+      </script>
+      
+  
               <!-- Submit Button -->
               <div class="flex justify-center">
                 <button type="submit" id="submit-button" class="w-full bg-green-500 text-white py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">

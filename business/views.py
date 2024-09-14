@@ -2706,46 +2706,79 @@ def FraudDector(request):
     )
     send_mail(subject, message,  settings.EMAIL_HOST_USER, [alert])
      
+from django.shortcuts import get_object_or_404, redirect
+from django.contrib import messages
+from decimal import Decimal, InvalidOperation
 
 def AddManufecturePurchase(request):
-    if request.method=="POST":
-        Purchase_Type=request.POST.get("Purchase_Type")
-        Location=request.POST.get("Production_Place")
-        supplier=request.POST.get("sname")
-        BunkarName=request.POST.get("Product_Name")
-        Acers=request.POST.get("total_acer")
-        acer_purchase_price= request.POST.get("acer_purchase_price")
-        total_amount_acers=request.POST.get("total_amount_acers")
-        Total_Weight=request.POST.get("Total_Weight")
-        Purchase_Weight_Price= request.POST.get("Purchase_Weight_Price")
-        Total_Amount_Weight=request.POST.get("Wtotal")
-        profile_instance= get_object_or_404(Profile, user=request.user)
-        check=Manufacturing.objects.filter(Manufacturing_Product_Name=BunkarName).exists()
+    if request.method == "POST":
+        Purchase_Type = request.POST.get("Purchase_Type")
+        Location = request.POST.get("Production_Place")
+        supplier = request.POST.get("sname")
+        BunkarName = request.POST.get("Product_Name")
+        Acers = request.POST.get("total_acer")
+        acer_purchase_price = request.POST.get("acer_purchase_price")
+        total_amount_acers_str = request.POST.get("total_amount_acers")
+        Total_Weight = request.POST.get("Total_Weight")
+        Purchase_Weight_Price = request.POST.get("Purchase_Weight_Price")
+        Total_Amount_Weight = request.POST.get("Wtotal")
+        profile_instance = get_object_or_404(Profile, user=request.user)
+        
+        check = Manufacturing.objects.filter(Manufacturing_Product_Name=BunkarName).exists()
         if check:
-            messages.warning(request,'Bankar Name Already Exist,Please Enter Unique Bunkar Name')
+            messages.warning(request, 'Bankar Name Already Exist, Please Enter Unique Bunkar Name')
             return redirect('AddManufecturePurchase')
-        if Purchase_Type=="PER_ACER":
-            if Decimal(total_amount_acers)<=0.00:
-                messages.info(request,"Please Fill All Calculation Fields")
+        
+        try:
+            total_amount_acers = Decimal(total_amount_acers_str) if total_amount_acers_str else Decimal(0)
+        except InvalidOperation:
+            messages.error(request, "Invalid amount format for total_amount_acers.")
+            return redirect('AddManufecturePurchase')
+        
+        if Purchase_Type == "PER_ACER":
+            if total_amount_acers <= 0:
+                messages.info(request, "Please Fill All Calculation Fields")
                 return redirect("AddManufecturePurchase")
 
-            query=Manufacturing.objects.create(user=request.user,userprofile=profile_instance,Manufacturing_Product_Name=BunkarName,Manufacturing_Purchase_Type=Purchase_Type,Supplier_Name=supplier,Place_Of_Supply=Location,Total_Acers=Acers,Per_Acer_Purchase_Price=acer_purchase_price,Total_Purchase_Price=total_amount_acers)
-            query.save()
-            messages.info(request,"Bunkar Record Added! Please Add Expense Of Your New Bunkar")
+            Manufacturing.objects.create(
+                user=request.user,
+                userprofile=profile_instance,
+                Manufacturing_Product_Name=BunkarName,
+                Manufacturing_Purchase_Type=Purchase_Type,
+                Supplier_Name=supplier,
+                Place_Of_Supply=Location,
+                Total_Acers=Acers,
+                Per_Acer_Purchase_Price=acer_purchase_price,
+                Total_Purchase_Price=total_amount_acers
+            )
+            messages.info(request, "Bunkar Record Added! Please Add Expense Of Your New Bunkar")
             return redirect("add_expense")
-        if Purchase_Type=="PURCHASE_WEIGHT":
-            if Decimal(total_amount_acers)<=0.00:
-                messages.info(request,"Please Fill All Calculation Fields")
+        
+        if Purchase_Type == "PURCHASE_WEIGHT":
+            if total_amount_acers <= 0:
+                messages.info(request, "Please Fill All Calculation Fields")
                 return redirect("add_expense")
-            query=Manufacturing.objects.create(user=request.user,userprofile=profile_instance,Manufacturing_Product_Name=BunkarName,Manufacturing_Purchase_Type=Purchase_Type,Supplier_Name=supplier,Place_Of_Supply=Location,Weight=Total_Weight,Manufacture_Weight=Total_Weight,Purchase_Weight_Price=Purchase_Weight_Price,Total_Purchase_Price=Total_Amount_Weight)
-            query.save()
-            messages.info(request,"Bunkar Record Added! Please Add Expense Of Your New Bunkar")
+
+            Manufacturing.objects.create(
+                user=request.user,
+                userprofile=profile_instance,
+                Manufacturing_Product_Name=BunkarName,
+                Manufacturing_Purchase_Type=Purchase_Type,
+                Supplier_Name=supplier,
+                Place_Of_Supply=Location,
+                Weight=Total_Weight,
+                Manufacture_Weight=Total_Weight,
+                Purchase_Weight_Price=Purchase_Weight_Price,
+                Total_Purchase_Price=Total_Amount_Weight
+            )
+            messages.info(request, "Bunkar Record Added! Please Add Expense Of Your New Bunkar")
             return redirect("add_expense")
 
     if request.htmx:
-        return render(request,"components/Purchaseform.html")
+        return render(request, "components/Purchaseform.html")
     else:
-        return render(request,'ManufacturePurchaseForm.html')
+        return render(request, 'ManufacturePurchaseForm.html')
+
 def HarvestingExpense(request):
     productions=Manufacturing.objects.filter(user=request.user,Complete_Production=False)
     if request.htmx:
@@ -3376,6 +3409,8 @@ def BunkarExpense(request, id):
         Payment_Status="CREDIT"
 
     )
+
+    
     
      
     
@@ -3392,5 +3427,18 @@ def BunkarExpense(request, id):
  
 
 
-
+def fetch_details(request, bunkar):
+    # Fetch the details based on the selected name from the database
+    purchase = Manufacturing.objects.get(user=request.user,Manufacturing_Product_Name=bunkar)
+    
+    # Send back the required fields as JSON
+    print(purchase.Weight,purchase.Manufacturing_Purchase_Type)
+    data = {
+        'total_expense': purchase.Manufacturing_Expense,
+        'purchase_price': purchase.Total_Purchase_Price,
+        'purchase_type': purchase.Manufacturing_Purchase_Type,
+        'total_weight': purchase.Weight  
+    }
+    
+    return JsonResponse(data)
 
