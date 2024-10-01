@@ -185,6 +185,22 @@ def Vendor(request):
         messages.warning(request,"Fraud Have Been Detected From Admin")
         FraudDector(request)
     siteProfit=profit-siteexp
+    Creditamount=0
+    Credit_LL=LoadingLabourRecord.objects.filter(Payment_Status="CREDIT")
+    for credit in Credit_LL:
+        Creditamount+=credit.Remaining
+    CreditamountPro=0
+    Credit_PL=ProducctionLabourRecord.objects.filter(Payment_Status="CREDIT")
+    for credit1 in Credit_PL:
+        CreditamountPro+=credit1.Remaining
+    Expense_Credit=0
+    Credit_Expense=Expense.objects.filter(Payment_Status="CREDIT")
+    for credit2 in Credit_Expense:
+       Expense_Credit+=credit2.Remaining_Amount
+    Manufacturing_Credit=0
+    Credit_Manufacturing=Manufacturing.objects.filter(Payment_Status=False)
+    for credit3 in Credit_Manufacturing:
+       Manufacturing_Credit+=credit3.Remaining_Amount
     context={
         'total_purchase':total_purchase,
         'total_sale':total_sale,
@@ -242,6 +258,10 @@ def Vendor(request):
         'october_pending': october_pending,
         'november_pending': november_pending,
         'december_pending': december_pending,
+        'Creditamount':Creditamount,
+        'CreditamountPro': CreditamountPro,
+        'Expense_Credit':Expense_Credit,
+        'Manufacturing_Credit':Manufacturing_Credit
         
         
     }
@@ -2702,9 +2722,11 @@ def FraudDector(request):
     )
     send_mail(subject, message,  settings.EMAIL_HOST_USER, [alert])
      
+ 
+from decimal import Decimal, InvalidOperation
 from django.shortcuts import get_object_or_404, redirect
 from django.contrib import messages
-from decimal import Decimal, InvalidOperation
+from .models import Manufacturing, Profile
 
 def AddManufecturePurchase(request):
     if request.method == "POST":
@@ -2717,20 +2739,50 @@ def AddManufecturePurchase(request):
         total_amount_acers_str = request.POST.get("total_amount_acers")
         Total_Weight = request.POST.get("Total_Weight")
         Purchase_Weight_Price = request.POST.get("Purchase_Weight_Price")
-        Total_Amount_Weight = request.POST.get("Wtotal")
+        Total_Amount_Weight_str = request.POST.get("Wtotal")
+        paymentMethod = request.POST.get("paymentMethod")
+
+        # Set Paid_amount and Remaining to "0" if empty
+        Paid_amount = request.POST.get("Paid_amount", "0")
+        Remaining = request.POST.get("Remaining", "0")
+
         profile_instance = get_object_or_404(Profile, user=request.user)
-        
-        check = Manufacturing.objects.filter(Manufacturing_Product_Name=BunkarName).exists()
-        if check:
-            messages.warning(request, 'Bankar Name Already Exist, Please Enter Unique Bunkar Name')
+        value = False
+        if paymentMethod == "Paid":
+            value = True  # Fixed assignment issue
+
+        # Check for duplicate entry based on Manufacturing_Product_Name
+        if Manufacturing.objects.filter(Manufacturing_Product_Name=BunkarName).exists():
+            messages.warning(request, 'Bunkar Name Already Exists, Please Enter Unique Bunkar Name')
             return redirect('AddManufecturePurchase')
-        
+
+        # Validate and convert total_amount_acers to Decimal
         try:
             total_amount_acers = Decimal(total_amount_acers_str) if total_amount_acers_str else Decimal(0)
         except InvalidOperation:
             messages.error(request, "Invalid amount format for total_amount_acers.")
             return redirect('AddManufecturePurchase')
-        
+
+        # Validate and convert Total_Amount_Weight to Decimal
+        try:
+            Total_Amount_Weight = Decimal(Total_Amount_Weight_str) if Total_Amount_Weight_str else Decimal(0)
+        except InvalidOperation:
+            messages.error(request, "Invalid amount format for Total_Amount_Weight.")
+            return redirect('AddManufecturePurchase')
+
+        # Convert Paid_amount and Remaining to Decimal with validation
+        try:
+            Paid_amount = Decimal(Paid_amount) if Paid_amount else Decimal(0)
+        except InvalidOperation:
+            messages.error(request, "Invalid amount format for Paid Amount.")
+            return redirect('AddManufecturePurchase')
+
+        try:
+            Remaining = Decimal(Remaining) if Remaining else Decimal(0)
+        except InvalidOperation:
+            messages.error(request, "Invalid amount format for Remaining Amount.")
+            return redirect('AddManufecturePurchase')
+
         if Purchase_Type == "PER_ACER":
             if total_amount_acers <= 0:
                 messages.info(request, "Please Fill All Calculation Fields")
@@ -2745,15 +2797,18 @@ def AddManufecturePurchase(request):
                 Place_Of_Supply=Location,
                 Total_Acers=Acers,
                 Per_Acer_Purchase_Price=acer_purchase_price,
-                Total_Purchase_Price=total_amount_acers
+                Total_Purchase_Price=total_amount_acers,
+                Paid_Amount=Paid_amount,
+                Remaining_Amount=Remaining,
+                Payment_Status=value
             )
             messages.info(request, "Bunkar Record Added! Please Add Expense Of Your New Bunkar")
             return redirect("add_expense")
-        
+
         if Purchase_Type == "PURCHASE_WEIGHT":
-            if total_amount_acers <= 0:
+            if Total_Amount_Weight <= 0:
                 messages.info(request, "Please Fill All Calculation Fields")
-                return redirect("add_expense")
+                return redirect("AddManufecturePurchase")
 
             Manufacturing.objects.create(
                 user=request.user,
@@ -2765,7 +2820,10 @@ def AddManufecturePurchase(request):
                 Weight=Total_Weight,
                 Manufacture_Weight=Total_Weight,
                 Purchase_Weight_Price=Purchase_Weight_Price,
-                Total_Purchase_Price=Total_Amount_Weight
+                Total_Purchase_Price=Total_Amount_Weight,
+                Paid_Amount=Paid_amount,
+                Remaining_Amount=Remaining,
+                Payment_Status=value
             )
             messages.info(request, "Bunkar Record Added! Please Add Expense Of Your New Bunkar")
             return redirect("add_expense")
@@ -2774,7 +2832,6 @@ def AddManufecturePurchase(request):
         return render(request, "components/Purchaseform.html")
     else:
         return render(request, 'ManufacturePurchaseForm.html')
-
 def HarvestingExpense(request):
     productions=Manufacturing.objects.filter(user=request.user,Complete_Production=False)
     if request.htmx:

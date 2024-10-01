@@ -104,8 +104,12 @@ class Manufacturing(models.Model):
         ( MUN, ' MUN'),
         (OTHERS,"OTHERS")
     )
+    Paid_Amount=models.DecimalField(max_digits=20,decimal_places=2,default=0)
+    Remaining_Amount=models.DecimalField(max_digits=20,decimal_places=2,default=0)
+    Payment_Status=models.BooleanField(default=False)
     Unit = models.CharField(max_length=20, choices=WEIGHT_CHOICES, default=NONE)
     date=models.DateField(default=timezone.now)
+    
     def __str__(self):
         return f"{self.Manufacturing_Product_Name}"
 

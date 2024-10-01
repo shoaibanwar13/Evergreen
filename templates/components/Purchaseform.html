@@ -163,18 +163,71 @@
               <div class="input-group">
                   <label for="paidAmount" class="block uppercase text-black text-xs font-bold mb-2"> <i class="fas fa-money-bill-wave"></i>
                      Paid Amount  </label>
-                  <input type="number" id="paidAmount" placeholder=" Paid Amount" oninput="calculateRemaining()" step="0.01"  class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150">
+                  <input type="number" id="paidAmount" placeholder="Paid Amount" name="Paid_amount" oninput="calculateRemaining()" step="0.01"  class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150">
               </div>
       
               <div class="input-group">
                   <label for="remainingAmount" class="block uppercase text-black text-xs font-bold mb-2"> <i class="fas fa-money-bill-wave-alt"></i>
                      Remaining Amount  </label>
-                  <input type="number" id="remainingAmount" placeholder=" Remaining Amount" readonly  class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150">
+                  <input type="number" id="remainingAmount" placeholder=" Remaining Amount" readonly name="Remaining"  class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150">
               </div>
           </div>
     
         </div>
-        <script>
+        
+              <!-- Submit Button -->
+              <div class="flex justify-center">
+                <button type="submit" id="submit-button" class="w-full bg-green-500 text-white py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                  <i class="fas fa-plus"></i> Add Manufacturing
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      
+    </section>
+    
+      
+    </div>
+   
+    
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script>
+    function data() {
+    
+    return {
+    
+    isSideMenuOpen: false,
+    toggleSideMenu() {
+    this.isSideMenuOpen = !this.isSideMenuOpen
+    },
+    closeSideMenu() {
+    this.isSideMenuOpen = false
+    },
+    isNotificationsMenuOpen: false,
+    toggleNotificationsMenu() {
+    this.isNotificationsMenuOpen = !this.isNotificationsMenuOpen
+    },
+    closeNotificationsMenu() {
+    this.isNotificationsMenuOpen = false
+    },
+    isProfileMenuOpen: false,
+    toggleProfileMenu() {
+    this.isProfileMenuOpen = !this.isProfileMenuOpen
+    },
+    closeProfileMenu() {
+    this.isProfileMenuOpen = false
+    },
+    isPagesMenuOpen: false,
+    togglePagesMenu() {
+    this.isPagesMenuOpen = !this.isPagesMenuOpen
+    },
+    
+    }
+    }
+    </script>
+    <script>
           // Show or hide the weight loss summary fields
           function toggleSummaryFields() {
               document.getElementById('summary-section').style.display = 'block';
@@ -229,60 +282,25 @@
               document.getElementById('remainingAmount').value = remainingAmount.toFixed(2);
           }
       </script>
+      <script>
+  function calculateRemaining() {
+    // Get the total amount (assuming this is either from per-acre or purchase-weight total fields)
+    const totalAmountElement = document.getElementById('Total_Amount') || document.getElementById('total-amount');
+    const totalAmount = parseFloat(totalAmountElement.value) || 0;
+
+    // Get the paid amount entered by the user
+    const paidAmount = parseFloat(document.getElementById('paidAmount').value) || 0;
+
+    // Calculate the remaining amount
+    const remainingAmount = totalAmount - paidAmount;
+
+    // Set the remaining amount in the input field
+    document.getElementById('remainingAmount').value = remainingAmount.toFixed(2);
+  }
+</script>
+
       
   
-              <!-- Submit Button -->
-              <div class="flex justify-center">
-                <button type="submit" id="submit-button" class="w-full bg-green-500 text-white py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
-                  <i class="fas fa-plus"></i> Add Manufacturing
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
-      
-    </section>
-    
-      
-    </div>
-   
-    
-    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-    <script>
-    function data() {
-    
-    return {
-    
-    isSideMenuOpen: false,
-    toggleSideMenu() {
-    this.isSideMenuOpen = !this.isSideMenuOpen
-    },
-    closeSideMenu() {
-    this.isSideMenuOpen = false
-    },
-    isNotificationsMenuOpen: false,
-    toggleNotificationsMenu() {
-    this.isNotificationsMenuOpen = !this.isNotificationsMenuOpen
-    },
-    closeNotificationsMenu() {
-    this.isNotificationsMenuOpen = false
-    },
-    isProfileMenuOpen: false,
-    toggleProfileMenu() {
-    this.isProfileMenuOpen = !this.isProfileMenuOpen
-    },
-    closeProfileMenu() {
-    this.isProfileMenuOpen = false
-    },
-    isPagesMenuOpen: false,
-    togglePagesMenu() {
-    this.isPagesMenuOpen = !this.isPagesMenuOpen
-    },
-    
-    }
-    }
-    </script>
     <script>
         document.addEventListener('htmx:afterOnLoad', function(evt) {
             if (evt.detail.target.id === 'validation1') {
@@ -368,7 +386,9 @@
     const totalWeightInput = document.getElementById('Total_Weight');
     const purchaseWeightPriceInput = document.getElementById('Purchase_Weight_Price');
     const totalAmountInput = document.getElementById('Total_Amount');
-  
+    const paidAmountInput = document.getElementById('paidAmount');
+    const remainingAmountInput = document.getElementById('remainingAmount');
+
     // Show or hide fields based on selection
     typeSelect.addEventListener('change', function () {
       if (typeSelect.value === 'PURCHASE_WEIGHT') {
@@ -378,25 +398,27 @@
         totalWeightInput.value = '';
         purchaseWeightPriceInput.value = '';
         totalAmountInput.value = '';
+        paidAmountInput.value = '';
+        remainingAmountInput.value = '';
       }
     });
-  
+
     // Calculate total amount
     function calculateTotalAmount() {
       const totalWeight = parseFloat(totalWeightInput.value) || 0;
       const purchaseWeightPrice = parseFloat(purchaseWeightPriceInput.value) || 0;
       const totalAmount = totalWeight * purchaseWeightPrice;
       totalAmountInput.value = totalAmount.toFixed(2);
+      calculateRemaining(); // Automatically recalculate remaining when total amount changes
     }
-  
-    totalWeightInput.addEventListener('input', calculateTotalAmount);
-    purchaseWeightPriceInput.addEventListener('input', calculateTotalAmount);
-  });
-  // Calculate Remaining Amount for Credit Option
+
+    // Calculate Remaining Amount for Credit Option
     function calculateRemaining() {
-        let totalAmount = parseFloat(document.getElementById('Total_Amount').value) || 0;
-        let paidAmount = parseFloat(document.getElementById('paidAmount').value) || 0;
-        document.getElementById('remainingAmount').value = totalAmount - paidAmount;
-    }
-  
+    var paidAmount = parseFloat(document.getElementById('paidAmount').value) || 0;
+    var totalAmount = parseFloat(document.getElementById('total-amount').value) || 0;
+    var remainingAmount = totalAmount - paidAmount;
+    document.getElementById('remainingAmount').value = remainingAmount.toFixed(2);
+}
+
+  });
 </script>
