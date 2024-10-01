@@ -57,6 +57,7 @@ class Manufacturing(models.Model):
     Manufacture_Weight=models.DecimalField(max_digits=100,decimal_places=2,default=0)
     Estimated_weight=models.DecimalField(max_digits=100,decimal_places=2,default=0)
     Weight_After_Weight_Lose=models.DecimalField(max_digits=100,decimal_places=2,default=0)
+    Weight_Lose_Value=models.IntegerField(default=0)
     Purchase_Weight_Price=models.DecimalField(max_digits=100,decimal_places=2,default=0)
     Payment_Proof=models.ImageField(upload_to="Payment Proof/",null=True,blank=True)
     Total_Production_Items=models.IntegerField(default=0)

@@ -1,485 +1,189 @@
-
-
-{% load static %}
-<head>
-  <title>Expense</title>
-
-  
-</head>
-<div class="col-span-12 mt-8">
-  <div id="loader-overlay">
-      <div class="loader"></div>
-  </div>
-<div class="col-span-12 mt-8">
- 
-<!-- component -->
-<link rel="stylesheet" href="https://demos.creative-tim.com/notus-js/assets/styles/tailwind.css">
-<link rel="stylesheet" href="https://demos.creative-tim.com/notus-js/assets/vendor/@fortawesome/fontawesome-free/css/all.min.css">
-
-<!-- expense_form.html -->
-
-<div class="col-span-12 mt-8">
-    <section class="py-1">
-        <header class="bg-green-500 p-4 rounded-full">
-            <div class="container mx-auto flex justify-between items-center">
-                <div class="text-white text-xl font-bold">
-                    <i class="fas fa-receipt mr-2"></i> Add New Expense
-                </div>
-            </div>
-        </header>
-        <div class="w-full lg:w-9/10 px-4 mx-auto mt-6">
-            <div class="relative flex flex-col min-w-0 break-words w-full mb-6 shadow-lg rounded-lg border-0">
-                <div class="rounded-t bg-white mb-0 px-4 py-6">
-                </div>
-                <div class="flex-auto px-4 lg:px-6 py-6 pt-0">
-                    <form action="{% url 'add_expense' %}" method="post" id="AddExpenseForm" enctype="multipart/form-data">
-                        {% csrf_token %}
-                        <h6 class="text-blueGray-600  text-sm mt-3 mb-6 font-bold uppercase">Expense Details</h6>
-                        <div class="w-full lg:w-6/12 px-2">
-                            <div class="relative w-full mb-3">
-                                <label class="block uppercase text-black text-xs font-bold mb-2" for="category">
-                                    <i class="fas fa-file-alt"></i> Production Name<b class="text-red-500">*</b>
-                                </label>
-                                <select name="name" id="category" class="border-0 px-3 py-3 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150 text-xs text-black font-bold mb-2">
-                                     {% for pro  in productions %} 
-                                    <option value="{{pro.Manufacturing_Product_Name}}">{{pro.Manufacturing_Product_Name}}</option>
-                                     {% endfor %}
-                                </select>
-                            </div>
-                        </div>
-                        <div class="flex flex-wrap">
-                            <div class="w-full lg:w-6/12 px-2">
-                                <div class="relative w-full mb-3">
-                                    <label class="block uppercase text-black text-xs font-bold mb-2" for="description">
-                                        <i class="fas fa-file-alt"></i> Description<b class="text-red-500">*</b>
-                                    </label>
-                                    <input type="text" name="description" id="description" class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" required placeholder="Expense Description">
-                                </div>
-                            </div>
-                            <div class="w-full lg:w-6/12 px-2">
-                                <div class="relative w-full mb-3">
-                                    <label class="block uppercase text-black text-xs font-bold mb-2" for="category">
-                                        <i class="fas fa-tags"></i> Category<b class="text-red-500">*</b>
-                                    </label>
-                                    <select name="category" id="category" class="border-0 px-3 py-3 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150 text-xs text-black font-bold mb-2">
-                                        <option value="Harvesting">Harvesting</option>
-                                        <option value="Pressing">Pressing</option>
-                                        <option value="Dumping">Dumping</option>
-                                        <option value="Polythene">Polythene</option>
-                                        <option value="Mud Cost">Mud Cost</option>
-                                        <option value="Weight Losses">Weight Losses</option>
-                                        <option value="Packing Material">Packing Material</option>
-                                        <option value="Machine Depreciation">Machine Depreciation</option>
-                                        <option value="Loading">Loading</option>
-                                        <option value="Labour">Labour</option>
-                                        <option value="Office Supplies">Office Supplies</option>
-                                        <option value="Utilities">Utilities</option>
-                                        <option value="Marketing">Marketing</option>
-                                        <option value="Other">Other</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="w-full lg:w-6/12 px-2">
-                                <div class="relative w-full mb-3">
-                                    <label class="block uppercase text-black text-xs font-bold mb-2" for="amount">
-                                        <i class="fas fa-dollar-sign"></i> Amount<b class="text-red-500">*</b>
-                                    </label>
-                                    <input type="number" name="amount" id="amount" class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" required placeholder="Expense Amount">
-                                </div>
-                            </div>
-                            <div class="w-full lg:w-6/12 px-2">
-                                <div class="relative w-full mb-3">
-                                    <label class="block uppercase text-black text-xs font-bold mb-2" for="amount">
-                                        <i class="fas fa-receipt"></i> Expense Slip<b class="text-red-500">*</b>
-                                    </label>
-                                    <input type="file" name="expensebill" id="amount" class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" required placeholder="Expense Amount">
-                                </div>
-                            </div>
-                            <div class="w-full px-2">
-                                <div class="relative w-full mb-3">
-                                    <label class="block uppercase text-black text-xs font-bold mb-2" for="notes">
-                                        <i class="fas fa-sticky-note"></i> Notes
-                                    </label>
-                                    <textarea name="notes" id="notes" rows="4" class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" placeholder="Additional Notes"></textarea>
-                                </div>
-                            </div>
-                        </div>
-                       
-                        <br>
-                        {% if messages %}
-                        <button type="submit" disabled id="submit-button" class="w-full bg-green-500 text-white py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium hover:bg-green-600 focus:outline-none focus:ring-indigo-500 focus:border-green-500 focus:ring-offset-2 focus:ring-indigo-500">
-                        <b class="text-red-500">{% for message in messages %}{{message}}{% endfor %}
-                        </button>
-                        {% else %}
-                        <button type="submit" id="submit-button" class="w-full bg-green-500 text-white py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium hover:bg-green-600 focus:outline-none focus:ring-indigo-500 focus:border-green-500 focus:ring-offset-2 focus:ring-indigo-500">
-                            <i class="fas fa-plus"></i> Add Expense
-                        </button>
-                        {% endif %}
-                    </form>
-                </div>
-            </div>
-        </div>
-    </section>
-</div>
-
-<script>
-  document.getElementById('allowCredit').addEventListener('change', function() {
-    document.getElementById('creditLimitDiv').style.display = this.checked ? 'block' : 'none';
-  });
-</script>
-
-  
-</div>
-
-<script>
- document.addEventListener('DOMContentLoaded', (event) => {
-     const allowCreditCheckbox = document.getElementById('allowCredit');
-     const creditLimitDiv = document.getElementById('creditLimitDiv');
-
-     allowCreditCheckbox.addEventListener('change', function() {
-         if (this.checked) {
-             creditLimitDiv.style.display = 'block';
-         } else {
-             creditLimitDiv.style.display = 'none';
-         }
-     });
- });
-</script>
-
-<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-<script>
-function data() {
-
-return {
-
-isSideMenuOpen: false,
-toggleSideMenu() {
-this.isSideMenuOpen = !this.isSideMenuOpen
-},
-closeSideMenu() {
-this.isSideMenuOpen = false
-},
-isNotificationsMenuOpen: false,
-toggleNotificationsMenu() {
-this.isNotificationsMenuOpen = !this.isNotificationsMenuOpen
-},
-closeNotificationsMenu() {
-this.isNotificationsMenuOpen = false
-},
-isProfileMenuOpen: false,
-toggleProfileMenu() {
-this.isProfileMenuOpen = !this.isProfileMenuOpen
-},
-closeProfileMenu() {
-this.isProfileMenuOpen = false
-},
-isPagesMenuOpen: false,
-togglePagesMenu() {
-this.isPagesMenuOpen = !this.isPagesMenuOpen
-},
-
-}
-}
-</script>
- 
-<script>
-  document.getElementById('AddExpenseForm').addEventListener('submit', function() {
-      document.getElementById('loader-overlay').style.display = 'flex';
-  });
-
-  window.addEventListener('load', function() {
-      document.getElementById('loader-overlay').style.display = 'none';
-  });
-</script>
-
 <!DOCTYPE html>
+
+
+
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Expense Form</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <script defer src="script.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/js/all.min.js"></script>
+    <title>Purchase Form</title>
     <style>
-        /* Additional custom styles */
-        .sidebar {
-            background-color: #1F2937; /* Dark gray background */
-            color: white;
-            position: relative;
-        }
-        .sidebar a {
-            color: #D1D5DB; /* Light gray for links */
-        }
-        .sidebar a:hover {
-            color: #10B981; /* Green color on hover */
-        }
-        .sidebar .active {
-            color: #10B981; /* Green for active link */
-        }
-        
-       /* Loader CSS */
-       .loader {
-        border: 16px dotted #f3f3f3; /* Light grey */
-        border-top: 16px dotted #f3f3f3; /* Green */
-        border-radius: 50%;
-        width: 120px;
-        height: 120px;
-        animation: spin 2s linear infinite;
-    }
-    
-    @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-    }
-    
-    /* Overlay CSS */
-    #loader-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.5);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 9999;
-        display: none; /* Hidden by default */
-    }
-      
-    .hidden {
-                display: none;
-            }
-         /* Overlay CSS */
-     #loader-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.5);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 9999;
-        display: none; /* Hidden by default */
-    }
-        
-        
+        .hidden { display: none; }
     </style>
 </head>
-<body class="bg-gray-100 flex min-h-screen">
-   
-    
-    <!-- Sidebar -->
-    <aside class="sidebar w-64 p-4">
-        <div class="flex items-center mb-6">
-            <img src="{{compydetail.logo.url}}" alt="Company Logo" class="w-12 h-12 rounded-full mr-3">
-            <h2 class="text-2xl font-semibold text-white">Expense Dashboard</h2>
+ 
+    <h2>Purchase Form</h2>
+    <form id="purchaseForm" method="post">
+        {% csrf_token %}
+        
+        <!-- Name Field -->
+        <label for="bunkar">Name:</label>
+        <select id="bunkar" name="bunkar" onchange="fetchDetails()" class=" px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" required >
+            <option value="">Select a Name</option>
+            <!-- Add your options here dynamically from the database -->
+             {% for productions in productions %}
+            <option value="{{productions.Manufacturing_Product_Name}}">{{productions.Manufacturing_Product_Name}}</option>
+            {% endfor %}
+        </select>
+        <br>
+
+        <!-- Total Expense -->
+        <label for="total_expense">Total Expense:</label>
+        <input type="text" id="total_expense" name="total_expense" readonly>
+        <br>
+
+        <!-- Purchase Price -->
+        <label for="purchase_price">Purchase Price:</label>
+        <input type="text" id="purchase_price" name="purchase_price" readonly>
+        <br>
+
+        <!-- Conditional Fields based on Purchase Type -->
+        <div id="weight_purchase_fields" class="hidden">
+            <label for="total_weight">Total Weight:</label>
+            <input type="text" id="total_weight" name="total_weight" readonly>
+            <br>
+
+            <!-- Deducted Weight and Price -->
+            <label for="total_weight_after_loss">Total Weight After Weight Loss:</label>
+            <input type="text" id="total_weight_after_loss" name="total_weight_after_loss" readonly>
+            <br>
         </div>
-        <ul>
-            <li><a href="index.html" class="block py-2 px-4 rounded flex items-center space-x-2 hover:bg-gray-700 transition">
-                <i class="fas fa-home"></i>
-                <span>Vendor</span>
-            </a></li>
-            <li><a href="reports.html" class="block py-2 px-4 rounded flex items-center space-x-2 hover:bg-gray-700 transition">
-                <i class="fas fa-chart-line"></i>
-                <span>Other Expenses</span>
-            </a></li>
-            <li><a href="settings.html" class="block py-2 px-4 rounded flex items-center space-x-2 hover:bg-gray-700 transition">
-                <i class="fas fa-cogs"></i>
-                <span>Settings</span>
-            </a></li>
-        </ul>
-    </aside>
 
-    <!-- Main Content -->
-    <div class="flex-1 bg-white p-8 rounded-lg shadow-lg">
-        <!-- Header with Notification and Company Logo -->
-        <div class="flex items-center justify-between mb-6">
-            
-            <div class="flex items-center space-x-4">
-                <img src="{{compydetail.logo.url}}" alt="Company Logo" class="w-16 h-16 rounded-full">
-                <h1 class="text-2xl font-semibold text-gray-800">Bunkar Expense Form</h1>
-            </div>
-            <a href="/Vendor/" class="text-black hover:bg-green-700 px-3 py-2 rounded transition duration-300">
-                <i class="fas fa-arrow-left"></i> Back
-            </a>
+        <div id="per_acre_fields" class="hidden">
+            <label for="total_acre">Total Acre:</label>
+            <input type="number" id="total_acre" name="total_acre" oninput="calculateTotalWeight()">
+            <br>
+
+            <label for="per_acre_weight">Per Acre Weight:</label>
+            <input type="number" id="per_acre_weight" name="per_acre_weight" oninput="calculateTotalWeight()">
+            <br>
         </div>
 
-        <!-- Form -->
-        <form id="expense-form" class="space-y-6" action="{% url 'add_expense' %}" method="post" enctype="multipart/form-data">
-            {% csrf_token %}
-            <div class="flex items-center space-x-4">
-                <i class="fas fa-cog"></i>
-                <label for="expense-type" class="block text-sm font-medium text-gray-700 w-1/3">Bunkar Name</label>
-                <select name="name" id="Client_ID" class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" required hx-get="/Itemchecking/" hx-target="#saleform" hx-trigger="change">
-                    <!-- Populate options dynamically from Django model -->
-                    {% for saleproduct in productions %}
-                    <option value="{{saleproduct.Manufacturing_Product_Name}}">{{saleproduct.Manufacturing_Product_Name}}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <!-- Dropdown for Expense Type -->
-            <div class="flex items-center space-x-4">
-                <i class="fas fa-tag text-gray-500"></i>
-                <label for="expense-type" class="block text-sm font-medium text-gray-700 w-1/3">Expense Type</label>
-                <select id="expense-type" name="category" class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150">
-                    <option value="Pressing">Pressing</option>
-                    <option value="Harvesting">Harvesting</option>
-                    <option value="Dumping">Dumping</option>
-                    <option value="Polythene">Polythene</option>
-                    <option value="Mud Cost">Mud Cost</option>
-                    <option value="Weight Losses">Weight Losses</option>
-                    <option value="Packing Material">Packing Material</option>
-                    <option value="Machine Depreciation">Machine Depreciation</option>
-                    <option value="Loading">Loading</option>
-                    <option value="Labour">Labour</option>
-                    <option value="Office Supplies">Office Supplies</option>
-                    <option value="Utilities">Utilities</option>
-                    <option value="Marketing">Marketing</option>
-                    <option value="Other">Other</option>
-                </select>
-            </div>
-
-            <!-- Conditional dropdown for Harvesting Type -->
-            <div id="harvesting-type-container" class="hidden space-y-4">
-                <div class="flex items-center space-x-4">
-                    <i class="fas fa-seedling text-gray-500"></i>
-                    <label for="harvesting-type" class="block text-sm font-medium text-gray-700 w-1/3">Harvesting Type</label>
-                    <select id="harvesting-type" name="harvesting-type" class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150">
-                        <option value="" disabled selected>Select Harvesting Type</option>
-                        <option value="Fuel">With Fuel</option>
-                        <option value="Without Fuel">Without Fuel</option>
-                    </select>
-                </div>
-            </div>
-
-            <!-- Conditional fields for Fuel -->
-            <div id="fuel-fields" class="hidden space-y-4">
-                <div class="flex items-center space-x-4">
-                    <i class="fas fa-gas-pump text-gray-500"></i>
-                    <label for="fuel-price" class="block text-sm font-medium text-gray-700 w-1/3">Fuel Price</label>
-                    <input type="number" id="fuel-price" name="fuel-price" placeholder="Fuel Price" class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150">
-                </div>
-                <div class="flex items-center space-x-4">
-                    <i class="fas fa-tachometer-alt text-gray-500"></i>
-                    <label for="total-fuel" class="block text-sm font-medium text-gray-700 w-1/3">Total Fuel</label>
-                    <input type="number" id="total-fuel" name="total-fuel" placeholder="Total Fuel" class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150">
-                </div>
-            </div>
-
-            <!-- Conditional fields for Without Fuel -->
-            <div id="without-fuel-fields" class="hidden space-y-4">
-                <div class="flex items-center space-x-4">
-                    <i class="fas fa-map-marker-alt text-gray-500"></i>
-                    <label for="total-acre" class="block text-sm font-medium text-gray-700 w-1/3">Total Acre</label>
-                    <input type="number" id="total-acre" name="total-acre" placeholder="Total Acer" class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150">
-                </div>
-                <div class="flex items-center space-x-4">
-                    <i class="fas fa-dollar-sign text-gray-500"></i>
-                    <label for="harvest-price-per-acre" class="block text-sm font-medium text-gray-700 w-1/3">Harvest Price Per Acre</label>
-                    <input type="number" id="harvest-price-per-acre" placeholder="Harvest Price Per Acre" name="harvest-price-per-acre" class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150">
-                </div>
-            </div>
-
-            <!-- Amount Field -->
-            <div class="flex items-center space-x-4">
-                <i class="fas fa-calculator text-gray-500"></i>
-                <label for="amount" class="block text-sm font-medium text-gray-700 w-1/3">Amount</label>
-                <input type="number" id="amount" name="amount" placeholder="Total Amount" class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" readonly required>
-            </div>
-           <div class="flex items-center space-x-4">
-            <i class="fas fa-info-circle text-gray-500"></i>
-            <label for="description" class="block text-sm font-medium text-gray-700 w-1/3">Description</label>
-            <textarea id="description" name="description" placeholder="Description" class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150 h-24" required></textarea>
+        <!-- Total Weight Calculation (For PER_ACRE) -->
+        <div id="calculated_weight" class="hidden">
+            <label for="calculated_weight_value">Calculated Total Weight:</label>
+            <input type="text" id="calculated_weight_value" name="calculated_weight_value" readonly>
+            <br>
         </div>
-            <!-- Notes and File Upload -->
-            <div class="flex items-center space-x-4">
-                <i class="fas fa-sticky-note text-gray-500"></i>
-                <label for="notes" class="block text-sm font-medium text-gray-700 w-1/3">Notes</label>
-                <textarea id="notes" name="notes" placeholder="Remarks" class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150 h-24"></textarea>
-            </div>
 
-            <div class="flex items-center space-x-4">
-                <i class="fas fa-file-upload text-gray-500"></i>
-                <label for="expense-bill" class="block text-sm font-medium text-gray-700 w-1/3">Expense Bill</label>
-                <input type="file" id="expense-bill" name="expensebill" class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" required>
-            </div>
-            
-            <button type="submit" id="search-button"  class="w-full bg-green-500 text-white py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium hover:bg-green-600 focus:outline-none focus:ring-indigo-500 focus:border-green-500 focus:ring-offset-2 focus:ring-indigo-500"><i class="fas fa-plus"></i> Add Expense</button>
-        </form>
-    </div>
-    <div class="col-span-12 mt-8">
-        <div id="loader-overlay">
-            <div class="loader"></div>
-        </div>
+        <!-- Weight Loss Percentage -->
+        <label for="weight_loss_percentage">Weight Loss Percentage:</label>
+        <input type="number" id="weight_loss_percentage" name="weight_loss_percentage" oninput="calculateAdditionalFields()" placeholder="Enter percentage">
+        <br>
+
+        <!-- Remaining Weight Field -->
+        <label for="remaining_weight">Remaining Weight After Loss:</label>
+        <input type="text" id="remaining_weight" name="remaining_weight" readonly>
+        <br>
+
+        <!-- Additional Calculations -->
+        <label for="total">Total (Purchase Price + Total Expense):</label>
+        <input type="text" id="total" name="total" readonly>
+        <br>
+
+        <label for="per_kg_price">Per KG Price:</label>
+        <input type="text" id="per_kg_price" name="per_kg_price" readonly>
+        <br>
+
+        <button type="submit">Submit</button>
+    </form>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const expenseTypeSelect = document.getElementById('expense-type');
-            const harvestingTypeContainer = document.getElementById('harvesting-type-container');
-            const harvestingTypeSelect = document.getElementById('harvesting-type');
-            const fuelFields = document.getElementById('fuel-fields');
-            const withoutFuelFields = document.getElementById('without-fuel-fields');
-            const fuelPriceInput = document.getElementById('fuel-price');
-            const totalFuelInput = document.getElementById('total-fuel');
-            const totalAcreInput = document.getElementById('total-acre');
-            const harvestPricePerAcreInput = document.getElementById('harvest-price-per-acre');
-            const amountInput = document.getElementById('amount');
+        function fetchDetails() {
+            const name = document.getElementById('bunkar').value;
+    
+            if (name) {
+                fetch(`/fetch_details/${name}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log('Fetched Data:', data);
+    
+                        // Set the values from the server response
+                        document.getElementById('total_expense').value = data.total_expense || '';
+                        document.getElementById('purchase_price').value = data.purchase_price || '';
+    
+                        // Hide all conditional fields first
+                        document.getElementById('weight_purchase_fields').style.display = 'none';
+                        document.getElementById('per_acre_fields').style.display = 'none';
+                        document.getElementById('calculated_weight').style.display = 'none';
+    
+                        const purchaseType = data.purchase_type.trim().toUpperCase();
+    
+                        if (purchaseType === 'PER_ACER') {
+                            document.getElementById('per_acre_fields').style.display = 'block';
+                        } else if (purchaseType === 'PURCHASE_WEIGHT') {
+                            document.getElementById('total_weight').value = data.total_weight || '';
+                            document.getElementById('weight_purchase_fields').style.display = 'block';
+                        }
+    
+                        calculateAdditionalFields(); // Trigger the calculation when details are fetched
+                    })
+                    .catch(error => {
+                        console.error('Error fetching details:', error);
+                    });
+            } else {
+                console.log('No name selected');
+            }
+        }
+    
+        function calculateTotalWeight() {
+            const totalAcre = parseFloat(document.getElementById('total_acre').value) || 0;
+            const perAcreWeight = parseFloat(document.getElementById('per_acre_weight').value) || 0;
+    
+            const totalWeight = totalAcre * perAcreWeight;
+    
+            if (totalWeight > 0) {
+                document.getElementById('calculated_weight').style.display = 'block';
+                document.getElementById('calculated_weight_value').value = totalWeight.toFixed(2);
+                document.getElementById('total_weight').value = totalWeight.toFixed(2); // Set total weight for further calculation
+            } else {
+                document.getElementById('calculated_weight').style.display = 'none';
+                document.getElementById('total_weight').value = 0; // Reset total weight if not valid
+            }
+    
+            calculateAdditionalFields(); // Recalculate additional fields
+        }
 
-            expenseTypeSelect.addEventListener('change', function() {
-                if (this.value === 'Harvesting') {
-                    harvestingTypeContainer.classList.remove('hidden');
+        function calculateAdditionalFields() {
+            const totalExpense = parseFloat(document.getElementById('total_expense').value) || 0;
+            const purchasePrice = parseFloat(document.getElementById('purchase_price').value) || 0;
+
+            // Use the correct total weight based on the calculated value for PER_ACER or the given value for PURCHASE_WEIGHT
+            let totalWeight = parseFloat(document.getElementById('total_weight').value) || 0;
+            
+            const weightLossPercentage = parseFloat(document.getElementById('weight_loss_percentage').value) || 0;
+
+            // Calculate Total (Purchase Price + Total Expense)
+            const total = totalExpense + purchasePrice;
+            document.getElementById('total').value = total.toFixed(2);
+
+            // Check if totalWeight and weightLossPercentage are valid for calculation
+            if (totalWeight > 0 && weightLossPercentage >= 0) {
+                // Calculate the weight loss based on percentage
+                const weightLoss = totalWeight * (weightLossPercentage / 100);
+                const finalWeight = totalWeight - weightLoss;
+
+                // Update final weight after loss
+                document.getElementById('total_weight_after_loss').value = finalWeight.toFixed(2);
+                
+                // Store remaining weight in new field
+                document.getElementById('remaining_weight').value = finalWeight.toFixed(2);
+
+                // Ensure finalWeight is positive and calculate per kg price
+                if (finalWeight > 0) {
+                    const perKgPrice = total / finalWeight; // Use Total (Purchase Price + Expense) to calculate per kg price
+                    document.getElementById('per_kg_price').value = perKgPrice.toFixed(2);
                 } else {
-                    harvestingTypeContainer.classList.add('hidden');
-                    fuelFields.classList.add('hidden');
-                    withoutFuelFields.classList.add('hidden');
-                    amountInput.value = '';
+                    // Reset per kg price if final weight is not valid
+                    document.getElementById('per_kg_price').value = '';
                 }
-            });
-
-            harvestingTypeSelect.addEventListener('change', function() {
-                if (this.value === 'Fuel') {
-                    fuelFields.classList.remove('hidden');
-                    withoutFuelFields.classList.add('hidden');
-                } else if (this.value === 'Without Fuel') {
-                    withoutFuelFields.classList.remove('hidden');
-                    fuelFields.classList.add('hidden');
-                }
-            });
-
-            fuelPriceInput.addEventListener('input', updateAmount);
-            totalFuelInput.addEventListener('input', updateAmount);
-            totalAcreInput.addEventListener('input', calculateAmount);
-            harvestPricePerAcreInput.addEventListener('input', calculateAmount);
-
-            function updateAmount() {
-                const fuelPrice = parseFloat(fuelPriceInput.value) || 0;
-                const totalFuel = parseFloat(totalFuelInput.value) || 0;
-                amountInput.value = (fuelPrice * totalFuel).toFixed(2);
+            } else {
+                // Reset fields if calculations are not possible
+                document.getElementById('total_weight_after_loss').value = '';
+                document.getElementById('per_kg_price').value = '';
+                document.getElementById('remaining_weight').value = '';
             }
-
-            function calculateAmount() {
-                const totalAcre = parseFloat(totalAcreInput.value) || 0;
-                const pricePerAcre = parseFloat(harvestPricePerAcreInput.value) || 0;
-                amountInput.value = (totalAcre * pricePerAcre).toFixed(2);
-            }
-        });
+        }
     </script>
-    <script>
-        document.getElementById('expense-form').addEventListener('submit', function() {
-            document.getElementById('loader-overlay').style.display = 'flex';
-        });
-    
-        window.addEventListener('loader', function() {
-            document.getElementById('loader-overlay').style.display = 'none';
-        });
-    </script>
-    
 </body>
 </html>
-
-
-

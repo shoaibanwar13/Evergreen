@@ -6,7 +6,6 @@ from datetime import datetime,timedelta
 from django.db.models import F
 from django.db.models import Sum
 from django.template.loader import render_to_string,get_template
-from xhtml2pdf import pisa
 import os
 from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required
@@ -773,7 +772,9 @@ def ManufacturePuchasePDF(request):
     query = request.GET.get("query")
     query2 = request.GET.get("query2")
     fromdate = request.GET.get("fromdate")
-    todate = request.GET.get('todate')
+    todate = request.GET.get("todate")
+    
+    # Filter results based on queries
     results = Manufacturing.objects.filter(user=request.user)
     if query:
         results = results.filter(Manufacturing_Product_Name__icontains=query)
@@ -781,103 +782,97 @@ def ManufacturePuchasePDF(request):
         results = results.filter(Place_Of_Supply__icontains=query2)
     if fromdate and todate:
         results = results.filter(date__lte=todate, date__gte=fromdate)
-    compydetail = CompanyDetail.objects.all()
     
+    compydetail = CompanyDetail.objects.all()
+
     # Calculate totals
     Expense_Amount = Decimal(0.00)
     Total_Purchase = Decimal(0.00)
     Total_Sale = Decimal(0.00)
 
-    for purchases in results:
-        Expense_Amount += purchases.Manufacturing_Expense
-        Total_Purchase += purchases.Total_Purchase_Price
-        Total_Sale += purchases.Total_Sale_Amount
+    for purchase in results:
+        Expense_Amount += purchase.Manufacturing_Expense
+        Total_Purchase += purchase.Total_Purchase_Price
+        Total_Sale += purchase.Total_Sale_Amount
 
     Grand_Total_Expense = Expense_Amount
     Grand_Total_Purchase = Total_Purchase
     Grand_Total_Sale = Total_Sale
     Grand_Total_Profit_and_Lose = Grand_Total_Sale - Grand_Total_Purchase - Grand_Total_Expense
 
-    comN = []
-    Email = []
-    address = []
-    phone = []
-    for com in compydetail:
-        name = com.name
-        comN.append(name)
-        email = com.email
-        Email.append(email)
-        office = com.Head_Office
-        address.append(office)
-        Phone = com.phone
-        phone.append(Phone)
-
+    # Get company details
+    company_info = compydetail.first()
+    company_logo_path = "media/Company Logo/logo1.png"  # Replace with actual logo path
+    
     response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = 'attachment;filename="Report.pdf"'
+    response['Content-Disposition'] = 'attachment; filename="ManufacturePurchaseReport.pdf"'
 
     # Create a PDF document
     pdf = SimpleDocTemplate(response, pagesize=landscape(letter))
 
-    # Define data for the invoice
-    company_logo_path = "media/Company Logo/logo1.png"  # Replace with actual path
-    company_name = comN[0]
-    company_email = Email[0]
-    Head_Office = address[0]
-    Phone = phone[0]
-    Date = datetime.now().strftime("%d/%m/%Y")
-
-    products = [
-        ["Production", "Stock", "Manufactured", "Weight", "Total Weight", "Unit", "Price", "Expenses", "Sale", "TP/L"],
-    ]
-    for purchase in results:
-        products.append([
-            purchase.Manufacturing_Product_Name, purchase.Total_Production_Items, purchase.Manufacture_Balles, purchase.Manufacture_Weight, purchase.Weight, purchase.Unit, purchase.Total_Purchase_Price, purchase.Manufacturing_Expense, purchase.Total_Sale_Amount, purchase.Profit_OR_Lose,
-        ])
-
-    summary = [
-        ["Total Purchase", "{:.2f}".format(float(Grand_Total_Purchase))],
-        ["Total Expense", "{:.2f}".format(float(Grand_Total_Expense))],
-        ["Total Sale", "{:.2f}".format(float(Grand_Total_Sale))],
-        ["Profit/Lose", "{:.2f}".format(float(Grand_Total_Profit_and_Lose))]
-    ]
-
-    # Define styles
+    # Styles
     styles = getSampleStyleSheet()
     title_style = styles['Title']
     heading_style = styles['Heading1']
     paragraph_style = styles['Normal']
-    footer_style = ParagraphStyle('footer', fontSize=10, alignment=1, textColor=colors.white)
+    footer_style = ParagraphStyle('footer', fontSize=10, alignment=1, textColor=colors.black)
+
+    # Data for the table
+    products = [
+        ["Bunkar",  "Balles", "Weight", "Total Weight", "Type", "Price", "Expenses", "Sale", "KG/Mund Rate"],
+    ]
+    for purchase in results:
+        products.append([
+            purchase.Manufacturing_Product_Name,
+        
+            purchase.Manufacture_Balles,
+            purchase.Manufacture_Weight,
+            purchase.Weight,
+            purchase.Manufacturing_Purchase_Type,
+            purchase.Total_Purchase_Price,
+            purchase.Manufacturing_Expense,
+            purchase.Total_Sale_Amount,
+
+            purchase.Per_Kg_Or_Mund_Price,
+        ])
+
+    summary = [
+        ["Total Purchase", "{:.2f}".format(Grand_Total_Purchase)],
+        ["Total Expense", "{:.2f}".format(Grand_Total_Expense)],
+        ["Total Sale", "{:.2f}".format(Grand_Total_Sale)],
+        ["Profit/Loss", "{:.2f}".format(Grand_Total_Profit_and_Lose)]
+    ]
 
     # Define table style
     table_style = TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.white),
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
+        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
         ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
         ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
         ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-        ('BACKGROUND', (0, 1), (-1, -1), colors.white),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
         ('GRID', (0, 0), (-1, -1), 1, colors.black),
     ])
 
-    # Create invoice content
+    # Content for the PDF
     content = []
 
-    # Company details and logo
+    # Company logo and details
     company_logo = Image(company_logo_path, width=100, height=100)
     content.append(company_logo)
-    content.append(Paragraph(company_name, title_style))
-    content.append(Paragraph("{}".format(Head_Office), paragraph_style))
-    content.append(Paragraph("{}".format(Phone), paragraph_style))
-    content.append(Paragraph("{}".format(company_email), paragraph_style))
+    content.append(Paragraph(company_info.name, title_style))
+    content.append(Paragraph(company_info.Head_Office, paragraph_style))
+    content.append(Paragraph(company_info.phone, paragraph_style))
+    content.append(Paragraph(company_info.email, paragraph_style))
     content.append(Spacer(1, 12))
 
-    # Report title and summary
-    content.append(Paragraph("Report Of {}".format(request.user), heading_style))
-    content.append(Paragraph("Report Date: {}".format(Date), paragraph_style))
+    # Report title and date
+    content.append(Paragraph(f"Report for {request.user}", heading_style))
+    content.append(Paragraph(f"Date: {datetime.now().strftime('%d/%m/%Y')}", paragraph_style))
     content.append(Spacer(1, 12))
 
-    # Invoice items table
-    col_widths = [60, 60, 80, 80, 80, 60, 70, 60, 70, 74]  # Adjust column widths
+    # Products table
+    col_widths = [100, 60, 80, 80, 100, 60, 70, 60, 70]  # Adjust column widths for better responsiveness
     items_table = Table(products, colWidths=col_widths, hAlign='LEFT')
     items_table.setStyle(table_style)
     content.append(items_table)
@@ -890,10 +885,11 @@ def ManufacturePuchasePDF(request):
     content.append(Spacer(1, 24))
 
     # Footer
-    content.append(Paragraph("Powerd BY SoftApex Tech.", footer_style))
+    content.append(Paragraph("Powered by SoftApex Technologies", footer_style))
 
-    # Build the PDF document
+    # Build PDF
     pdf.build(content)
+
     return response
 def ClientProfile(request,pk):
     clientdata=Client.objects.get(user=request.user,Whats_App_Number=pk)
@@ -3275,7 +3271,7 @@ def CreditToPaid(request, id):
         )
        
         messages.info(request,"Bill Have Been Paid To Production Labour ")
-        return redirect("search1")  
+        return redirect("Vendor")  
        
     Paymentout = ProducctionLabourRecord.objects.get(
         user=request.user,
@@ -3441,4 +3437,31 @@ def fetch_details(request, bunkar):
     }
     
     return JsonResponse(data)
+def Estimater(request):
+    if request.method=="POST":
+        bunkar=request.POST.get("bunkar")
+        purchase_type=request.POST.get("purchase_type")
+        weight_lose=request.POST.get("weight_loss_percentage")
+        calculated_weight_value=request.POST.get("calculated_weight_value")
+        remaining_weight=request.POST.get("remaining_weight")
+        per_kg_price=request.POST.get("per_kg_price")
+        if purchase_type=="PER_ACER":
+            Manufacturing.objects.filter(Manufacturing_Product_Name=bunkar).update(
+                Weight=F("Weight")+calculated_weight_value,Manufacture_Weight=F("Manufacture_Weight")+calculated_weight_value,
+                Estimated_weight=F("Estimated_weight")+calculated_weight_value, Weight_After_Weight_Lose=F("Weight_After_Weight_Lose")+remaining_weight,Weight_Lose_Value=F("Weight_Lose_Value")+weight_lose,
+                Per_Kg_Or_Mund_Price=F("Per_Kg_Or_Mund_Price")+ per_kg_price
+            )
+            messages.info(request,"Bunkar with Estimated Record Added!!")
+            return redirect("Vendor")
+        else:
+            Manufacturing.objects.filter(Manufacturing_Product_Name=bunkar).update(
+                Weight_After_Weight_Lose=F("Weight_After_Weight_Lose")+remaining_weight,Weight_Lose_Value=F("Weight_Lose_Value")+weight_lose,
+                Per_Kg_Or_Mund_Price=F("Per_Kg_Or_Mund_Price")+ per_kg_price
+            )
+            messages.info(request,"Bunkar with Estimated Record Added!!")
+            return redirect("Vendor")
+    else:
+        return redirect("Vendor")
 
+
+ 
