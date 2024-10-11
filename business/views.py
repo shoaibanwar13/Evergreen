@@ -201,6 +201,7 @@ def Vendor(request):
     Credit_Manufacturing=Manufacturing.objects.filter(Payment_Status=False)
     for credit3 in Credit_Manufacturing:
        Manufacturing_Credit+=credit3.Remaining_Amount
+    
     context={
         'total_purchase':total_purchase,
         'total_sale':total_sale,
@@ -352,7 +353,8 @@ def AddDailyProduction(request):
             Paid_Amount=paid_amount,
             Credit=remaining,
             Remaining=remaining,
-            Payment_Status=payment_status
+            Payment_Status=payment_status,
+            Labour_Id=Production_Team_Name
         )
         
         
@@ -2931,6 +2933,8 @@ def add_loading_labour_record(request):
     if request.method == 'POST':
         
         team_leader = request.POST.get('team_leader')
+        
+
         bankar = request.POST.get('name')
         bales = request.POST.get('bales')
         per_bale_price = request.POST.get('per_bale_price')
@@ -2972,7 +2976,8 @@ def add_loading_labour_record(request):
             Total_Amount=total_amount,
             Paid_Amount=paid_amount,
             Remaining=remaining,
-            Payment_Status=payment_status
+            Payment_Status=payment_status,
+            Labour_Id=team_leader
         )
         
         messages.success(request, "Loading Labour Record data added successfully!")
@@ -3281,6 +3286,8 @@ def Loading_Labour_Excel(request):
     return response
 def CreditToPaid(request, id):
     if request.method == "POST":
+        Labour_id=request.POST.get('Labour_id')
+        
         Pay_Amount = Decimal(request.POST.get('Pay_Amount'))
         Remaining_Payment = Decimal(request.POST.get('Remaining_Amount'))
         Pending_Amount = Decimal(request.POST.get('Pending_Amount'))
@@ -3326,6 +3333,29 @@ def CreditToPaid(request, id):
              
 
         )
+         
+        labour=Production_Labour.objects.get(user=request.user,pk=Labour_id)
+        if labour.Advance>0:
+            if Pay_Amount<=labour.Advance:
+                Production_Labour.objects.filter(user=request.user,pk=Labour_id).update(
+                Advance=F('Advance') -Pay_Amount,
+                Paid=F('Paid') + Pay_Amount,
+                Credit=F('Credit') - Pay_Amount)
+            else:
+              Production_Labour.objects.filter(user=request.user,pk=Labour_id).update(
+              Paid=F('Paid') + Pay_Amount,
+              Credit=F('Credit') - Pay_Amount
+
+        )
+        else:
+            Production_Labour.objects.filter(user=request.user,pk=Labour_id).update(
+            Paid=F('Paid') + Pay_Amount,
+            Credit=F('Credit') - Pay_Amount
+
+        )
+        
+        
+
        
         messages.info(request,"Bill Have Been Paid To Production Labour ")
         return redirect("Vendor")  
@@ -3337,10 +3367,6 @@ def CreditToPaid(request, id):
 
     )
     
-     
-    
-    
-    
     
     template = 'components/CreditToPaid.html' if request.htmx else 'CreditToPaid.html'
     return render(request, template, {
@@ -3351,6 +3377,8 @@ def CreditToPaid(request, id):
  
 def CreditToPaidLoading(request, id):
     if request.method == "POST":
+        Labour_id = request.POST.get('Labour_id')
+        print(Labour_id)
         Pay_Amount = Decimal(request.POST.get('Pay_Amount'))
         Remaining_Payment = Decimal(request.POST.get('Remaining_Amount'))
         Pending_Amount = Decimal(request.POST.get('Pending_Amount'))
@@ -3396,6 +3424,30 @@ def CreditToPaidLoading(request, id):
              
 
         )
+        labour=Loading_Labour.objects.get(user=request.user,pk=Labour_id)
+        if labour.Advance>0:
+            if Pay_Amount<=labour.Advance:
+                Loading_Labour.objects.filter(user=request.user,pk=Labour_id).update(
+                Advance=F('Advance') -Pay_Amount,
+                Paid=F('Paid') + Pay_Amount,
+                Credit=F('Credit') - Pay_Amount)
+            else:
+              Loading_Labour.objects.filter(user=request.user,pk=Labour_id).update(
+              Paid=F('Paid') + Pay_Amount,
+              Credit=F('Credit') - Pay_Amount
+
+        )
+        else:
+            Loading_Labour.objects.filter(user=request.user,pk=Labour_id).update(
+            Paid=F('Paid') + Pay_Amount,
+            Credit=F('Credit') - Pay_Amount
+
+        )
+        
+        
+
+   
+        
        
         messages.info(request,"Bill Have Been Paid To Loading Labour ")
         return redirect("Vendor")  
@@ -3519,6 +3571,60 @@ def Estimater(request):
             return redirect("Vendor")
     else:
         return redirect("Vendor")
+
+
+def Loading_Labour_Advance(request):
+    labour=Loading_Labour.objects.filter(user=request.user)
+    if request.method == "POST":
+        Labour_Id =  request.POST.get('Labour_id') 
+        Payment = Decimal(request.POST.get('payment'))
+        Team=Loading_Labour.objects.get(pk=Labour_Id)
+        Team_Leader=Team.Team_Leader
+        query= Loading_Labour_Advance_Payment.objects.create(
+            user=request.user,
+            Team_Leader=Team_Leader,
+            Advance=Payment 
+
+        )
+        query.save()
+        Loading_Labour.objects.filter(pk=Labour_Id).update(
+            Advance=F("Advance")+Payment
+        )
+        messages.info(request,"Advance Payment Added For Production Labour ")
+        return redirect("Vendor")
+
+    
+    if request.htmx:
+        return render(request,'components/Advance_payment.html',{'labour':labour} )
+    else:
+        return render(request, 'Advance_payment.html',{'labour':labour})
+def Production_Labour_Advance(request):
+    labour=Production_Labour.objects.filter(user=request.user)
+    if request.method == "POST":
+        Labour_Id =  request.POST.get('Labour_id') 
+        Payment = Decimal(request.POST.get('payment'))
+        Team=Production_Labour.objects.get(pk=Labour_Id)
+        Team_Leader=Team.Team_Leader
+        query=Production_Labour_Advance_Payment.objects.create(
+            user=request.user,
+            Team_Leader=Team_Leader,
+            Advance=Payment 
+
+        )
+        query.save()
+        Production_Labour.objects.filter(pk=Labour_Id).update(
+            Advance=F("Advance")+Payment
+        )
+        messages.info(request,"Advance Payment Added For Production Labour ")
+        return redirect("Vendor")
+
+    
+    if request.htmx:
+        return render(request,'components/Production_Labour_Payments.html',{'labour':labour} )
+    else:
+        return render(request, 'Production_Labour_Payments.html',{'labour':labour})
+
+
 
 
  

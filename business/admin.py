@@ -46,6 +46,8 @@ admin.site.register(Production_Labour)
 admin.site.register(ProducctionLabourRecord)
 admin.site.register(Loading_Labour)
 admin.site.register(LoadingLabourRecord)
+admin.site.register(Loading_Labour_Advance_Payment)
+admin.site.register(Production_Labour_Advance_Payment)
 
 
 # Register your models here.

@@ -1,0 +1,120 @@
+<div class="col-span-12 mt-8">
+    <header class="bg-green-500 p-4 rounded-full">
+        <div class="container mx-auto flex justify-between items-center">
+            <div class="text-white text-xl font-bold">
+                <i class="fas fa-chevron-right"></i> Loading Labour Advance Payment
+            </div>
+        </div>
+    </header>
+    <div id="loader-overlay">
+        <div class="loader"></div>
+    </div>
+    <section class="py-1">
+        <div class="w-full lg:w-9/10 px-4 mx-auto mt-6">
+            <div class="relative flex flex-col min-w-0 break-words w-full mb-6 shadow-lg rounded-lg border-0">
+                <div class="rounded-t bg-white mb-0 px-4 py-6">
+                    <!-- Title -->
+                    <h6 class="text-blueGray-600 text-sm mt-3 mb-6 font-bold uppercase"></h6>
+                </div>
+                <div class="flex-auto px-4 lg:px-6 py-6 pt-0">
+                    <form action="/Loading_Labour_Advance_Payment/" method="post" id="AddDailyProduction" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <!-- Client Purchase Information Section -->
+                        <div class="flex flex-wrap mb-6">
+                            <!-- Client Name -->
+                            <div class="w-full lg:w-6/12 px-2 mb-4 lg:mb-0">
+                                <div class="relative w-full mb-3">
+                                    <label class="block uppercase text-black text-xs font-bold mb-2" for="Client_Name">
+                                        <i class="fas fa-user"></i>Labour Leader
+                                    </label>
+                                    <select name="Labour_id" id="Labour_id" class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" required hx-get="/SalewithClient/" hx-target="#saleform" hx-trigger="change">
+                                        <!-- Populate options dynamically from Django model -->
+                                     
+                                        
+                                        {% for labour in labour %}
+                                    
+                                        <option value="{{labour.pk}}">{{ labour.Team_Leader }}</option>
+                                        {% endfor %}
+
+                                        
+                                        
+                                      </select>
+                                    </div>
+                            </div>
+                            <!-- Sale Production Name -->
+                             
+                           
+                            <div class="w-full lg:w-6/12 px-2 mb-4 lg:mb-0">
+                                <div class="relative w-full mb-3">
+                                    <label class="block uppercase text-black text-xs font-bold mb-2" for="Items_Or_Balles">
+                                        <i class="fas fa-cubes"></i> Advance Payment
+                                    </label>
+                                    <input type="number" name="payment" id="payment" placeholder="Enter Advance Amount" class="border-0 px-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" required>
+                                </div>
+                            </div>
+                                                         <div class="flex justify-center">
+                                <button type="submit" id="submit-button" class="w-full bg-green-500 text-white py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                                    <i class="fas fa-plus"></i> Add Advance Payment
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script>
+        function data() {
+            return {
+              
+                isSideMenuOpen: false,
+                toggleSideMenu() {
+                    this.isSideMenuOpen = !this.isSideMenuOpen
+                },
+                closeSideMenu() {
+                    this.isSideMenuOpen = false
+                },
+                isNotificationsMenuOpen: false,
+                toggleNotificationsMenu() {
+                    this.isNotificationsMenuOpen = !this.isNotificationsMenuOpen
+                },
+                closeNotificationsMenu() {
+                    this.isNotificationsMenuOpen = false
+                },
+                isProfileMenuOpen: false,
+                toggleProfileMenu() {
+                    this.isProfileMenuOpen = !this.isProfileMenuOpen
+                },
+                closeProfileMenu() {
+                    this.isProfileMenuOpen = false
+                },
+                isPagesMenuOpen: false,
+                togglePagesMenu() {
+                    this.isPagesMenuOpen = !this.isPagesMenuOpen
+                },
+            }
+        }
+    </script>
+     
+    <script>
+        document.getElementById('AddDailyProduction').addEventListener('submit', function() {
+            document.getElementById('loader-overlay').style.display = 'flex';
+        });
+  
+        window.addEventListener('load', function() {
+            document.getElementById('loader-overlay').style.display = 'none';
+        });
+    </script>
+   
+    <script>
+        // Function to calculate remaining amount
+        document.getElementById('payAmount').addEventListener('input', function() {
+            var pendingAmount = parseFloat(document.getElementById('pendingAmount').value) || 0;
+            var payAmount = parseFloat(this.value) || 0;
+            var remainingAmount = pendingAmount - payAmount;
+            document.getElementById('remainingAmount').value = remainingAmount;
+        });
+    </script>
+  </div>
+  

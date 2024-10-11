@@ -296,6 +296,7 @@ class Production_Labour(models.Model):
     Team_Leader=models.CharField(max_length=500)
     Credit=models.DecimalField(max_digits=20,decimal_places=2,default=0)
     Paid=models.DecimalField(max_digits=20,decimal_places=2,default=0)
+    Advance=models.DecimalField(max_digits=20,decimal_places=2,default=0)
     Bales=models.DecimalField(max_digits=20,decimal_places=2,default=0)
     def __str__(self):
         return f"{self.Team_Leader}"
@@ -305,6 +306,7 @@ class Loading_Labour(models.Model):
     Team_Leader=models.CharField(max_length=500)
     Credit=models.DecimalField(max_digits=20,decimal_places=2,default=0)
     Paid=models.DecimalField(max_digits=20,decimal_places=2,default=0)
+    Advance=models.DecimalField(max_digits=20,decimal_places=2,default=0)
     Bales=models.DecimalField(max_digits=20,decimal_places=2,default=0)
     def __str__(self):
         return f"{self.Team_Leader}"
@@ -312,6 +314,7 @@ class ProducctionLabourRecord(models.Model):
     user=models.ForeignKey(User,related_name="ProductionRecord",on_delete=models.CASCADE)
     userprofile  = models.ForeignKey(Profile,blank=True, null=True, on_delete=models.CASCADE)
     Team_Leader=models.CharField(max_length=500)
+    Labour_Id=models.IntegerField(default=0)
     Bankar=models.CharField(max_length=500)
     Credit=models.DecimalField(max_digits=20,decimal_places=2,default=0)
     Bales=models.DecimalField(max_digits=20,decimal_places=2,default=0)
@@ -336,6 +339,7 @@ class LoadingLabourRecord(models.Model):
     user=models.ForeignKey(User,related_name="LoadingRecord",on_delete=models.CASCADE)
     userprofile  = models.ForeignKey(Profile,blank=True, null=True, on_delete=models.CASCADE)
     Team_Leader=models.CharField(max_length=500)
+    Labour_Id=models.IntegerField(default=0)
     Bankar=models.CharField(max_length=500)
     Credit=models.DecimalField(max_digits=20,decimal_places=2,default=0)
     Paid=models.DecimalField(max_digits=20,decimal_places=2,default=0)
@@ -355,6 +359,21 @@ class LoadingLabourRecord(models.Model):
 
     def __str__(self):
         return f"{self.Team_Leader}-{self.Bales}"
+class Loading_Labour_Advance_Payment(models.Model):
+    user=models.ForeignKey(User,related_name="LoadingLabourAdvance",on_delete=models.CASCADE)
+    Team_Leader=models.CharField(max_length=500)
+    Advance=models.DecimalField(max_digits=20,decimal_places=2,default=0)
+    date=models.DateField(default=timezone.now)
+    def __str__(self):
+        return f"{self.Team_Leader}-{self.Advance}"
+class Production_Labour_Advance_Payment(models.Model):
+    user=models.ForeignKey(User,related_name="ProductionLabourAdvance",on_delete=models.CASCADE)
+    Team_Leader=models.CharField(max_length=500)
+    Advance=models.DecimalField(max_digits=20,decimal_places=2,default=0)
+    date=models.DateField(default=timezone.now)
+    def __str__(self):
+        return f"{self.Team_Leader}-{self.Advance}"
+
 
 
 
