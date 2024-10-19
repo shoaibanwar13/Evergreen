@@ -713,7 +713,7 @@ keenSliderNextDesktop.addEventListener('click', () => keenSlider.next())
 <div class="flex min-h-screen items-center justify-start bg-white " id="contact">
 <div class="mx-auto w-full max-w-lg">
 <h1 class="text-4xl font-medium">Contact us</h1>
-<p class="mt-3">Email us at evergreencornsilage@gmail.com or message us here:</p>
+<p class="mt-3">Email us at {% for compydetail in compydetail %}{{compydetail.email}}{% endfor %} or message us here:</p>
 
 <div class="flex items-center mt-8 text-gray-600 dark:text-gray-400">
   <svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24" class="w-8 h-8 text-gray-500">
@@ -744,7 +744,7 @@ keenSliderNextDesktop.addEventListener('click', () => keenSlider.next())
 
   
   <script>
-    const words = [ "Welcome to Evergreen Corn Silage & Dairy Deals ", "The Name Of Trust.","Our  Quality and Quantity Is First Priorty "];
+    const words = [ "Welcome to {% for compydetail in compydetail %}{{compydetail.name}}{% endfor %}  ", "The Name Of Trust.","Our  Quality and Quantity Is First Priorty "];
     let i = 0;
     let j = 0;
     let currentWord = "";

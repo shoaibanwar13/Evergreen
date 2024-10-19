@@ -155,7 +155,7 @@
                                                 <div class="flex space-x-4">
                                                      
                                                     {% if labour.Payment_Status == "CREDIT" %}
-                                                    <a href="" hx-get="/CreditToPaidLoading/{{labour.id}}/" hx-push-url="/CreditToPaid/{{labour.id}}/" hx-target="#change" style="text-decoration: none;">
+                                                    <a href="" hx-get="/CreditToPaidLoading/{{labour.id}}/" hx-push-url="/CreditToPaidLoading/{{labour.id}}/" hx-target="#change" style="text-decoration: none;">
                                                         <p class="text-red-500">{{ labour.Payment_Status }}</p>
                                                     </a>
                                                     {% else %}

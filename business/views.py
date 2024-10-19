@@ -3624,6 +3624,245 @@ def Production_Labour_Advance(request):
     else:
         return render(request, 'Production_Labour_Payments.html',{'labour':labour})
 
+  # Replace with your actual model
+
+def CustomerSearch(request):
+    query = request.GET.get('query')
+    fromdate = request.GET.get("fromdate")
+    todate = request.GET.get('todate')
+    results = Sale.objects.filter(Client_ID=query)
+    
+     
+
+    if fromdate and todate and not query:
+        messages.warning(request, "Please enter your Customer ID.")
+    else:
+        if query:
+            results = Sale.objects.filter(Client_ID=query)
+
+        if fromdate and todate:
+            results = Sale.objects.filter(Client_ID=query,date__lte=todate, date__gte=fromdate)
+   
+    return render(request, 'Customer.html', {
+        'query': query,
+        'fromdate': fromdate,
+        'todate': todate,
+        'results': results,
+    })
+def  CustomerSaleReport(request):
+    query = request.GET.get('query')
+    fromdate = request.GET.get("fromdate")
+    todate = request.GET.get('todate')
+    results = Sale.objects.filter(Client_ID=query)
+
+    if fromdate and todate and not query:
+        messages.warning(request, "Please enter your Customer ID.")
+    else:
+        if query:
+            results = Sale.objects.filter(Client_ID=query)
+
+        if fromdate and todate:
+            results = Sale.objects.filter(Client_ID=query,date__lte=todate, date__gte=fromdate)
+      
+    compydetail = CompanyDetail.objects.all()    
+    
+    
+    comN = []
+    Email = []
+    address = []
+    phone = []
+    for com in compydetail:
+        name = com.name
+        comN.append(name)
+        email = com.email
+        Email.append(email)
+        office = com.Head_Office
+        address.append(office)
+        Phone = com.phone
+        phone.append(Phone)
+    
+    
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="ClientReport.pdf"'
+
+    # Create a PDF document
+    pdf = SimpleDocTemplate(response, pagesize=landscape(letter))
+
+    # Define data for the invoice
+    company_logo_path = "media/Company Logo/logo1.png"  # Replace with actual path
+    company_name = comN[0]
+    company_email = Email[0]
+    Head_Office = address[0]
+    Phone = phone[0]
+    Date = datetime.now().strftime("%d/%m/%Y")
+    Total_Purchase_Amount=0
+    Total_Pending_Amount=0
+    Total_Paid_Amount=0
+    
+    for salereport in results: 
+        Total_Purchase_Amount+=salereport.Total_Amount
+        Total_Paid_Amount+=salereport.Paid_Amount
+        Total_Pending_Amount+=salereport.Remaining
+
+
+         
+         
+    
+    sale = [
+        ["Client","Items/Balles", "Weight",  "Sale Price", "Total Amount", "Discount", "Final Amount","Pay Amount","Status"],]
+    for report in results:
+        paymentstatus="Pending"
+      
+        if report.Payment_Status==True:
+           paymentstatus="Paid"
+       
+          
+           
+        sale.append([str(report.Client_Name),str(report.Items_Or_Balles), str(report.Weight),  str(report.Sale_Price), str(report.Total_Amount), str(report.Discount), str(report.Final_Amount),str(report.Paid_Amount),str(paymentstatus)]
+    )
+    
+
+    # Define styles
+    styles = getSampleStyleSheet()
+    title_style = styles['Title']
+    paragraph_style = styles['Normal']
+
+    # Define table style
+    table_style = TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.white),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.white),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black)
+    ])
+
+    # Create invoice content
+    content = []
+
+    # Company details and logo
+    company_logo = Image(company_logo_path, width=90, height=90)
+
+    # Header and Company Details
+    header_data = [
+        [company_logo, Paragraph("<b>{}</b>".format(company_name), title_style)],
+        ["", Paragraph("{}".format(company_email), paragraph_style)],
+        ["", Paragraph("{}".format(Head_Office), paragraph_style)],
+        ["", Paragraph("{}".format(Phone), paragraph_style)],
+    ]
+
+    header_table = Table(header_data, colWidths=[100, 400])
+    content.append(header_table)
+    content.append(Spacer(1, 12))
+    invoice_number = random.randint(100000, 999999)
+    # Client and Driver details in parallel
+    client_driver_details = [
+        ["Report Number",str(invoice_number), "Date", Date,],
+        ["Email", request.user.email, "Total Purchase Amount", str(Total_Purchase_Amount)], 
+        ["Total Paid Amount", str(Total_Paid_Amount), "Total Pending",  str(Total_Pending_Amount)],
+        ["Seller Name", request.user.first_name, "Vendor ", request.user.username]
+        
+    ]
+
+    details_data = [[Paragraph("<b>{}</b>".format(detail[0]), paragraph_style), Paragraph(detail[1], paragraph_style),
+                     Paragraph("<b>{}</b>".format(detail[2]), paragraph_style), Paragraph(detail[3], paragraph_style)] for detail in client_driver_details]
+    details_table = Table(details_data, colWidths=[220, 150, 150, 150])
+    details_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (0, -1), colors.white),
+        ('TEXTCOLOR', (0, 0), (0, -1), colors.black),
+        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+        ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black)
+    ]))
+
+    content.append(details_table)
+    content.append(Spacer(1, 12))
+
+    # Sale items table
+    items_table = Table(sale, colWidths=[70, 60, 90, 80, 80, 70, 80, 70])
+    items_table.setStyle(table_style)
+    content.append(items_table)
+
+    # Build the PDF document
+    pdf.build(content)
+    return response
+
+def ManufactureCredit(request,bunkar):
+    if request.method == "POST":
+        
+        Pay_Amount = Decimal(request.POST.get('Pay_Amount'))
+        Remaining_Payment = Decimal(request.POST.get('Remaining_Amount'))
+
+        Paid = Manufacturing.objects.get(
+        user=request.user,
+        Manufacturing_Product_Name=bunkar,
+        Payment_Status=False
+
+    )
+        
+        try:
+            Pay_Amount = float(Pay_Amount)
+            Remaining_Payment = float(Remaining_Payment)
+        except (ValueError, TypeError):
+            # Handle the error or provide feedback to the user
+            return render(request, ' CreditToPaid.html', {
+                  'id': id, 'error': 'Invalid payment amounts provided.'
+            })
+        Pay=float(Paid.Remaining_Amount)
+        if Pay-Pay_Amount==0:
+           Manufacturing.objects.filter(
+           Manufacturing_Product_Name=bunkar,
+         ).update(
+            Paid_Amount=F('Paid_Amount') + Pay_Amount,
+            Remaining_Amount=F('Remaining_Amount') - Pay_Amount,
+            Payment_Status=True
+
+        )
+        else:
+           Manufacturing.objects.filter(
+           Manufacturing_Product_Name=bunkar,
+        ).update(
+            Paid_Amount=F('Paid_Amount') + Pay_Amount,
+            Remaining_Amount=F('Remaining_Amount') - Pay_Amount,
+        
+
+        )
+
+    
+        
+    
+       
+        
+        
+        
+          
+        
+        
+
+       
+        messages.info(request,"Bill Have Been Paid To Supplier ")
+        return redirect("Vendor")  
+       
+    Paymentout = Manufacturing.objects.get(
+        user=request.user,
+        Manufacturing_Product_Name=bunkar,
+        Payment_Status=False
+
+    )
+    
+    
+    template = 'components/ManufactureCredit.html' if request.htmx else 'ManufactureCredit.html'
+    return render(request, template, {
+        'id': id,
+        'data':Paymentout,
+         
+    })
+ 
+
+
+
 
 
 

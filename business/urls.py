@@ -75,7 +75,11 @@ urlpatterns = [
     path('fetch_details/<str:bunkar>/',fetch_details,name="fetch_details"),
     path('Estimater/',Estimater,name="Estimater"),
     path('Production_Labour_Advance_Payment/',Production_Labour_Advance,name='Production_Labour_Advance'),
-    path('Loading_Labour_Advance_Payment/',Loading_Labour_Advance,name='Loading_Labour_Advance')
+    path('Loading_Labour_Advance_Payment/',Loading_Labour_Advance,name='Loading_Labour_Advance'),
+    path('CustomerSearch/',CustomerSearch,name='CustomerSearch'),
+    path('CustomerSaleReport/',CustomerSaleReport,name='CustomerSaleReport'),
+    path('ManufactureCredit/<str:bunkar>/',ManufactureCredit,name='ManufactureCredit')
+    
     
     
      
