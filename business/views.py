@@ -2,20 +2,17 @@ from django.shortcuts import render,redirect,HttpResponse,get_object_or_404
 from django.contrib import messages
 from django.http import JsonResponse
 from decimal import Decimal, InvalidOperation
-from datetime import datetime,timedelta
+from datetime import datetime
 from django.db.models import F
-from django.db.models import Sum
-from django.template.loader import render_to_string,get_template
+from django.contrib.auth.decorators import login_required
 import os
 from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
 from apscheduler.schedulers.background import BackgroundScheduler
-from apscheduler.triggers.cron import CronTrigger
 from django.urls import reverse
 import random
 from datetime import date
-from reportlab.pdfgen import canvas
 from django.conf import settings
 from reportlab.lib.pagesizes import letter, landscape
 import pandas as pd
@@ -35,7 +32,8 @@ from reportlab.lib.pagesizes import letter, landscape
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Table, TableStyle, Image, Spacer
 from reportlab.lib import colors
-from reportlab.lib.utils import ImageReader
+from django.contrib.auth.decorators import login_required
+ 
 def index(request):
     compydetail=CompanyDetail.objects.all()
     return render(request,"index.html", {'compydetail':compydetail})
@@ -90,7 +88,7 @@ def calculate_monthly_received(request,year, month):
         total_purchase+=vtotal.Paid_Amount
          
     return total_purchase or 0
-
+@login_required
 def Vendor(request):
     current_year = datetime.now().year
     january_total = february_total = march_total = april_total = may_total = june_total = 0
@@ -274,7 +272,7 @@ def Vendor(request):
     else:
 
       return render(request,"Vendor.html",context)
-    
+@login_required
 def Addclient(request):
     compydetail=CompanyDetail.objects.all()
     if request.method=="POST":
@@ -300,8 +298,7 @@ def Addclient(request):
         return render(request,"client.html",{'compydetail': compydetail})
      
 
-   
-     
+@login_required
 def AddDailyProduction(request):
     labour=Production_Labour.objects.filter(user=request.user)
     Products=Manufacturing.objects.filter(user=request.user,Complete_Production=False).all()
@@ -387,17 +384,19 @@ def AddDailyProduction(request):
         return render(request, 'components/AddPurchase.html',{ 'Products': Products,'labour':labour})
     else:
         return render(request,"Addpurchase.html",{ 'Products': Products,'labour':labour})
- 
+@login_required
 def Client_Whatsapp_filter(request):
     Client_Whatsapp=request.POST.get('WhatsAppNo')
     if Client.objects.filter(Whats_App_Number= Client_Whatsapp).exists():
         return JsonResponse({'exists': True})
     return JsonResponse({'exists': False})
+@login_required
 def Client_mobileno_filter(request):
     Mobile=request.POST.get('mnumber')
     if Client.objects.filter(Whats_App_Number=Mobile).exists():
        return JsonResponse({'exists': True})
     return JsonResponse({'exists': False})
+@login_required
 def check_product_name(request):
     product_name = request.GET.get('Product_Name', None)
     if product_name:
@@ -407,7 +406,7 @@ def check_product_name(request):
     return JsonResponse({'exists': False})
  
 
-
+@login_required
 def NewPurchasepdf(request):
     if not request.user.is_authenticated:
         return HttpResponse("You need to log in to view this page.", status=401)
@@ -496,6 +495,7 @@ def NewPurchasepdf(request):
     pdf.build(content)
     return response
 # Create your views here.
+@login_required
 def TotalVendorPurchase(request):
     compydetail=CompanyDetail.objects.all()
     purchase=DailyProduction.objects.filter(user=request.user)
@@ -593,6 +593,7 @@ def TotalVendorPurchase(request):
     # Build the PDF document
     pdf.build(content)
     return response
+@login_required
 def purchase_export_to_excel(request):
     # Query the database
     data = DailyProduction.objects.filter(user=request.user).values()
@@ -605,9 +606,10 @@ def purchase_export_to_excel(request):
         df.to_excel(writer, index=False, sheet_name='Sheet1')
 
     return response
-
+@login_required
 def current_purchase_pdf(request):
     return render(request,'purchasepdf.html')
+@login_required
 def Purchase_Search_and_manage(request):
     query = request.GET.get('query')
     query2=request.GET.get('query2')
@@ -625,10 +627,12 @@ def Purchase_Search_and_manage(request):
         return render(request, 'components/purchase_search.html',{'results':results,'query':query,'query2':query2,'fromdate':fromdate,'todate':todate})
     else:
        return render(request,'purchase_manage.html',{'results':results,'query':query,'query2':query2,'fromdate':fromdate,'todate':todate})
+@login_required
 def Purchase_Filter(request):
     query = request.GET.get('query')
     results =  DailyProduction.objects.filter(Product_Name__icontains=query)
     return render(request,'PurchaseFilter.html',{'results':results,'query':query})
+@login_required
 def VendorPurchaseSearch(request):
     query=request.GET.get("query")
     query2=request.GET.get("query2")
@@ -743,6 +747,7 @@ def VendorPurchaseSearch(request):
     # Build the PDF document
     pdf.build(content)
     return response
+@login_required
 def ManufactureMaterialPurchase(request):
     query = request.GET.get('query')
     query2=request.GET.get('query2')
@@ -762,6 +767,7 @@ def ManufactureMaterialPurchase(request):
        return render(request,'components/ManufactureSearching.html',{'results':results,'query':query,'query2':query2,'fromdate':fromdate,'todate':todate})
     else:
         return render(request,'MaterialPurchase.html',{'results':results,'query':query,'query2':query2,'fromdate':fromdate,'todate':todate})
+@login_required
 def VendorClientSearch(request):
     query = request.GET.get('query')
     query2=request.GET.get('query2')
@@ -776,6 +782,7 @@ def VendorClientSearch(request):
         return render(request, 'components/SearchAndManageClient.html',{'query':query,'query2':query2,'results':results} )
     else:
       return render(request,"ManageClient.html",{'query':query,'query2':query2,'results':results})
+@login_required
 def ManufactureMaterrial_export_to_excel(request):
     # Query the database
     data = Manufacturing.objects.filter(user=request.user).values()
@@ -789,7 +796,7 @@ def ManufactureMaterrial_export_to_excel(request):
 
     return response
 
-
+@login_required
 def ManufacturePuchasePDF(request):
     query = request.GET.get("query")
     query2 = request.GET.get("query2")
@@ -913,6 +920,7 @@ def ManufacturePuchasePDF(request):
     pdf.build(content)
 
     return response
+@login_required
 def ClientProfile(request,pk):
     clientdata=Client.objects.get(user=request.user,Whats_App_Number=pk)
     clientSale=Sale.objects.filter(user=request.user,Client_ID=pk)
@@ -944,6 +952,7 @@ def ClientProfile(request,pk):
         return render(request, 'components/Clientprofile.html',{'clientid':clientid,'clientdata': clientdata,'clientSale':clientSale,'total_sale':total_sale,'total_pending_payment':total_pending_payment,'total_paid_payment':total_paid_payment,'total_sale_Return':total_sale_Return})
     else:
       return render(request,"Clientprofile.html",{ 'clientid':clientid ,'clientdata': clientdata,'clientSale':clientSale,'total_sale':total_sale,'total_pending_payment':total_pending_payment,'total_paid_payment':total_paid_payment,'total_sale_Return':total_sale_Return})
+@login_required
 def SalewithClient(request):
     client_id = request.GET.get('Client_ID')
     item=request.GET.get('item')
@@ -973,7 +982,7 @@ def SalewithClient(request):
         'Client_Credit':client.Credit_Limit
     }
     return render(request,"components/SaleForm.html",{'client_id':client_id,'client_data':client_data,'saleproduct': saleproduct,' pendingTotal': pendingTotal})
-     
+@login_required
 def SaleGenerate(request):
     if request.method=="POST":
 
@@ -1046,7 +1055,7 @@ def SaleGenerate(request):
         return render(request, 'components/SaleGenerate.html',{'Products': Products,'data':data})
     else:
         return render(request,"VendorSale.html",{'Products': Products,'data':data })
-      
+@login_required
 def client_search(request):
     query = request.GET.get('query', '')
     if query:
@@ -1183,6 +1192,7 @@ def CurrentSale(request, pk):
     # Build the PDF document
     pdf.build(content)
     return response
+@login_required
 def currentInvoice(request,pk):
     customerid=pk
     compydetail = CompanyDetail.objects.first()
@@ -1190,6 +1200,7 @@ def currentInvoice(request,pk):
     invoice_number = random.randint(100000, 999999)
     Invoice = Sale.objects.filter(user=request.user, Client_ID=pk).last()
     return render(request,'CurrentsalePDF.html',{'customerid':customerid,'invoice_number':invoice_number,'compydetail':compydetail,'invoice_number ':invoice_number,'Invoice':Invoice,'Date':Date })
+@login_required
 def ClientSearchAndPurchase(request,pk):
     query = request.GET.get('query')
     query2=request.GET.get('query2')
@@ -1209,7 +1220,7 @@ def ClientSearchAndPurchase(request,pk):
         return render(request,'components/ClientPurchaseSearch.html',{'customerid':customerid,'query':query,'query2':query2,'fromdate':fromdate,'todate':todate,'results':results} )
     else:
         return render(request,'ClientPurchaseSearch.html',{'customerid':customerid,'query':query,'query2':query2,'fromdate':fromdate,'todate':todate,'results':results} )
- 
+@login_required
 def ClientReport(request, pk):
     query = request.GET.get('query')
     query2=request.GET.get('query2')
@@ -1353,6 +1364,7 @@ def ClientReport(request, pk):
     # Build the PDF document
     pdf.build(content)
     return response
+@login_required
 def Client_export_to_excel(request,pk):
     # Query the database
     data = Sale.objects.filter(user=request.user,Client_ID=pk).values()
@@ -1364,6 +1376,7 @@ def Client_export_to_excel(request,pk):
         df.to_excel(writer, index=False, sheet_name='Sheet1')
 
     return response
+@login_required
 def SaleManagement(request):
     query = request.GET.get('query')
     query2=request.GET.get('query2')
@@ -1382,6 +1395,7 @@ def SaleManagement(request):
         return render(request,'components/SaleSearch.html',{'query':query,'query2':query2,'fromdate':fromdate,'todate':todate,'results':results} )
     else:
         return render(request,'SaleSearch.html',{'query':query,'query2':query2,'fromdate':fromdate,'todate':todate,'results':results} )
+@login_required
 def  SaleReport(request):
     query = request.GET.get('query')
     query2=request.GET.get('query2')
@@ -1518,6 +1532,7 @@ def  SaleReport(request):
     # Build the PDF document
     pdf.build(content)
     return response
+@login_required
 def VendorSale_export_to_excel(request):
     # Query the database
     data = Sale.objects.filter(user=request.user,).values()
@@ -1529,7 +1544,7 @@ def VendorSale_export_to_excel(request):
         df.to_excel(writer, index=False, sheet_name='Sheet1')
 
     return response
- 
+@login_required
 def paymentIn(request, pk, id):
     if request.method == "POST":
         Pay_Amount = Decimal(request.POST.get('Pay_Amount'))
@@ -1580,7 +1595,7 @@ def paymentIn(request, pk, id):
         'pending': pending
     })
  
-
+@login_required
 def Itemchecking(request):
     items = request.POST.get('Sale_Production_Name')
     
@@ -1595,9 +1610,11 @@ def Itemchecking(request):
         return JsonResponse({'exists': True})
     
     return JsonResponse({'exists': False})
+@login_required
 def currentPaymentInPdf(request,pk,id):
     customerid=pk
     return render(request,'PaymentInPDF.html',{'customerid':customerid,'id':id})
+@login_required
 def paymentInSlip(request, pk,id):
     compydetail = CompanyDetail.objects.all()
     Invoice = Sale.objects.get(user=request.user, Client_ID=pk,id=id)
@@ -1723,6 +1740,7 @@ def paymentInSlip(request, pk,id):
     # Build the PDF document
     pdf.build(content)
     return response
+@login_required
 def add_expense(request):
     compydetail = CompanyDetail.objects.first()
     balance = Profile.objects.get(user=request.user)
@@ -1731,15 +1749,32 @@ def add_expense(request):
 
     if request.method == 'POST':
         production_name = request.POST.get('name')
+        if production_name==None:
+            messages.warning(request,"Please Select Bunkar Name")
+            return redirect("add_expense")
         description = request.POST.get('description')
         category = request.POST.get('category')
+        if category==None:
+            messages.warning(request,"Please Select Expense Category")
+            return redirect("add_expense")
         harvesting_type = request.POST.get('harvesting-type')
+        if category=='Harvesting':
+                if harvesting_type==None:
+                    messages.warning(request,"Please Select Harvesting Type")
+                    return redirect("HarvestingExpense")
+       
         fuel_price = request.POST.get('fuel-price')
         total_Fuel = request.POST.get('total-fuel')
         Total_Acer = request.POST.get('total-acre')
         Price_Per_Acer = request.POST.get('harvest-price-per-acre')
-        amount = Decimal(request.POST.get('amount'))
+        amount = request.POST.get('amount')
+        if amount==0.00 or ' ':
+            messages.warning(request,"Please Fill All The Fields Of Your Expense!")
+            return redirect("add_expense")
         payment_status = request.POST.get('payment_status')
+        if payment_status==None:
+            messages.warning(request,"Please Select Payment Status")
+            return redirect("add_expense")
         Paid_amount = request.POST.get('paid_amount')
 
         if not Paid_amount:  # Check if the value is empty or None
@@ -1760,6 +1795,9 @@ def add_expense(request):
  
         if category=="Harvesting":
             if harvesting_type=="Fuel":
+                 if fuel_price or total_Fuel:
+                   messages.warning(request,"Please Fill All The Fields Related To Fuel With Harvesting")
+                   return redirect("HarvestingExpense")
                  manufaccture_instance.update(Harvesting_Cost=F("Harvesting_Cost")+amount,Manufacturing_Expense=F("Manufacturing_Expense")+amount,Harvest_Type=harvesting_type,Total_Fuel=F("Total_Fuel")+total_Fuel,Fuel_Price=F("Fuel_Price")+fuel_price)
                  query=Expense.objects.create(user=request.user,userprofile=profile_instance,Production_Name=production_name,description=description,category=category,amount=amount,Bill_Proof=bill,notes=notes,Payment_Status=payment_status,Paid_Amount=Paid_amount,Remaining_Amount=Remaining)
                  query.save()
@@ -1768,6 +1806,9 @@ def add_expense(request):
         )
                  return redirect('expensebill')
             if harvesting_type=="Without Fuel":
+                 if Total_Acer or Price_Per_Acer==None:
+                   messages.warning(request,"Please Fill All The Fields Related To  Harvesting Without Fuel")
+                   return redirect("HarvestingExpense")
                  manufaccture_instance.update(Harvesting_Cost=F("Harvesting_Cost")+amount,Manufacturing_Expense=F("Manufacturing_Expense")+amount,Harvest_Type=harvesting_type,Total_Harvest_Acer=F("Total_Harvest_Acer")+Total_Acer,Harvest_Acer_Cost=F("Harvest_Acer_Cost")+Price_Per_Acer)
                  query=Expense.objects.create(user=request.user,userprofile=profile_instance,Production_Name=production_name,description=description,category=category,amount=amount,Bill_Proof=bill,notes=notes,Payment_Status=payment_status,Paid_Amount=Paid_amount,Remaining_Amount=Remaining)
                  query.save()
@@ -1777,6 +1818,7 @@ def add_expense(request):
                  return redirect('expensebill')
            
         elif  category=="Pressing":
+            
             manufaccture_instance.update(Pressing_Cost=F("Pressing_Cost")+amount,Manufacturing_Expense=F("Manufacturing_Expense")+amount)
             query=Expense.objects.create(user=request.user,userprofile=profile_instance,Production_Name=production_name,description=description,category=category,amount=amount,Bill_Proof=bill,notes=notes,)
             query.save()
@@ -1855,6 +1897,7 @@ def add_expense(request):
         return render(request,'components/expense_form.html',{'totalBalance':totalBalance,'productions':productions,'compydetail':compydetail})
     else:
         return render(request, 'expense_form.html',{'totalBalance':totalBalance,'productions':productions,'compydetail':compydetail})
+@login_required
 def expenseManagement(request):
     fromdate = request.GET.get("fromdate")
     todate = request.GET.get('todate')
@@ -1883,9 +1926,10 @@ def expenseManagement(request):
         return render(request, 'components/expensemanagement.html', context)
     else:
         return render(request, 'expensemanagement.html', context)
+@login_required
 def expensebill(request):
     return render(request,"expensebill.html") 
- 
+@login_required
 def generate_expense_report(request):
     # Fetch data from the database
     results  = Expense.objects.filter(user=request.user)
@@ -2008,7 +2052,7 @@ def generate_expense_report(request):
     # Build the PDF document
     pdf.build(content)
     return response
-
+@login_required
 def ExpenseSlip(request):
     # Fetch data from the database
     expenses = Expense.objects.filter(user=request.user).last()
@@ -2108,6 +2152,7 @@ def ExpenseSlip(request):
     # Build the PDF document
     pdf.build(content)
     return response
+@login_required
 def expense_Excel(request):
     # Query the database
     data = Expense.objects.filter(user=request.user).values()
@@ -2120,6 +2165,7 @@ def expense_Excel(request):
         df.to_excel(writer, index=False, sheet_name='Sheet1')
 
     return response
+@login_required
 def VendorPayementOut(request):
     balance=Profile.objects.get(user=request.user)
     totalBalance=balance.Balance
@@ -2151,6 +2197,7 @@ def VendorPayementOut(request):
         return render(request,'components/PaymentOut.html',{'totalBalance':totalBalance})
     else:
         return render(request, 'PaymentOut.html',{'totalBalance':totalBalance})
+@login_required
 def PaymentOutSlip(request):
     # Fetch the last expense record for the user
     expenses = PaymentOut.objects.filter(user=request.user).last()
@@ -2249,9 +2296,10 @@ def PaymentOutSlip(request):
     # Build the PDF document
     pdf.build(content)
     return response
+@login_required
 def withdrwalSlip(request):
     return render(request,"WithdrwalSlip.html")
- 
+@login_required
 def transactionHistory(request):
     fromdate=request.GET.get("fromdate")
     todate=request.GET.get('todate')
@@ -2263,7 +2311,7 @@ def transactionHistory(request):
         return render(request,'components/TransactionHistory.html',{'fromdate':fromdate,'todate':todate,'results':results})
     else:
         return render(request, 'TransactionHistory.html',{'fromdate':fromdate,'todate':todate,'results':results})
-
+@login_required
 def generate_Transactions_report(request):
     # Fetch data from the database
     results  = PaymentOut.objects.filter(user=request.user)
@@ -2386,7 +2434,7 @@ def generate_Transactions_report(request):
     # Build the PDF document
     pdf.build(content)
     return response
-     
+@login_required
 def Transaction_export_to_excel(request):
     # Query the database
     data = PaymentOut.objects.filter(user=request.user).values()
@@ -2399,6 +2447,7 @@ def Transaction_export_to_excel(request):
         df.to_excel(writer, index=False, sheet_name='Sheet1')
 
     return response
+@login_required
 def Salereturn(request):
     productions=Manufacturing.objects.filter(user=request.user)
     clients=Client.objects.filter(user=request.user)
@@ -2427,6 +2476,7 @@ def Salereturn(request):
         return render(request,"components/SaleReturn.html",{'clients':clients,'productions':productions})
     else:
         return render(request,"SaleReturn.html",{'clients':clients,'productions':productions})
+@login_required
 def SaleReturnManagement(request):
     query = request.GET.get('query')
     query2=request.GET.get('query2')
@@ -2445,6 +2495,7 @@ def SaleReturnManagement(request):
         return render(request,'components/SaleReturnmanagement.html',{'query':query,'query2':query2,'fromdate':fromdate,'todate':todate,'results':results} )
     else:
         return render(request,'SaleReturnmanagement.html',{'query':query,'query2':query2,'fromdate':fromdate,'todate':todate,'results':results} )
+@login_required
 def  SaleReturnReport(request):
     query = request.GET.get('query')
     query2=request.GET.get('query2')
@@ -2574,6 +2625,7 @@ def  SaleReturnReport(request):
     # Build the PDF document
     pdf.build(content)
     return response
+@login_required
 def VendorSaleReturn_export_to_excel(request):
     # Query the database
     data = Sale_Return.objects.filter(user=request.user,).values()
@@ -2585,7 +2637,7 @@ def VendorSaleReturn_export_to_excel(request):
         df.to_excel(writer, index=False, sheet_name='Sheet1')
 
     return response
- 
+@login_required
 def generate_daily_report():
     today = date.today()
     
@@ -2697,12 +2749,12 @@ def generate_daily_report():
         email.attach(f'{pro.user}_daily_report_{today}.pdf', buffer.read(), 'application/pdf')
         email.send()
 
-       
+@login_required
 def start_scheduler():
     scheduler = BackgroundScheduler()
     scheduler.add_job(generate_daily_report, 'interval', hour=0,minute=0,second=0)  # Adjust time as needed
     scheduler.start()
-
+@login_required
 def search(request):
     # Retrieve search text from the POST request
     search_text = request.POST.get('search')
@@ -2713,6 +2765,7 @@ def search(request):
     context = {'results2': results2}
     # Render search result template with context
     return render(request, 'components/searchresult.html', context)
+@login_required
 def FraudDector(request):
     mail=Profile.objects.get(user=request.user)
     alert=mail.email
@@ -2729,7 +2782,7 @@ from decimal import Decimal, InvalidOperation
 from django.shortcuts import get_object_or_404, redirect
 from django.contrib import messages
 from .models import Manufacturing, Profile
-
+@login_required
 def AddManufecturePurchase(request):
     if request.method == "POST":
         Purchase_Type = request.POST.get("Purchase_Type")
@@ -2834,30 +2887,35 @@ def AddManufecturePurchase(request):
         return render(request, "components/Purchaseform.html")
     else:
         return render(request, 'ManufacturePurchaseForm.html')
+@login_required
 def HarvestingExpense(request):
     productions=Manufacturing.objects.filter(user=request.user,Complete_Production=False)
     if request.htmx:
         return render(request,"components/Harvesting.html",{'productions':productions})
     else:
         return render(request,'Harvesting.html',{'productions':productions})
+@login_required
 def Dumping(request):
     productions=Manufacturing.objects.filter(user=request.user,Complete_Production=False)
     if request.htmx:
         return render(request,"components/Dumping.html",{'productions':productions})
     else:
         return render(request,'Dumping.html',{'productions':productions})
+@login_required
 def Polythene(request):
     productions=Manufacturing.objects.filter(user=request.user,Complete_Production=False)
     if request.htmx:
         return render(request,"components/Polythene.html",{'productions':productions})
     else:
         return render(request,'Polythene.html',{'productions':productions})
+@login_required
 def PackingMaterial(request):
     productions=Manufacturing.objects.filter(user=request.user,Complete_Production=False)
     if request.htmx:
         return render(request,"components/Packing.html",{'productions':productions})
     else:
         return render(request,'Packing.html',{'productions':productions})
+@login_required
 def WeightLose(request):
     productions=Manufacturing.objects.filter(user=request.user,Complete_Production=False)
     if request.method == 'POST':
@@ -2984,6 +3042,7 @@ def add_loading_labour_record(request):
         return redirect('Vendor')  # Redirect to a list view or another view
 
     return render(request, 'add_loading_labour_record.html',{'productions':productions,'labour':labour})
+@login_required
 def search1(request):
     fromdate=request.GET.get("fromdate")
     todate=request.GET.get('todate')
@@ -2999,7 +3058,7 @@ def search1(request):
         return render(request,'components/ProductionLabourRecord.html',{'fromdate':fromdate,'todate':todate,'results':results})
     else:
         return render(request, 'ProductionLabourRecord.html',{'fromdate':fromdate,'todate':todate,'results':results})
-
+@login_required
 def generate_Production_Labour_report(request):
     # Fetch data from the database
     results  = LoadingLabourRecord.objects.filter(user=request.user)
@@ -3122,6 +3181,7 @@ def generate_Production_Labour_report(request):
     # Build the PDF document
     pdf.build(content)
     return response
+@login_required
 def Production_Labour_Excel(request):
     # Query the database
     data = ProducctionLabourRecord.objects.filter(user=request.user).values()
@@ -3134,6 +3194,7 @@ def Production_Labour_Excel(request):
         df.to_excel(writer, index=False, sheet_name='Sheet1')
 
     return response
+@login_required
 def search2(request):
     fromdate=request.GET.get("fromdate")
     todate=request.GET.get('todate')
@@ -3149,7 +3210,7 @@ def search2(request):
         return render(request,'components/LoadingLabourRecord.html',{'fromdate':fromdate,'todate':todate,'results':results})
     else:
         return render(request, 'LoadingLabourRecord.html',{'fromdate':fromdate,'todate':todate,'results':results})
-
+@login_required
 def generate_Loading_Labour_report(request):
     # Fetch data from the database
     results  = LoadingLabourRecord.objects.filter(user=request.user)
@@ -3272,6 +3333,7 @@ def generate_Loading_Labour_report(request):
     # Build the PDF document
     pdf.build(content)
     return response
+@login_required
 def Loading_Labour_Excel(request):
     # Query the database
     data = LoadingLabourRecord.objects.filter(user=request.user).values()
@@ -3284,6 +3346,7 @@ def Loading_Labour_Excel(request):
         df.to_excel(writer, index=False, sheet_name='Sheet1')
 
     return response
+@login_required
 def CreditToPaid(request, id):
     if request.method == "POST":
         Labour_id=request.POST.get('Labour_id')
@@ -3374,7 +3437,7 @@ def CreditToPaid(request, id):
         'data':Paymentout,
          
     })
- 
+@login_required
 def CreditToPaidLoading(request, id):
     if request.method == "POST":
         Labour_id = request.POST.get('Labour_id')
@@ -3470,7 +3533,7 @@ def CreditToPaidLoading(request, id):
         'data':Paymentout,
          
     })
-
+@login_required
 def BunkarExpense(request, id):
     if request.method == "POST":
         Pay_Amount = Decimal(request.POST.get('Pay_Amount'))
@@ -3531,7 +3594,7 @@ def BunkarExpense(request, id):
  
  
 
-
+@login_required
 def fetch_details(request, bunkar):
     # Fetch the details based on the selected name from the database
     purchase = Manufacturing.objects.get(user=request.user,Manufacturing_Product_Name=bunkar)
@@ -3546,6 +3609,7 @@ def fetch_details(request, bunkar):
     }
     
     return JsonResponse(data)
+@login_required
 def Estimater(request):
     if request.method=="POST":
         bunkar=request.POST.get("bunkar")
@@ -3572,7 +3636,7 @@ def Estimater(request):
     else:
         return redirect("Vendor")
 
-
+@login_required
 def Loading_Labour_Advance(request):
     labour=Loading_Labour.objects.filter(user=request.user)
     if request.method == "POST":
@@ -3598,6 +3662,7 @@ def Loading_Labour_Advance(request):
         return render(request,'components/Advance_payment.html',{'labour':labour} )
     else:
         return render(request, 'Advance_payment.html',{'labour':labour})
+@login_required
 def Production_Labour_Advance(request):
     labour=Production_Labour.objects.filter(user=request.user)
     if request.method == "POST":
@@ -3649,6 +3714,7 @@ def CustomerSearch(request):
         'todate': todate,
         'results': results,
     })
+
 def  CustomerSaleReport(request):
     query = request.GET.get('query')
     fromdate = request.GET.get("fromdate")
@@ -3759,9 +3825,9 @@ def  CustomerSaleReport(request):
     # Client and Driver details in parallel
     client_driver_details = [
         ["Report Number",str(invoice_number), "Date", Date,],
-        ["Email", request.user.email, "Total Purchase Amount", str(Total_Purchase_Amount)], 
+        ["Customer ID",  str(query), "Total Purchase Amount", str(Total_Purchase_Amount)], 
         ["Total Paid Amount", str(Total_Paid_Amount), "Total Pending",  str(Total_Pending_Amount)],
-        ["Seller Name", request.user.first_name, "Vendor ", request.user.username]
+       
         
     ]
 
@@ -3788,7 +3854,7 @@ def  CustomerSaleReport(request):
     # Build the PDF document
     pdf.build(content)
     return response
-
+@login_required
 def ManufactureCredit(request,bunkar):
     if request.method == "POST":
         

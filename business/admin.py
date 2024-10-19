@@ -49,5 +49,8 @@ admin.site.register(LoadingLabourRecord)
 admin.site.register(Loading_Labour_Advance_Payment)
 admin.site.register(Production_Labour_Advance_Payment)
 
+admin.site.site_header = "SoftApex Technologies"
+admin.site.site_title = "SoftApex Technologies"
+admin.site.index_title = "Welcome SoftApex Technologies Admin"
 
 # Register your models here.

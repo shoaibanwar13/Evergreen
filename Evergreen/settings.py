@@ -32,7 +32,7 @@ ALLOWED_HOSTS = ["*"]
 # Application definition
 
 INSTALLED_APPS = [
-     
+    "grappelli",
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -42,6 +42,15 @@ INSTALLED_APPS = [
     'business',
     'django_htmx',
 ]
+
+GRAPPELLI_ADMIN_TITLE = "SoftApex Technologis"
+
+GRAPPELLI_CSS = {
+    'styles': [
+        '/static/css/custom.css',
+    ],
+}
+
 JAZZMIN_SETTINGS = {
     # title of the window (Will default to current_admin_site.site_title if absent or None)
     "site_title": "Evergreen",
