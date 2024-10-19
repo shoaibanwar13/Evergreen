@@ -3049,6 +3049,7 @@ def search1(request):
     results = ProducctionLabourRecord.objects.filter(user=request.user)
     count=ProducctionLabourRecord.objects.filter(user=request.user).count()
     
+    
 
     if fromdate and todate:
         results = results.filter(date__lte=todate, date__gte=fromdate)

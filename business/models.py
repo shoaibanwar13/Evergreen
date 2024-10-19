@@ -109,6 +109,8 @@ class Manufacturing(models.Model):
     Payment_Status=models.BooleanField(default=False)
     Unit = models.CharField(max_length=20, choices=WEIGHT_CHOICES, default=NONE)
     date=models.DateField(default=timezone.now)
+    class Meta:
+        verbose_name_plural="Manufacturing Records"
     
     def __str__(self):
         return f"{self.Manufacturing_Product_Name}"
@@ -144,7 +146,8 @@ class Client(models.Model):
     Acccount_Type=models.CharField(max_length=200,null=True,blank=True)
     Opening_Balance=models.DecimalField(max_digits=20,decimal_places=3,null=True,blank=True,default=0)
     Credit_Limit=models.DecimalField(max_digits=20,decimal_places=3,null=True,blank=True,default=0)
-    
+    class Meta:
+        verbose_name_plural="Daily Production Record"
     def __str__(self) :
 
         return  f"{self.Whats_App_Number}"
@@ -203,6 +206,8 @@ class  Sale(models.Model):
     )
     Payment_Method = models.CharField(max_length=20, choices=STATUS_CHOICES, default=CASH)
     date=models.DateField(default=timezone.now)
+    class Meta:
+        verbose_name_plural="Sales Record"
     
     def __str__(self) :
 
@@ -248,6 +253,8 @@ class Expense(models.Model):
     ]
      
     Payment_Status= models.CharField(max_length=50, choices=PAYMENT_CHOICES, default='PAID')
+    class Meta:
+        verbose_name_plural="Expenses"
 
     def __str__(self):
         return f"{self.description} - {self.amount}"
@@ -273,6 +280,9 @@ class PaymentOut(models.Model):
     Bill_Proof=models.ImageField(upload_to="Expenses Bill")
     notes = models.TextField(blank=True, null=True)
 
+    class Meta:
+        verbose_name_plural="Transactions"
+
     def __str__(self):
         return f"{self.description} - {self.amount}"
 class Sale_Return(models.Model):
@@ -287,6 +297,9 @@ class Sale_Return(models.Model):
     Payment_Proof=models.ImageField(upload_to="Return Payment Proof")
     Reason_Of_Return=models.TextField()
     date = models.DateField(default=timezone.now)
+
+    class Meta:
+        verbose_name_plural="Sales Returns"
     
     def __str__(self):
         return f"{self.Client_Name} - {self.Return_To_Customer_Amount}"
@@ -298,6 +311,9 @@ class Production_Labour(models.Model):
     Paid=models.DecimalField(max_digits=20,decimal_places=2,default=0)
     Advance=models.DecimalField(max_digits=20,decimal_places=2,default=0)
     Bales=models.DecimalField(max_digits=20,decimal_places=2,default=0)
+
+    class Meta:
+        verbose_name_plural="Productions Labours"
     def __str__(self):
         return f"{self.Team_Leader}"
 class Loading_Labour(models.Model):
@@ -308,6 +324,9 @@ class Loading_Labour(models.Model):
     Paid=models.DecimalField(max_digits=20,decimal_places=2,default=0)
     Advance=models.DecimalField(max_digits=20,decimal_places=2,default=0)
     Bales=models.DecimalField(max_digits=20,decimal_places=2,default=0)
+
+    class Meta:
+        verbose_name_plural="Loading Labours"
     def __str__(self):
         return f"{self.Team_Leader}"
 class ProducctionLabourRecord(models.Model):
@@ -330,6 +349,9 @@ class ProducctionLabourRecord(models.Model):
     ]
      
     Payment_Status= models.CharField(max_length=50, choices=PAYMENT_CHOICES, default='PAID')
+
+    class Meta:
+        verbose_name_plural="Production Labours Record"
 
     def __str__(self):
         return f"{self.Team_Leader}-{self.Bales}"
@@ -356,6 +378,8 @@ class LoadingLabourRecord(models.Model):
     ]
      
     Payment_Status= models.CharField(max_length=50, choices=PAYMENT_CHOICES, default='PAID')
+    class Meta:
+        verbose_name_plural="Loadings Labours Record"
 
     def __str__(self):
         return f"{self.Team_Leader}-{self.Bales}"
@@ -364,6 +388,8 @@ class Loading_Labour_Advance_Payment(models.Model):
     Team_Leader=models.CharField(max_length=500)
     Advance=models.DecimalField(max_digits=20,decimal_places=2,default=0)
     date=models.DateField(default=timezone.now)
+    class Meta:
+        verbose_name_plural="Loading Labour Advance Payment"
     def __str__(self):
         return f"{self.Team_Leader}-{self.Advance}"
 class Production_Labour_Advance_Payment(models.Model):
@@ -371,6 +397,8 @@ class Production_Labour_Advance_Payment(models.Model):
     Team_Leader=models.CharField(max_length=500)
     Advance=models.DecimalField(max_digits=20,decimal_places=2,default=0)
     date=models.DateField(default=timezone.now)
+    class Meta:
+        verbose_name_plural="Production Labour Advance Payment"
     def __str__(self):
         return f"{self.Team_Leader}-{self.Advance}"
 
