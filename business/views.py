@@ -184,19 +184,19 @@ def Vendor(request):
         FraudDector(request)
     siteProfit=profit-siteexp
     Creditamount=0
-    Credit_LL=LoadingLabourRecord.objects.filter(Payment_Status="CREDIT")
+    Credit_LL=LoadingLabourRecord.objects.filter(user=request.user,Payment_Status="CREDIT")
     for credit in Credit_LL:
         Creditamount+=credit.Remaining
     CreditamountPro=0
-    Credit_PL=ProducctionLabourRecord.objects.filter(Payment_Status="CREDIT")
+    Credit_PL=ProducctionLabourRecord.objects.filter(user=request.user,Payment_Status="CREDIT")
     for credit1 in Credit_PL:
         CreditamountPro+=credit1.Remaining
     Expense_Credit=0
-    Credit_Expense=Expense.objects.filter(Payment_Status="CREDIT")
+    Credit_Expense=Expense.objects.filter(user=request.user,Payment_Status="CREDIT")
     for credit2 in Credit_Expense:
        Expense_Credit+=credit2.Remaining_Amount
     Manufacturing_Credit=0
-    Credit_Manufacturing=Manufacturing.objects.filter(Payment_Status=False)
+    Credit_Manufacturing=Manufacturing.objects.filter(user=request.user,Payment_Status=False)
     for credit3 in Credit_Manufacturing:
        Manufacturing_Credit+=credit3.Remaining_Amount
     
@@ -1768,9 +1768,7 @@ def add_expense(request):
         Total_Acer = request.POST.get('total-acre')
         Price_Per_Acer = request.POST.get('harvest-price-per-acre')
         amount = request.POST.get('amount')
-        if amount==0.00 or ' ':
-            messages.warning(request,"Please Fill All The Fields Of Your Expense!")
-            return redirect("add_expense")
+        
         payment_status = request.POST.get('payment_status')
         if payment_status==None:
             messages.warning(request,"Please Select Payment Status")
@@ -1804,6 +1802,7 @@ def add_expense(request):
                  Profile.objects.filter(user=request.user).update(
                  Total_Expense=F("Total_Expense")+amount
         )
+                 messages.warning(request,"Please Download Your Expense Bill PDF")
                  return redirect('expensebill')
             if harvesting_type=="Without Fuel":
                  if Total_Acer or Price_Per_Acer==None:
@@ -1815,6 +1814,7 @@ def add_expense(request):
                  Profile.objects.filter(user=request.user).update(
                 Total_Expense=F("Total_Expense")+amount
         )
+                 messages.warning(request,"Please Download Your Expense Bill PDF")
                  return redirect('expensebill')
            
         elif  category=="Pressing":
@@ -1832,6 +1832,8 @@ def add_expense(request):
             Profile.objects.filter(user=request.user).update(
             Total_Expense=F("Total_Expense")+amount
         )
+            messages.warning(request,"Please Download Your Expense Bill PDF")
+            return redirect('expensebill')
         elif  category=="Polythene":
             manufaccture_instance.update(Polythene_Cost=F("Polythene_Cost")+amount,Manufacturing_Expense=F("Manufacturing_Expense")+amount)
             query=Expense.objects.create(user=request.user,userprofile=profile_instance,Production_Name=production_name,description=description,category=category,amount=amount,Bill_Proof=bill,notes=notes,Payment_Status=payment_status,Paid_Amount=Paid_amount,Remaining_Amount=Remaining)
@@ -1839,6 +1841,8 @@ def add_expense(request):
             Profile.objects.filter(user=request.user).update(
             Total_Expense=F("Total_Expense")+amount
         )
+            messages.warning(request,"Please Download Your Expense Bill PDF")
+            return redirect('expensebill')
         elif  category=="Mud Cost":
             manufaccture_instance.update(Mud_Cost=F("Mud_Cost")+amount,Manufacturing_Expense=F("Manufacturing_Expense")+amount)
             query=Expense.objects.create(user=request.user,userprofile=profile_instance,Production_Name=production_name,description=description,category=category,amount=amount,Bill_Proof=bill,notes=notes,Payment_Status=payment_status,Paid_Amount=Paid_amount,Remaining_Amount=Remaining)
@@ -1846,6 +1850,8 @@ def add_expense(request):
             Profile.objects.filter(user=request.user).update(
             Total_Expense=F("Total_Expense")+amount
         )
+            messages.warning(request,"Please Download Your Expense Bill PDF")
+            return redirect('expensebill')
     
                 
 
@@ -1856,6 +1862,8 @@ def add_expense(request):
             Profile.objects.filter(user=request.user).update(
             Total_Expense=F("Total_Expense")+amount
         )
+            messages.warning(request,"Please Download Your Expense Bill PDF")
+            return redirect('expensebill')
         elif  category=="Stitch Paper":
             manufaccture_instance.update(Packing_Material=F("Packing_Material")+amount,Manufacturing_Expense=F("Manufacturing_Expense")+amount)
             query=Expense.objects.create(user=request.user,userprofile=profile_instance,Production_Name=production_name,description=description,category=category,amount=amount,Bill_Proof=bill,notes=notes,Payment_Status=payment_status,Paid_Amount=Paid_amount,Remaining_Amount=Remaining)
@@ -1863,6 +1871,8 @@ def add_expense(request):
             Profile.objects.filter(user=request.user).update(
             Total_Expense=F("Total_Expense")+amount
         )
+            messages.warning(request,"Please Download Your Expense Bill PDF")
+            return redirect('expensebill')
         elif  category=="Machine Depreciation":
             manufaccture_instance.update(Machine_Depreciation=F("Machine_Depreciation")+amount,Manufacturing_Expense=F("Manufacturing_Expense")+amount)
             query=Expense.objects.create(user=request.user,userprofile=profile_instance,Production_Name=production_name,description=description,category=category,amount=amount,Bill_Proof=bill,notes=notes,Payment_Status=payment_status,Paid_Amount=Paid_amount,Remaining_Amount=Remaining)
@@ -1870,6 +1880,8 @@ def add_expense(request):
             Profile.objects.filter(user=request.user).update(
             Total_Expense=F("Total_Expense")+amount
         )
+            messages.warning(request,"Please Download Your Expense Bill PDF")
+            return redirect('expensebill')
         elif  category=="Loading":
             manufaccture_instance.update(Loading_Cost=F("Loading_Cost")+amount,Manufacturing_Expense=F("Manufacturing_Expense")+amount)
             query=Expense.objects.create(user=request.user,userprofile=profile_instance,Production_Name=production_name,description=description,category=category,amount=amount,Bill_Proof=bill,notes=notes)
@@ -1877,6 +1889,8 @@ def add_expense(request):
             Profile.objects.filter(user=request.user).update(
             Total_Expense=F("Total_Expense")+amount
         )
+            messages.warning(request,"Please Download Your Expense Bill PDF")
+            return redirect('expensebill')
         elif  category=="Labour":
             manufaccture_instance.update(Labour_Expense=F("Labour_Expense")+amount,Manufacturing_Expense=F("Manufacturing_Expense")+amount)
             query=Expense.objects.create(user=request.user,userprofile=profile_instance,Production_Name=production_name,description=description,category=category,amount=amount,Bill_Proof=bill,notes=notes)
@@ -1884,15 +1898,18 @@ def add_expense(request):
             Profile.objects.filter(user=request.user).update(
             Total_Expense=F("Total_Expense")+amount
         )
+            messages.warning(request,"Please Download Your Expense Bill PDF")
+            return redirect('expensebill')
         else:
             manufaccture_instance.update(Other_Expense=F("Other_Expense")+amount,Manufacturing_Expense=F("Manufacturing_Expense")+amount)
             query=Expense.objects.create(user=request.user,userprofile=profile_instance,Production_Name=production_name,description=description,category=category,amount=amount,Bill_Proof=bill,notes=notes,Payment_Status=payment_status,Paid_Amount=Paid_amount,Remaining_Amount=Remaining)
             query.save()
-        Profile.objects.filter(user=request.user).update(
+            Profile.objects.filter(user=request.user).update(
             Total_Expense=F("Total_Expense")+amount
         )
-        # Redirect to a success page or do further processing
-        return redirect('expensebill')  # Replace with your success URL or view name
+
+            messages.warning(request,"Please Download Your Expense Bill PDF")
+            return redirect('expensebill')
     if request.htmx:
         return render(request,'components/expense_form.html',{'totalBalance':totalBalance,'productions':productions,'compydetail':compydetail})
     else:
@@ -2117,16 +2134,15 @@ def ExpenseSlip(request):
     content.append(Spacer(1, 20))
 
     # Report title and summary
-    content.append(Paragraph("Expense Report", heading_style))
-    content.append(Paragraph("Report Date: {}".format(date), paragraph_style))
+    content.append(Paragraph("Expense Bill", heading_style))
     content.append(Spacer(1, 20))
 
     # Expenses table
     data = [
-        ["Description","Category", "Amount", "Date"]
+        ["Bunkar","Category", "Amount", "Date"]
     ]
      
-    data.append([expenses.description,expenses.category, "{:.2f}".format(expenses.amount), expenses.date.strftime("%d/%m/%Y")])
+    data.append([expenses.Production_Name,expenses.category, "{:.2f}".format(expenses.amount), expenses.date.strftime("%d/%m/%Y")])
 
     col_widths = [200,150, 100, 100]  # Adjust column widths
     table_style = TableStyle([
@@ -3048,7 +3064,6 @@ def search1(request):
     todate=request.GET.get('todate')
     results = ProducctionLabourRecord.objects.filter(user=request.user)
     count=ProducctionLabourRecord.objects.filter(user=request.user).count()
-    
     
 
     if fromdate and todate:
