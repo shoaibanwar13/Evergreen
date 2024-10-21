@@ -227,49 +227,74 @@
     }
     }
     </script>
-   <script>
-  // Function to toggle purchase type fields based on selection
-  document.getElementById('type-select').addEventListener('change', function() {
-    const selectedType = this.value;
-    const perAcerFields = document.getElementById('per-acer-fields');
-    const purchaseWeightFields = document.getElementById('purchase-weight-fields');
-    
-    // Show or hide sections based on selected type
-    if (selectedType === 'PER_ACER') {
-      perAcerFields.style.display = 'block';
-      purchaseWeightFields.style.display = 'none';
-    } else if (selectedType === 'PURCHASE_WEIGHT') {
-      perAcerFields.style.display = 'none';
-      purchaseWeightFields.style.display = 'block';
-    } else {
-      perAcerFields.style.display = 'none';
-      purchaseWeightFields.style.display = 'none';
-    }
-  });
-
-  // Function to show payment-related fields based on radio button selection
-  function showPaymentFields() {
-    const paymentSection = document.getElementById('payment-section');
-    const creditSection = document.getElementById('credit-section');
-    const paidRadio = document.getElementById('paid');
-    const creditRadio = document.getElementById('credit');
-    
-    // Display appropriate section
-    if (paidRadio.checked) {
-      paymentSection.style.display = 'block';
-      creditSection.style.display = 'none';
-    } else if (creditRadio.checked) {
-      paymentSection.style.display = 'none';
-      creditSection.style.display = 'block';
-    }
-  }
-
-  // Function to calculate the remaining amount when using credit
+    <script>
+          // Show or hide the weight loss summary fields
+          function toggleSummaryFields() {
+              document.getElementById('summary-section').style.display = 'block';
+              performCalculation(); // Trigger calculation after fields are shown
+          }
+      
+          // Perform calculation based on weight loss
+          function performCalculation() {
+              const estimatedWeight = parseFloat(document.getElementById('estimatedWeight').value) || 0;
+              const weightLoss = parseFloat(document.getElementById('weightLoss').value) || 0;
+              const originalPurchasePrice = parseFloat(document.getElementById('total-amount').value) || 0;
+      
+              // Check if the estimated weight and purchase price are valid
+              if (estimatedWeight > 0 && originalPurchasePrice > 0) {
+                  // Calculate the final weight after weight loss
+                  const finalWeight = estimatedWeight - (estimatedWeight * (weightLoss / 100));
+      
+                  // Calculate the new rate per kg after weight loss
+                  const ratePerKg = originalPurchasePrice / estimatedWeight;
+      
+                  // Calculate the adjusted purchase price after weight loss
+                  const adjustedPurchasePrice = finalWeight * ratePerKg;
+      
+                  // Update the fields with calculated values
+                  document.getElementById('finalWeight').value = finalWeight.toFixed(2);
+                  document.getElementById('ratePerKg').value = ratePerKg.toFixed(2);
+                  document.getElementById('totalAmount').value = adjustedPurchasePrice.toFixed(2);
+      
+                  document.getElementById('calculation-section').style.display = 'block';
+              }
+          }
+      
+          // Show payment-related fields based on selection
+          function showPaymentFields() {
+              const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
+      
+              if (paymentMethod === 'Paid') {
+                  document.getElementById('payment-section').style.display = 'block';
+                  document.getElementById('credit-section').style.display = 'none';
+              } else if (paymentMethod === 'Credit') {
+                  document.getElementById('payment-section').style.display = 'none';
+                  document.getElementById('credit-section').style.display = 'block';
+              }
+          }
+      
+          // Calculate the remaining amount for credit payment
+          function calculateRemaining() {
+              const totalAmount = parseFloat(document.getElementById('totalAmount').value) || 0;
+              const paidAmount = parseFloat(document.getElementById('paidAmount').value) || 0;
+              const remainingAmount = totalAmount - paidAmount;
+      
+              document.getElementById('remainingAmount').value = remainingAmount.toFixed(2);
+          }
+      </script>
+      <script>
   function calculateRemaining() {
-    const totalAmount = parseFloat(document.getElementById('Total_Amount').value) || 0;
+    // Get the total amount (assuming this is either from per-acre or purchase-weight total fields)
+    const totalAmountElement = document.getElementById('Total_Amount') || document.getElementById('total-amount');
+    const totalAmount = parseFloat(totalAmountElement.value) || 0;
+
+    // Get the paid amount entered by the user
     const paidAmount = parseFloat(document.getElementById('paidAmount').value) || 0;
+
+    // Calculate the remaining amount
     const remainingAmount = totalAmount - paidAmount;
-    
+
+    // Set the remaining amount in the input field
     document.getElementById('remainingAmount').value = remainingAmount.toFixed(2);
   }
 </script>

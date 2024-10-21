@@ -97,12 +97,12 @@
           <div class="flex items-center justify-between">
              
             <div class="text-sm">
-              <a href="#" class="font-semibold text-green-500 hover:text-accent">Forgot password?</a>
+              <a href="#" id="openModalLink" class="font-semibold text-green-500 hover:text-accent">Forgot password?</a>
             </div>
           </div>
           <div class="mt-2">
             <label for="email" class="block text-sm font-medium leading-6 text-balance">  <i class="fas fa-lock"></i> Password</label>
-            <input id="password" name="password" placeholder="Enter Password" type="password" autocomplete="current-password" required class="border-0 rounded-fullpx-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150" >
+            <input id="password" name="password" placeholder="Enter Password" type="password" autocomplete="current-password" required class="border-0 rounded-fullpx-3 py-3 placeholder-black text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150 " style="padding-inline:15px; margin-top:15px; " >
           </div>
         </div>
   
@@ -110,6 +110,28 @@
           <button type="submit" class="flex w-full justify-center rounded-md bg-green-500 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-green-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-500">Sign in</button>
         </div>
       </form>
+      <div id="infoModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center hidden">
+        <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-sm">
+            <div class="flex items-center">
+                <!-- Info Icon -->
+                <div class="bg-blue-100 text-blue-500 rounded-full p-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m0-4h.01M12 6.75v.25m6.243 6.004l.757-.757A9 9 0 105.5 17.6M17.707 7.293a1 1 0 010 1.414l-.293.293M17 14v1a1 1 0 001 1h1m0-6h-1a1 1 0 00-1 1v1m0 0v1a1 1 0 01-1 1h-1m0 0h1a1 1 0 011-1m-4-4h.01"/>
+                    </svg>
+                </div>
+                <!-- Info Text -->
+                <div class="ml-3">
+                    <h3 class="text-lg font-semibold">Info</h3>
+                    <p class="text-gray-600">You don't have access to change the password! For password reset, please ask the admin to reset the password.</p>
+                </div>
+            </div>
+            <!-- Close Button -->
+            <div class="mt-4 text-right">
+                <button id="closeModalBtn" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Close</button>
+            </div>
+        </div>
+    </div>
+
   
       <p class="font-semibold leading-6 text-red-500 hover:text-red-400">
         {% if form.errors %}
@@ -143,5 +165,17 @@
         document.getElementById('loader-overlay').style.display = 'none';
     });
   </script>
+   <script>
+        // Open Modal
+        document.getElementById('openModalLink').addEventListener('click', function (event) {
+            event.preventDefault(); // Prevent link from navigating
+            document.getElementById('infoModal').classList.remove('hidden');
+        });
+
+        // Close Modal
+        document.getElementById('closeModalBtn').addEventListener('click', function () {
+            document.getElementById('infoModal').classList.add('hidden');
+        });
+    </script>
     </body>
 <html>

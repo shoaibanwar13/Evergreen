@@ -1793,9 +1793,6 @@ def add_expense(request):
  
         if category=="Harvesting":
             if harvesting_type=="Fuel":
-                 if fuel_price or total_Fuel:
-                   messages.warning(request,"Please Fill All The Fields Related To Fuel With Harvesting")
-                   return redirect("HarvestingExpense")
                  manufaccture_instance.update(Harvesting_Cost=F("Harvesting_Cost")+amount,Manufacturing_Expense=F("Manufacturing_Expense")+amount,Harvest_Type=harvesting_type,Total_Fuel=F("Total_Fuel")+total_Fuel,Fuel_Price=F("Fuel_Price")+fuel_price)
                  query=Expense.objects.create(user=request.user,userprofile=profile_instance,Production_Name=production_name,description=description,category=category,amount=amount,Bill_Proof=bill,notes=notes,Payment_Status=payment_status,Paid_Amount=Paid_amount,Remaining_Amount=Remaining)
                  query.save()
