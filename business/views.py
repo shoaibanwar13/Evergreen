@@ -3938,6 +3938,10 @@ def ManufactureCredit(request,bunkar):
         'data':Paymentout,
          
     })
+
+
+def Invocing(request):
+    return render(request,"Invoice.html")
  
 
 

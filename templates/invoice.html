@@ -1,0 +1,150 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Invoice</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="license" href="https://www.opensource.org/licenses/mit-license/">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.0/jspdf.umd.min.js"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <script src="{% static 'js/script.js' %}"></script>
+    <style>
+        .logo {
+            max-width: 150px;
+            margin-bottom: 10px;
+        }
+        .container {
+            padding: 5px; /* Inner padding */
+            margin: 10px; /* Margin between containers */
+            width: 300px; /* Set a fixed width for the containers */
+        }
+        h2 {
+            text-align: center; /* Center the heading */
+        }
+        hr {
+            border: none; /* Remove default border */
+            height: 2px; /* Set the height of the line */
+            background-color: #2b88df; /* Line color */
+            margin: 30px 0; /* Margin above and below the line */
+        }
+        p {
+            padding: 4px 0;
+        }
+        /* Print styles */
+        @media print {
+            .no-print {
+                display: none; /* Hide elements with class 'no-print' during print */
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1 style="font-size:18px;font-weight: bold;">Invoice</h1>
+        <address contenteditable>
+            <p style="font-size:20px;font-weight: bold;">Shaheen Traders And Corn Silage</p>
+            <p style="font-size:12px;font-weight: bold;">Multan, Kasur and </p>
+            <p style="font-size:12px;font-weight: bold;">Liya, Punjab, Pakistan</p>
+            <p style="font-size:12px;font-weight: bold;">03008418906, 03052160922</p>
+        </address>
+        <div>
+            <img class="logo" src="{% static 'img/logo.jpg' %}" alt="Company Logo" style="margin-top:0px;">
+        </div>
+        <span><img alt="" src="http://www.jonathantneal.com/examples/invoice/logo.png"><input type="file" accept="image/*"></span>
+    </header>
+    <article>
+        <h1>Recipient</h1>
+        <address contenteditable>
+            <p>Client Name<br></p>
+        </address>
+        <table class="meta">
+            <tr>
+                <th><span contenteditable>Invoice #</span></th>
+                <td><span contenteditable>101138</span></td>
+            </tr>
+            <tr>
+                <th><span contenteditable>Date</span></th>
+                <td><span contenteditable>Oct 27, 2024</span></td>
+            </tr>
+            <tr>
+                <th><span contenteditable>Amount Due</span></th>
+                <td><span id="prefix" contenteditable> PKR </span><span>600.00</span></td>
+            </tr>
+        </table>
+        <table class="inventory">
+            <thead>
+                <tr>
+                    <th><span contenteditable>Item</span></th>
+                    <th><span contenteditable>Description</span></th>
+                    <th><span contenteditable>Rate</span></th>
+                    <th><span contenteditable>Quantity</span></th>
+                    <th><span contenteditable>Price</span></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><a class="cut">-</a><span contenteditable>Front End Consultation</span></td>
+                    <td><span contenteditable>Experience Review</span></td>
+                    <td><span data-prefix> PKR </span><span contenteditable>150.00</span></td>
+                    <td><span contenteditable>4</span></td>
+                    <td><span data-prefix> PKR </span><span>600.00</span></td>
+                </tr>
+            </tbody>
+        </table>
+        <a class="add">+</a>
+        <table class="balance">
+            <tr>
+                <th><span contenteditable>Total</span></th>
+                <td><span data-prefix> PKR </span><span>600.00</span></td>
+            </tr>
+            <tr>
+                <th><span contenteditable>Amount Paid</span></th>
+                <td><span data-prefix> PKR </span><span contenteditable>0.00</span></td>
+            </tr>
+            <tr>
+                <th><span contenteditable>Balance Due</span></th>
+                <td><span data-prefix> PKR </span><span>600.00</span></td>
+            </tr>
+        </table>
+        <div class="container">
+            <h2 style="font-size:15px;font-weight: bold;">Account Details</h2>
+            <h2 style="font-size:15px;font-weight: bold;">(1)</h2>
+            <p style="font-size:12px;font-weight: bold;">Title of Account: SHAHEEN TRADERS</p>
+            <p style="font-size:12px;font-weight: bold;">Account No: 6020 2600 0660 0018</p>
+            <p style="font-size:12px;font-weight: bold;">IBAN: PK85 BPUN 6020 2600 0660 0018</p>
+            <p style="font-size:12px;font-weight: bold;">Bank Name: The Bank Of Punjab (BOP)</p>
+            <h2 style="font-size:15px;font-weight: bold;">(2)</h2>
+            <p style="font-size:12px;font-weight: bold;">Title of Account: Shaheen Traders</p>
+            <p style="font-size:12px;font-weight: bold;">Account No: 0900 4533 8100 9402</p>
+            <p style="font-size:12px;font-weight: bold;">IBAN: PK88 MUCB 0900 4533 8100 9402</p>
+            <p style="font-size:12px;font-weight: bold;">Bank Name: MCB </p>
+        </div>
+
+        <div class="container">
+            <h2 contenteditable="true" style="font-size:15px;font-weight: bold;">Pay To:</h2>
+            <p style="font-size:12px;font-weight: bold;" contenteditable="true">Account Number</p>
+            <p style="font-size:12px;font-weight: bold;" contenteditable="true">Please Enter Account Number</p>
+            <p style="font-size:12px;font-weight: bold;" contenteditable="true">Account Holder Name</p>
+            <p style="font-size:12px;font-weight: bold;" contenteditable="true">Enter Account Holder Name</p><br>
+            <h2 contenteditable="true" style="font-size:12px;font-weight: bold;">For: Shaheen Traders And Corn Silage(Authorize Signature:JAM TARIQ)</h2>
+            <img src="{% static 'img/sign.png' %}" alt="Signature" contenteditable="true" style="width:200px;height:90px;"> <!-- Placeholder for signature image -->
+        </div>
+    </article>
+
+    <!-- Print Button -->
+    <div style="text-align: center; margin-top: 20px;">
+        <button class="no-print" onclick="printInvoice()">Print Invoice</button>
+    </div>
+
+    <script>
+        function printInvoice() {
+            // Hide the print button
+            document.querySelector('.no-print').style.display = 'none';
+            window.print();
+            // After printing, show the button again
+            document.querySelector('.no-print').style.display = 'block';
+        }
+    </script>
+</body>
+</html>

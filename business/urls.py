@@ -78,7 +78,9 @@ urlpatterns = [
     path('Loading_Labour_Advance_Payment/',Loading_Labour_Advance,name='Loading_Labour_Advance'),
     path('CustomerSearch/',CustomerSearch,name='CustomerSearch'),
     path('CustomerSaleReport/',CustomerSaleReport,name='CustomerSaleReport'),
-    path('ManufactureCredit/<str:bunkar>/',ManufactureCredit,name='ManufactureCredit')
+    path('ManufactureCredit/<str:bunkar>/',ManufactureCredit,name='ManufactureCredit'),
+    path('invoice/',Invocing,name='Invocing ')
+
     
     
     
