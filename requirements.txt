@@ -10,7 +10,7 @@ gunicorn>=20.0.4
 django-htmx==1.5.0
 # WSGI server for running Django in production
 psycopg2>=2.9.1          # PostgreSQL database adapter for Django
-django-jazzmin==2.6.0
+django-jazzmin
 # Optional: Additional security packages
 django-environ>=0.8.1    
 # For environment variable management
