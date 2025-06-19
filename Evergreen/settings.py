@@ -115,14 +115,14 @@ WSGI_APPLICATION = 'Evergreen.wsgi.application'
 
 DEVELOPMENT_MODE=2
 
-if DEVELOPMENT_MODE == "1":
+if DEVELOPMENT_MODE == 1:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
             'NAME': BASE_DIR / 'db.sqlite3',
         }
     }
-elif DEVELOPMENT_MODE == "2":
+elif DEVELOPMENT_MODE == 2:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
