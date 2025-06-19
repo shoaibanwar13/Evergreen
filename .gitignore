@@ -1,0 +1,16 @@
+# Ignore SQLite database
+db.sqlite3
+
+# Ignore virtual environment directory
+venv/
+
+# Optional: Python cache files and general ignores
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.log
+
+# VSCode and IDEs
+.vscode/
+.idea/
