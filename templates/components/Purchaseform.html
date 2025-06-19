@@ -228,197 +228,151 @@
     }
     </script>
     <script>
-          // Show or hide the weight loss summary fields
-          function toggleSummaryFields() {
-              document.getElementById('summary-section').style.display = 'block';
-              performCalculation(); // Trigger calculation after fields are shown
-          }
-      
-          // Perform calculation based on weight loss
-          function performCalculation() {
-              const estimatedWeight = parseFloat(document.getElementById('estimatedWeight').value) || 0;
-              const weightLoss = parseFloat(document.getElementById('weightLoss').value) || 0;
-              const originalPurchasePrice = parseFloat(document.getElementById('total-amount').value) || 0;
-      
-              // Check if the estimated weight and purchase price are valid
-              if (estimatedWeight > 0 && originalPurchasePrice > 0) {
-                  // Calculate the final weight after weight loss
-                  const finalWeight = estimatedWeight - (estimatedWeight * (weightLoss / 100));
-      
-                  // Calculate the new rate per kg after weight loss
-                  const ratePerKg = originalPurchasePrice / estimatedWeight;
-      
-                  // Calculate the adjusted purchase price after weight loss
-                  const adjustedPurchasePrice = finalWeight * ratePerKg;
-      
-                  // Update the fields with calculated values
-                  document.getElementById('finalWeight').value = finalWeight.toFixed(2);
-                  document.getElementById('ratePerKg').value = ratePerKg.toFixed(2);
-                  document.getElementById('totalAmount').value = adjustedPurchasePrice.toFixed(2);
-      
-                  document.getElementById('calculation-section').style.display = 'block';
-              }
-          }
-      
-          // Show payment-related fields based on selection
-          function showPaymentFields() {
-              const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
-      
-              if (paymentMethod === 'Paid') {
-                  document.getElementById('payment-section').style.display = 'block';
-                  document.getElementById('credit-section').style.display = 'none';
-              } else if (paymentMethod === 'Credit') {
-                  document.getElementById('payment-section').style.display = 'none';
-                  document.getElementById('credit-section').style.display = 'block';
-              }
-          }
-      
-          // Calculate the remaining amount for credit payment
-          function calculateRemaining() {
-              const totalAmount = parseFloat(document.getElementById('totalAmount').value) || 0;
-              const paidAmount = parseFloat(document.getElementById('paidAmount').value) || 0;
-              const remainingAmount = totalAmount - paidAmount;
-      
-              document.getElementById('remainingAmount').value = remainingAmount.toFixed(2);
-          }
-      </script>
-      <script>
-  function calculateRemaining() {
-    // Get the total amount (assuming this is either from per-acre or purchase-weight total fields)
-    const totalAmountElement = document.getElementById('Total_Amount') || document.getElementById('total-amount');
-    const totalAmount = parseFloat(totalAmountElement.value) || 0;
-
-    // Get the paid amount entered by the user
-    const paidAmount = parseFloat(document.getElementById('paidAmount').value) || 0;
-
-    // Calculate the remaining amount
-    const remainingAmount = totalAmount - paidAmount;
-
-    // Set the remaining amount in the input field
-    document.getElementById('remainingAmount').value = remainingAmount.toFixed(2);
-  }
-</script>
-
-      
-  
-    <script>
-        document.addEventListener('htmx:afterOnLoad', function(evt) {
-            if (evt.detail.target.id === 'validation1') {
-                const response = JSON.parse(evt.detail.xhr.responseText);
-                const submitButton = document.getElementById('submit-button');
-                if (response.exists) {
-                    submitButton.style.display = 'none';
-                    document.getElementById('validation1').innerText = 'WhatsApp number already exists.';
-                } else {
-                    submitButton.style.display = 'block';
-                    document.getElementById('validation1').innerText = '';
-                }
-            }
-        });
-      </script>
-    <script>
-      document.getElementById('AddManufecturePurchase').addEventListener('submit', function() {
-          document.getElementById('loader-overlay').style.display = 'flex';
-      });
-    
-      window.addEventListener('load', function() {
-          document.getElementById('loader-overlay').style.display = 'none';
-      });
-    </script>
-    <script>
-      // Function to update file name display
-      document.getElementById('Production_and_Expense_Proof_Screenshot').addEventListener('change', function() {
-          var input = this;
-          var fileName = input.files[0].name;
-          document.getElementById('file-name').textContent = fileName;
-      });
-      </script>
-      <script>
-        document.addEventListener('DOMContentLoaded', function () {
+      document.addEventListener('DOMContentLoaded', function() {
+          // Form elements
           const typeSelect = document.getElementById('type-select');
           const perAcerFields = document.getElementById('per-acer-fields');
           const purchaseWeightFields = document.getElementById('purchase-weight-fields');
           const totalAcerInput = document.getElementById('total-acer');
           const acerPriceInput = document.getElementById('acer-purchase-price');
-          const totalAmountInput = document.getElementById('total-amount');
+          const acerTotalAmount = document.getElementById('total-amount'); // For per acre
           const totalWeightInput = document.getElementById('Total_Weight');
           const purchaseWeightPriceInput = document.getElementById('Purchase_Weight_Price');
-          const totalAmountWeightInput = document.getElementById('Total_Amount');
-        
-          typeSelect.addEventListener('change', function () {
-            if (this.value === 'PER_ACER') {
-              perAcerFields.style.display = 'block';
-              purchaseWeightFields.style.display = 'none';
-            } else if (this.value === 'PURCHASE_WEIGHT') {
-              purchaseWeightFields.style.display = 'flex';
+          const weightTotalAmount = document.getElementById('Total_Amount'); // For weight
+          const paidAmountInput = document.getElementById('paidAmount');
+          const remainingAmountInput = document.getElementById('remainingAmount');
+          const paymentMethodRadios = document.querySelectorAll('input[name="paymentMethod"]');
+          const paymentSection = document.getElementById('payment-section');
+          const creditSection = document.getElementById('credit-section');
+      
+          // Initialize form
+          function initializeForm() {
               perAcerFields.style.display = 'none';
-            } else {
-              perAcerFields.style.display = 'none';
               purchaseWeightFields.style.display = 'none';
-            }
-          });
-        
-          function calculateTotalAcerAmount() {
-            const totalAcer = parseFloat(totalAcerInput.value) || 0;
-            const acerPrice = parseFloat(acerPriceInput.value) || 0;
-            totalAmountInput.value = (totalAcer * acerPrice).toFixed(2);
+              paymentSection.style.display = 'none';
+              creditSection.style.display = 'none';
+              acerTotalAmount.value = '';
+              weightTotalAmount.value = '';
+              paidAmountInput.value = '';
+              remainingAmountInput.value = '';
+              paymentMethodRadios.forEach(radio => radio.checked = false);
           }
-        
+      
+          // Calculate total amount for weight purchase
           function calculateTotalWeightAmount() {
-            const totalWeight = parseFloat(totalWeightInput.value) || 0;
-            const weightPrice = parseFloat(purchaseWeightPriceInput.value) || 0;
-            totalAmountWeightInput.value = (totalWeight * weightPrice).toFixed(2);
+              const totalWeight = parseFloat(totalWeightInput.value) || 0;
+              const weightPrice = parseFloat(purchaseWeightPriceInput.value) || 0;
+              weightTotalAmount.value = (totalWeight * weightPrice).toFixed(2);
+              updatePaymentFields();
           }
-        
-          totalAcerInput.addEventListener('input', calculateTotalAcerAmount);
-          acerPriceInput.addEventListener('input', calculateTotalAcerAmount);
-        
+      
+          // Calculate total amount for acre purchase
+          function calculateTotalAcerAmount() {
+              const totalAcer = parseFloat(totalAcerInput.value) || 0;
+              const acerPrice = parseFloat(acerPriceInput.value) || 0;
+              acerTotalAmount.value = (totalAcer * acerPrice).toFixed(2);
+              updatePaymentFields();
+          }
+      
+          // Get current total amount based on active purchase type
+          function getCurrentTotalAmount() {
+              if (typeSelect.value === 'PER_ACER') {
+                  return parseFloat(acerTotalAmount.value) || 0;
+              } else if (typeSelect.value === 'PURCHASE_WEIGHT') {
+                  return parseFloat(weightTotalAmount.value) || 0;
+              }
+              return 0;
+          }
+      
+          // Purchase type selection handler
+          typeSelect.addEventListener('change', function() {
+              if (this.value === 'PER_ACER') {
+                  perAcerFields.style.display = 'block';
+                  purchaseWeightFields.style.display = 'none';
+                  // Clear weight fields
+                  totalWeightInput.value = '';
+                  purchaseWeightPriceInput.value = '';
+                  weightTotalAmount.value = '';
+              } else if (this.value === 'PURCHASE_WEIGHT') {
+                  purchaseWeightFields.style.display = 'flex';
+                  perAcerFields.style.display = 'none';
+                  // Clear acre fields
+                  totalAcerInput.value = '';
+                  acerPriceInput.value = '';
+                  acerTotalAmount.value = '';
+              } else {
+                  perAcerFields.style.display = 'none';
+                  purchaseWeightFields.style.display = 'none';
+              }
+              resetPaymentFields();
+          });
+      
+          // Show/hide payment fields based on payment method
+          function showPaymentFields() {
+              const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked');
+              if (!paymentMethod) return;
+              
+              if (paymentMethod.value === 'Paid') {
+                  paymentSection.style.display = 'block';
+                  creditSection.style.display = 'none';
+                  // Set paid amount = total amount when Paid is selected
+                  paidAmountInput.value = getCurrentTotalAmount().toFixed(2);
+                  remainingAmountInput.value = '0.00';
+              } else if (paymentMethod.value === 'Credit') {
+                  paymentSection.style.display = 'none';
+                  creditSection.style.display = 'block';
+                  // Reset paid amount when Credit is selected
+                  paidAmountInput.value = '';
+                  updateRemainingAmount();
+              }
+          }
+      
+          // Calculate remaining amount
+          function updateRemainingAmount() {
+              const totalAmount = getCurrentTotalAmount();
+              const paidAmount = parseFloat(paidAmountInput.value) || 0;
+              remainingAmountInput.value = (totalAmount - paidAmount).toFixed(2);
+          }
+      
+          // Update payment fields when total amount changes
+          function updatePaymentFields() {
+              const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked');
+              if (paymentMethod) {
+                  if (paymentMethod.value === 'Paid') {
+                      paidAmountInput.value = getCurrentTotalAmount().toFixed(2);
+                      remainingAmountInput.value = '0.00';
+                  } else if (paymentMethod.value === 'Credit') {
+                      updateRemainingAmount();
+                  }
+              }
+          }
+      
+          // Reset payment fields
+          function resetPaymentFields() {
+              paidAmountInput.value = '';
+              remainingAmountInput.value = '';
+              paymentMethodRadios.forEach(radio => radio.checked = false);
+              paymentSection.style.display = 'none';
+              creditSection.style.display = 'none';
+          }
+      
+          // Event listeners for weight calculation
           totalWeightInput.addEventListener('input', calculateTotalWeightAmount);
           purchaseWeightPriceInput.addEventListener('input', calculateTotalWeightAmount);
-        });
-        
-        </script>
-
-<script>
-  document.addEventListener('DOMContentLoaded', function () {
-    const typeSelect = document.getElementById('type-select');
-    const purchaseWeightFields = document.getElementById('purchase-weight-fields');
-    const totalWeightInput = document.getElementById('Total_Weight');
-    const purchaseWeightPriceInput = document.getElementById('Purchase_Weight_Price');
-    const totalAmountInput = document.getElementById('Total_Amount');
-    const paidAmountInput = document.getElementById('paidAmount');
-    const remainingAmountInput = document.getElementById('remainingAmount');
-
-    // Show or hide fields based on selection
-    typeSelect.addEventListener('change', function () {
-      if (typeSelect.value === 'PURCHASE_WEIGHT') {
-        purchaseWeightFields.style.display = 'flex';
-      } else {
-        purchaseWeightFields.style.display = 'none';
-        totalWeightInput.value = '';
-        purchaseWeightPriceInput.value = '';
-        totalAmountInput.value = '';
-        paidAmountInput.value = '';
-        remainingAmountInput.value = '';
-      }
-    });
-
-    // Calculate total amount
-    function calculateTotalAmount() {
-      const totalWeight = parseFloat(totalWeightInput.value) || 0;
-      const purchaseWeightPrice = parseFloat(purchaseWeightPriceInput.value) || 0;
-      const totalAmount = totalWeight * purchaseWeightPrice;
-      totalAmountInput.value = totalAmount.toFixed(2);
-      calculateRemaining(); // Automatically recalculate remaining when total amount changes
-    }
-
-    // Calculate Remaining Amount for Credit Option
-    function calculateRemaining() {
-    var paidAmount = parseFloat(document.getElementById('paidAmount').value) || 0;
-    var totalAmount = parseFloat(document.getElementById('total-amount').value) || 0;
-    var remainingAmount = totalAmount - paidAmount;
-    document.getElementById('remainingAmount').value = remainingAmount.toFixed(2);
-}
-
-  });
-</script>
+      
+          // Event listeners for acre calculation
+          totalAcerInput.addEventListener('input', calculateTotalAcerAmount);
+          acerPriceInput.addEventListener('input', calculateTotalAcerAmount);
+      
+          // Event listeners for payment method
+          paymentMethodRadios.forEach(radio => {
+              radio.addEventListener('change', showPaymentFields);
+          });
+      
+          // Event listener for paid amount changes
+          paidAmountInput.addEventListener('input', updateRemainingAmount);
+      
+          // Initialize on load
+          initializeForm();
+      });
+      </script>
