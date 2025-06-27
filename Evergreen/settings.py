@@ -113,7 +113,7 @@ WSGI_APPLICATION = 'Evergreen.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-DEVELOPMENT_MODE=2
+DEVELOPMENT_MODE=3
 
 if DEVELOPMENT_MODE == 1:
     DATABASES = {
@@ -133,6 +133,18 @@ elif DEVELOPMENT_MODE == 2:
             'PORT': '5432',
         }
     }
+elif DEVELOPMENT_MODE == 3:
+    DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'evergreen_db',
+        'USER': 'evergreen_user',
+        'PASSWORD': 'strong_secure_password',
+        'HOST': 'localhost',
+        'PORT': '5432',
+    }
+}
+
 else:
     raise ValueError("Invalid DEVELOPMENT_MODE value. Use '1' or '2'.")
 
