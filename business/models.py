@@ -8,83 +8,19 @@ from django.db import models
 from django.core.validators import RegexValidator
 from django.utils import timezone
 from datetime import timedelta
-
-class User(AbstractUser):
-    """
-    Custom User model that extends Django's default AbstractUser
-    with additional business-related fields
-    """
-    
-    # Phone number field with validation
-    phone_regex = RegexValidator(
-        regex=r'^\+?1?\d{9,15}$',
-        message="Phone number must be entered in the format: '+999999999'. Up to 15 digits allowed."
-    )
-    phone_number = models.CharField(
-        validators=[phone_regex],
-        max_length=17,
-        blank=True,
-        null=True,
-        help_text="Phone number in international format"
-    )
-    
-    # Business logo field
-    business_logo = models.ImageField(
-        upload_to='business_logos/',
-        blank=True,
-        null=True,
-        help_text="Upload business logo image"
-    )
-    
-    # License number field
-    license_no = models.CharField(
-        max_length=100,
-        blank=True,
-        null=True,
-        unique=True,
-        help_text="Business license number"
-    )
-    
-    # Document upload field
-    document = models.FileField(
-        upload_to='user_documents/',
-        blank=True,
-        null=True,
-        help_text="Upload business documents (PDF, DOC, DOCX)"
-    )
-    
-    # Additional fields for better user management
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    is_verified = models.BooleanField(default=False, help_text="User verification status")
-    
-    class Meta:
-        db_table = 'custom_user'
-        verbose_name = 'User'
-        verbose_name_plural = 'Users'
-    
-    def __str__(self):
-        return self.username
-    
-    def get_full_name(self):
-        """Return the full name of the user"""
-        return f"{self.first_name} {self.last_name}".strip()
-    
-    def get_short_name(self):
-        """Return the short name for the user"""
-        return self.first_name
-
-
 # Custom User Manager (Optional - if you need custom user creation logic)
 from django.contrib.auth.models import BaseUserManager
 
+from django.contrib.auth.models import AbstractUser, BaseUserManager
+from django.core.validators import RegexValidator
+from django.db import models
+
+
 class CustomUserManager(BaseUserManager):
     """
-    Custom user manager for CustomUser model
+    Custom user manager for User model
     """
-    
     def create_user(self, username, email=None, password=None, **extra_fields):
-        """Create and save a regular user"""
         if not username:
             raise ValueError('The Username field must be set')
         
@@ -93,23 +29,62 @@ class CustomUserManager(BaseUserManager):
         user.set_password(password)
         user.save(using=self._db)
         return user
-    
+
     def create_superuser(self, username, email=None, password=None, **extra_fields):
-        """Create and save a superuser"""
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
         extra_fields.setdefault('is_verified', True)
-        
+
         if extra_fields.get('is_staff') is not True:
             raise ValueError('Superuser must have is_staff=True.')
         if extra_fields.get('is_superuser') is not True:
             raise ValueError('Superuser must have is_superuser=True.')
-        
+
         return self.create_user(username, email, password, **extra_fields)
 
 
-# Update the CustomUser model to use the custom manager
-User.add_to_class('objects', CustomUserManager())
+class User(AbstractUser):
+    """
+    Custom User model extending Django's AbstractUser
+    """
+    phone_regex = RegexValidator(
+        regex=r'^\+?1?\d{9,15}$',
+        message="Phone number must be entered in the format: '+999999999'. Up to 15 digits allowed."
+    )
+    phone_number = models.CharField(
+        validators=[phone_regex],
+        max_length=17,
+        blank=True,
+        null=True
+    )
+
+    business_logo = models.ImageField(upload_to='business_logos/', blank=True, null=True)
+    license_no = models.CharField(max_length=100, blank=True, null=True, unique=True)
+    document = models.FileField(upload_to='user_documents/', blank=True, null=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    is_verified = models.BooleanField(default=False)
+
+    objects = CustomUserManager()  # ✅ correct placement of manager
+
+    USERNAME_FIELD = 'username'
+    REQUIRED_FIELDS = ['email']
+
+    class Meta:
+        db_table = 'custom_user'
+        verbose_name = 'User'
+        verbose_name_plural = 'Users'
+
+    def __str__(self):
+        return self.username
+
+    def get_full_name(self):
+        return f"{self.first_name} {self.last_name}".strip()
+
+    def get_short_name(self):
+        return self.first_name
+
 class CompanyDetail(models.Model):
     name=models.CharField(max_length=100)
     user=models.OneToOneField(User, on_delete=models.CASCADE,null=True,blank=True)

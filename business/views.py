@@ -4133,13 +4133,13 @@ def signup_view(request):
             OTPRecord.objects.create(user=user, otp_code=otp)
 
             # Send OTP (via email or SMS)
-            # send_mail(
-            #     subject='Your OTP Code',
-            #     message=f'Your OTP code is: {otp}',
-            #     from_email='evergreencornsilageservice@gmail.com',
-            #     recipient_list=[user.email],
-            #     fail_silently=True
-            # )
+            send_mail(
+                subject='Your OTP Code',
+                message=f'Your OTP code is: {otp}',
+                from_email='evergreencornsilageservice@gmail.com',
+                recipient_list=[user.email],
+                fail_silently=True
+            )
 
             messages.success(request, f'OTP sent to {user.email}')
             return redirect('verify_email_otp_view')
