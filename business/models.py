@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import User
+
 from django.utils import timezone
 from datetime import datetime
 from django.utils.crypto import get_random_string
@@ -509,9 +509,7 @@ class OTPRecord(models.Model):
 
     def __str__(self):
         return f"{self.user.email} - {self.otp_code}"
-from django.db import models
-from django.contrib.auth.models import User
-from datetime import timedelta, datetime
+ 
 
 class SubscriptionPlan(models.Model):
     PLAN_CHOICES = (

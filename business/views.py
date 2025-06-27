@@ -36,7 +36,9 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_http_methods
 from django.core.cache import cache
 from django.http import JsonResponse
- 
+from django.contrib.auth import get_user_model
+User = get_user_model()
+
 def index(request):
     compydetail=CompanyDetail.objects.all()
     plans = SubscriptionPlan.objects.all()
