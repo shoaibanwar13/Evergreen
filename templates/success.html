@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Payment Approved | SoftApex</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-green-100 via-white to-green-200 flex items-center justify-center min-h-screen">
+
+    <div class="bg-white p-8 md:p-10 rounded-3xl shadow-2xl w-full max-w-md text-center animate-fade-in">
+        
+        <!-- Checkmark Icon -->
+        <div class="flex justify-center mb-6">
+            <div class="bg-green-100 p-4 rounded-full shadow-inner">
+                <svg class="w-12 h-12 text-green-600" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+            </div>
+        </div>
+
+        <h1 class="text-3xl font-extrabold text-gray-800 mb-2">Payment Successful</h1>
+        <p class="text-gray-600 mb-4 text-sm md:text-base">Thank you! Your payment was processed securely by <span class="font-semibold text-green-700">SoftApex Technologies</span>.</p>
+
+        <!-- Transaction Summary -->
+        <div class="bg-gray-50 p-5 rounded-xl shadow-md mb-6 text-left text-sm space-y-1">
+            <p><span class="font-semibold text-gray-700">Status:</span> <span class="text-green-600 font-medium">{% if sub.is_active %}Completed{% endif %}</span></p>
+            <p><span class="font-semibold text-gray-700">Reference:</span> <span class="text-gray-800">#EGCS-{{ sub.id }}</span></p>
+            <p><span class="font-semibold text-gray-700">Amount Paid:</span> <span class="text-gray-800">PKR {{sub.plan.price}}</span></p>
+            <p><span class="font-semibold text-gray-700">Date:</span> {{ now|date:"d M Y" }}</p>
+        </div>
+
+        <a href="/Vendor/" class="inline-block px-6 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-full shadow transition duration-200">
+            Back to Dashboard
+        </a>
+
+        <!-- Footer Branding -->
+        <div class="mt-6 text-xs text-gray-400 tracking-wide">
+            Powered by <strong>SoftApex Technologies</strong> • Secure Payment Gateway
+        </div>
+    </div>
+
+    <style>
+        @keyframes fade-in {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate-fade-in {
+            animation: fade-in 0.6s ease-out;
+        }
+    </style>
+
+</body>
+</html>

@@ -1358,7 +1358,7 @@
                         
                     </div>
                     
- 
+{% if messages %} 
 <div id="flash-message" class="bg-indigo-900 text-center py-3 lg:px-3 hidden " style="border-radius: 10px;">
     <div class="p-2 bg-indigo-800 items-center text-indigo-100 leading-none lg:rounded-full flex lg:inline-flex" role="alert">
       <span class="flex rounded-full bg-indigo-500 uppercase px-2 py-1 text-xs font-bold mr-3">Alert</span>
@@ -1370,6 +1370,7 @@
       </svg>
     </div>
   </div>
+{% endif %}
 
   <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -1459,7 +1460,7 @@
                                     aria-label="submenu">
                                     <li class="flex">
                                         <a class=" text-white inline-flex items-center w-full px-2 py-1 text-sm font-semibold transition-colors duration-150 rounded-md hover:bg-gray-100 hover:text-gray-800"
-                                            href="#">
+                                            href="/profile_view/">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mr-2" fill="none"
                                                 viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

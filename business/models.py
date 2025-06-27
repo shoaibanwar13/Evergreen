@@ -1,9 +1,118 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
+from datetime import datetime
+from django.utils.crypto import get_random_string
+from django.contrib.auth.models import AbstractUser
+from django.db import models
+from django.core.validators import RegexValidator
+from django.utils import timezone
+from datetime import timedelta
 
+class User(AbstractUser):
+    """
+    Custom User model that extends Django's default AbstractUser
+    with additional business-related fields
+    """
+    
+    # Phone number field with validation
+    phone_regex = RegexValidator(
+        regex=r'^\+?1?\d{9,15}$',
+        message="Phone number must be entered in the format: '+999999999'. Up to 15 digits allowed."
+    )
+    phone_number = models.CharField(
+        validators=[phone_regex],
+        max_length=17,
+        blank=True,
+        null=True,
+        help_text="Phone number in international format"
+    )
+    
+    # Business logo field
+    business_logo = models.ImageField(
+        upload_to='business_logos/',
+        blank=True,
+        null=True,
+        help_text="Upload business logo image"
+    )
+    
+    # License number field
+    license_no = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True,
+        unique=True,
+        help_text="Business license number"
+    )
+    
+    # Document upload field
+    document = models.FileField(
+        upload_to='user_documents/',
+        blank=True,
+        null=True,
+        help_text="Upload business documents (PDF, DOC, DOCX)"
+    )
+    
+    # Additional fields for better user management
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    is_verified = models.BooleanField(default=False, help_text="User verification status")
+    
+    class Meta:
+        db_table = 'custom_user'
+        verbose_name = 'User'
+        verbose_name_plural = 'Users'
+    
+    def __str__(self):
+        return self.username
+    
+    def get_full_name(self):
+        """Return the full name of the user"""
+        return f"{self.first_name} {self.last_name}".strip()
+    
+    def get_short_name(self):
+        """Return the short name for the user"""
+        return self.first_name
+
+
+# Custom User Manager (Optional - if you need custom user creation logic)
+from django.contrib.auth.models import BaseUserManager
+
+class CustomUserManager(BaseUserManager):
+    """
+    Custom user manager for CustomUser model
+    """
+    
+    def create_user(self, username, email=None, password=None, **extra_fields):
+        """Create and save a regular user"""
+        if not username:
+            raise ValueError('The Username field must be set')
+        
+        email = self.normalize_email(email)
+        user = self.model(username=username, email=email, **extra_fields)
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+    
+    def create_superuser(self, username, email=None, password=None, **extra_fields):
+        """Create and save a superuser"""
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+        extra_fields.setdefault('is_verified', True)
+        
+        if extra_fields.get('is_staff') is not True:
+            raise ValueError('Superuser must have is_staff=True.')
+        if extra_fields.get('is_superuser') is not True:
+            raise ValueError('Superuser must have is_superuser=True.')
+        
+        return self.create_user(username, email, password, **extra_fields)
+
+
+# Update the CustomUser model to use the custom manager
+User.add_to_class('objects', CustomUserManager())
 class CompanyDetail(models.Model):
     name=models.CharField(max_length=100)
+    user=models.OneToOneField(User, on_delete=models.CASCADE,null=True,blank=True)
     logo=models.ImageField(upload_to="Company Logo")
     Head_Office=models.CharField(max_length=1000)
     email=models.CharField(max_length=100)
@@ -131,8 +240,16 @@ class DailyProduction(models.Model):
     Remarks_of_Expense=models.CharField(max_length=3000)
     def __str__(self) :
         return  f"{self.user.username}-{self.Puroduction_Product_Name}"
+def generate_unique_client_code():
+    today_str = datetime.now().strftime('%Y%m%d')  # e.g. 20240619
+    prefix = "CLT"
+    while True:
+        random_suffix = get_random_string(length=4, allowed_chars='0123456789')
+        client_code = f"{prefix}-{today_str}-{random_suffix}"
+        if not Client.objects.filter(Whats_App_Numbe=client_code).exists():
+            return client_code
 class Client(models.Model):
-    user=models.ForeignKey(User,related_name="Customeer",on_delete=models.CASCADE)
+    user=models.ManyToManyField(User,related_name="Customeer")
     userprofile  = models.ForeignKey(Profile,blank=True, null=True, on_delete=models.CASCADE)
     profilepic=models.ImageField(upload_to='clientpic/', null=True,blank=True,default="media/Company Logo/logo1.png")
     Full_Name=models.CharField(max_length=200)
@@ -140,18 +257,23 @@ class Client(models.Model):
     City=models.CharField(max_length=500)
     State=models.CharField(max_length=500)
     Email=models.CharField(max_length=200,null=True,blank=True)
-    Whats_App_Number=models.CharField(max_length=200,primary_key=True)
+    Whats_App_Numbe=models.CharField(max_length=200,primary_key=True)
+    Whats_App_Number=models.CharField(max_length=200,null=True,blank=True)
     Phone_Number=models.CharField(max_length=200,null=True,blank=True)
     Business_Name=models.CharField(max_length=200,null=True,blank=True)
     Acccount_Type=models.CharField(max_length=200,null=True,blank=True)
     Opening_Balance=models.DecimalField(max_digits=20,decimal_places=3,null=True,blank=True,default=0)
     Credit_Limit=models.DecimalField(max_digits=20,decimal_places=3,null=True,blank=True,default=0)
+    
     class Meta:
         verbose_name_plural="Daily Production Record"
     def __str__(self) :
 
         return  f"{self.Whats_App_Number}"
-
+    def save(self, *args, **kwargs):
+        if not self.Whats_App_Numbe:
+            self.Whats_App_Numbe = generate_unique_client_code()
+        super().save(*args, **kwargs)
 
 class  Sale(models.Model):
     user=models.ForeignKey(User,related_name="Sale",on_delete=models.CASCADE)
@@ -401,12 +523,55 @@ class Production_Labour_Advance_Payment(models.Model):
         verbose_name_plural="Production Labour Advance Payment"
     def __str__(self):
         return f"{self.Team_Leader}-{self.Advance}"
+class OTPRecord(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='otp_records')
+    otp_code = models.CharField(max_length=6)
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_used = models.BooleanField(default=False)
 
+    def is_expired(self):
+        return self.created_at < timezone.now() - timedelta(minutes=5)
 
+    def __str__(self):
+        return f"{self.user.email} - {self.otp_code}"
+from django.db import models
+from django.contrib.auth.models import User
+from datetime import timedelta, datetime
 
+class SubscriptionPlan(models.Model):
+    PLAN_CHOICES = (
+        ('basic', 'Basic'),
+        ('pro', 'Pro'),
+        ('enterprise', 'Enterprise'),
+    )
+    name = models.CharField(max_length=50, choices=PLAN_CHOICES, unique=True)
+    price = models.PositiveIntegerField()
+    max_users = models.PositiveIntegerField(null=True, blank=True)  # None = unlimited
+    max_clients = models.PositiveIntegerField(null=True, blank=True)
+    features = models.TextField()
+    duration_days = models.IntegerField(default=30)
 
+    def __str__(self):
+        return f"{self.name} - PKR {self.price}"
 
+from django.conf import settings
+class UserSubscription(models.Model):
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
-    
+    plan = models.ForeignKey(SubscriptionPlan, on_delete=models.SET_NULL, null=True)
+    start_date = models.DateTimeField(auto_now_add=True)
+    end_date = models.DateTimeField(null=True, blank=True)
+    is_active = models.BooleanField(default=False)
+    transaction_token = models.CharField(max_length=200, null=True, blank=True)
+
+    def activate(self):
+        self.start_date = datetime.now()
+        self.end_date = self.start_date + timedelta(days=self.plan.duration_days)
+        self.is_active = True
+        self.save()
+
+    def __str__(self):
+        return f"{self.user.username}'s Subscription: {self.plan.name}"
+
 
                 

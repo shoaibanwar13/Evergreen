@@ -33,10 +33,14 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Table, TableStyle, Image, Spacer
 from reportlab.lib import colors
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_http_methods
+from django.core.cache import cache
+from django.http import JsonResponse
  
 def index(request):
     compydetail=CompanyDetail.objects.all()
-    return render(request,"index.html", {'compydetail':compydetail})
+    plans = SubscriptionPlan.objects.all()
+    return render(request,"index.html", {'compydetail':compydetail,"plans":plans})
 def calculate_monthly_total(request,year, month):
     start_date = datetime(year, month, 1)
     if month == 12:
@@ -90,7 +94,9 @@ def calculate_monthly_received(request,year, month):
     return total_purchase or 0
 @login_required
 def Vendor(request):
+    from django.db.models import Sum, F, ExpressionWrapper
     current_year = datetime.now().year
+    recent_sales = Sale.objects.filter(user=request.user).order_by('-date')[:10]
     january_total = february_total = march_total = april_total = may_total = june_total = 0
     july_total = august_total = september_total = october_total = november_total = december_total = 0
     january_total = calculate_monthly_total(request,current_year, 1)
@@ -144,65 +150,40 @@ def Vendor(request):
     
     
                                 
-                       
-    fetch=Manufacturing.objects.filter(user=request.user)
-    pending=Sale.objects.filter(user=request.user)
-    paymentRecived=Sale.objects.filter(user=request.user)
-    total_purchase = Decimal(0.00)
-    total_sale=Decimal(0.00)
-    total_pending = Decimal(0.00)
-    total_sales=Decimal(0.00)
-    total_Recived_Payment=Decimal(0.00)
-    siteexp=Decimal(0.00)
-    manufacture_expense=Decimal(0.00)
-    profit=Decimal(0.00)
-    siteProfit=Decimal(0.00)
-    withdraw=PaymentOut.objects.filter(user=request.user)
-    for wd in withdraw:
-        siteexp+=wd.amount or Decimal(0.00)
+    user=request.user             
+    # Consolidated queryset filters
+    manufacturings = Manufacturing.objects.filter(user=user)
+    sales = Sale.objects.filter(user=user)
+    withdrawals = PaymentOut.objects.filter(user=user)
+    loading_labour_credit = LoadingLabourRecord.objects.filter(user=user, Payment_Status="CREDIT")
+    production_labour_credit = ProducctionLabourRecord.objects.filter(user=user, Payment_Status="CREDIT")
+    expenses_credit = Expense.objects.filter(user=user, Payment_Status="CREDIT")
+    manufacturing_credit = Manufacturing.objects.filter(user=user, Payment_Status=False)
 
+    # Aggregations
+    total_purchase = manufacturings.aggregate(total=Sum('Total_Purchase_Price'))['total'] or Decimal(0.00)
+    total_sale = manufacturings.aggregate(total=Sum('Total_Sale_Amount'))['total'] or Decimal(0.00)
+    manufacture_expense = manufacturings.aggregate(total=Sum('Manufacturing_Expense'))['total'] or Decimal(0.00)
 
+    total_sales = sales.aggregate(total=Sum('Total_Amount'))['total'] or Decimal(0.00)
+    total_pending = sales.aggregate(total=Sum('Remaining'))['total'] or Decimal(0.00)
+    total_Recived_Payment = sales.aggregate(total=Sum('Paid_Amount'))['total'] or Decimal(0.00)
 
+    siteexp = withdrawals.aggregate(total=Sum('amount'))['total'] or Decimal(0.00)
 
-    for obj in fetch:
-        total_purchase += obj.Total_Purchase_Price or Decimal(0.00)
-        total_sale += obj.Total_Sale_Amount or Decimal(0.00)
-        manufacture_expense += obj.Manufacturing_Expense or Decimal(0.00)
-        profit +=total_sale- total_purchase-manufacture_expense
+    # Profit calculation
+    profit = total_sale - total_purchase - manufacture_expense
+    siteProfit = profit - siteexp
+
+    # Credit calculations
+    Creditamount = loading_labour_credit.aggregate(total=Sum('Remaining'))['total'] or Decimal(0.00)
+    CreditamountPro = production_labour_credit.aggregate(total=Sum('Remaining'))['total'] or Decimal(0.00)
+    Expense_Credit = expenses_credit.aggregate(total=Sum('Remaining_Amount'))['total'] or Decimal(0.00)
+    Manufacturing_Credit = manufacturing_credit.aggregate(total=Sum('Remaining_Amount'))['total'] or Decimal(0.00)
         
-
-    for pen in pending:
-        total_pending+=pen.Remaining
-        total_sales+=pen.Final_Amount
-
-    for pay in paymentRecived:
-        total_Recived_Payment+=pay.Paid_Amount
-    
-    print(total_sale,total_sales)
-    if total_sale<total_sales:
-        messages.warning(request,"Fraud Have Been Detected From Admin")
-        FraudDector(request)
-    siteProfit=profit-siteexp
-    Creditamount=0
-    Credit_LL=LoadingLabourRecord.objects.filter(user=request.user,Payment_Status="CREDIT")
-    for credit in Credit_LL:
-        Creditamount+=credit.Remaining
-    CreditamountPro=0
-    Credit_PL=ProducctionLabourRecord.objects.filter(user=request.user,Payment_Status="CREDIT")
-    for credit1 in Credit_PL:
-        CreditamountPro+=credit1.Remaining
-    Expense_Credit=0
-    Credit_Expense=Expense.objects.filter(user=request.user,Payment_Status="CREDIT")
-    for credit2 in Credit_Expense:
-       Expense_Credit+=credit2.Remaining_Amount
-    Manufacturing_Credit=0
-    Credit_Manufacturing=Manufacturing.objects.filter(user=request.user,Payment_Status=False)
-    for credit3 in Credit_Manufacturing:
-       Manufacturing_Credit+=credit3.Remaining_Amount
-    
     context={
         'total_purchase':total_purchase,
-        'total_sale':total_sale,
+        'total_sales':total_sales,
         'total_pending':total_pending,
         'total_Recived_Payment':total_Recived_Payment,
         'siteexp':siteexp,
@@ -260,7 +241,8 @@ def Vendor(request):
         'Creditamount':Creditamount,
         'CreditamountPro': CreditamountPro,
         'Expense_Credit':Expense_Credit,
-        'Manufacturing_Credit':Manufacturing_Credit
+        'Manufacturing_Credit':Manufacturing_Credit,
+        'recent_sales':recent_sales
         
         
     }
@@ -274,7 +256,7 @@ def Vendor(request):
       return render(request,"Vendor.html",context)
 @login_required
 def Addclient(request):
-    compydetail=CompanyDetail.objects.all()
+    compydetail=CompanyDetail.objects.filter(user=request.user).first()
     if request.method=="POST":
         name=request.POST.get("fullname")
         email=request.POST.get("email")
@@ -289,7 +271,8 @@ def Addclient(request):
         openingBalance=Decimal(request.POST.get("openbalance",''))
         creditlimit=Decimal(request.POST.get("creditLimit",''))
         profile_instance= get_object_or_404(Profile, user=request.user)
-        query=Client.objects.create(user=request.user,userprofile=profile_instance,Full_Name=name,Email=email,Whats_App_Number=whatsappno,Phone_Number=phoneno,Billing_Address=address,City=city,State=state,Business_Name=bname,Acccount_Type=accountType,Opening_Balance=openingBalance,Credit_Limit=creditlimit,profilepic=clientPic)
+        query=Client.objects.create(userprofile=profile_instance,Full_Name=name,Email=email,Whats_App_Number=whatsappno,Phone_Number=phoneno,Billing_Address=address,City=city,State=state,Business_Name=bname,Acccount_Type=accountType,Opening_Balance=openingBalance,Credit_Limit=creditlimit,profilepic=clientPic)
+        query.user.add(request.user)
         query.save()
         return redirect("SaleGenerate")
     if request.htmx:
@@ -387,13 +370,13 @@ def AddDailyProduction(request):
 @login_required
 def Client_Whatsapp_filter(request):
     Client_Whatsapp=request.POST.get('WhatsAppNo')
-    if Client.objects.filter(Whats_App_Number= Client_Whatsapp).exists():
+    if Client.objects.filter(user=request.user,Whats_App_Number= Client_Whatsapp).exists():
         return JsonResponse({'exists': True})
     return JsonResponse({'exists': False})
 @login_required
 def Client_mobileno_filter(request):
     Mobile=request.POST.get('mnumber')
-    if Client.objects.filter(Whats_App_Number=Mobile).exists():
+    if Client.objects.filter(user=request.user,Phone_Number=Mobile).exists():
        return JsonResponse({'exists': True})
     return JsonResponse({'exists': False})
 @login_required
@@ -410,25 +393,13 @@ def check_product_name(request):
 def NewPurchasepdf(request):
     if not request.user.is_authenticated:
         return HttpResponse("You need to log in to view this page.", status=401)
-    compydetail=CompanyDetail.objects.all()
+    compydetail=CompanyDetail.objects.filter(user=request.user).first()
     purchase=DailyProduction.objects.filter(user=request.user).last()
-    comN=[]
-    Email=[]
-    address=[]
-    phone=[]
-    for com in compydetail:
-        name=com.name
-        comN.append(name)
-        email=com.email
-        Email.append(email)
-        office=com.Head_Office
-        address.append(office)
-        Phone=com.phone
-        phone.append(Phone)
-
-
-
-
+    comN=compydetail.name
+    Email=compydetail.email
+    address=compydetail.Head_Office
+    phone=compydetail.phone
+     
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename="productionInvoice.pdf"'
 
@@ -436,11 +407,11 @@ def NewPurchasepdf(request):
     pdf = SimpleDocTemplate(response, pagesize=letter)
 
     # Define data for the invoice
-    company_logo_path = "media/Company Logo/logo1.png"  # Replace with actual path
-    company_name = comN[0]
-    company_email = Email[0]
-    Head_Office = address[0]
-    Phone = phone[0]
+    company_logo_path = compydetail.logo # Replace with actual path
+    company_name = comN
+    company_email = Email
+    Head_Office = address
+    Phone = phone
      
     Date= datetime.now().strftime("%d/%m/%Y")
     ProductionCity = purchase.City
@@ -812,7 +783,11 @@ def ManufacturePuchasePDF(request):
     if fromdate and todate:
         results = results.filter(date__lte=todate, date__gte=fromdate)
     
-    compydetail = CompanyDetail.objects.all()
+    compydetail = CompanyDetail.objects.filter(user=request.user).first()
+    if compydetail:
+        company_logo_path = compydetail.logo
+    else:
+        company_logo_path = None
 
     # Calculate totals
     Expense_Amount = Decimal(0.00)
@@ -830,8 +805,8 @@ def ManufacturePuchasePDF(request):
     Grand_Total_Profit_and_Lose = Grand_Total_Sale - Grand_Total_Purchase - Grand_Total_Expense
 
     # Get company details
-    company_info = compydetail.first()
-    company_logo_path = "media/Company Logo/logo1.png"  # Replace with actual logo path
+    company_info = compydetail
+    company_logo_path = company_info.logo  # Replace with actual logo path
     
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename="ManufacturePurchaseReport.pdf"'
@@ -922,9 +897,10 @@ def ManufacturePuchasePDF(request):
     return response
 @login_required
 def ClientProfile(request,pk):
-    clientdata=Client.objects.get(user=request.user,Whats_App_Number=pk)
-    clientSale=Sale.objects.filter(user=request.user,Client_ID=pk)
-    saleReturn=Sale_Return.objects.filter(user=request.user,Client_ID=pk)
+    clientdata=Client.objects.get(user=request.user,Whats_App_Numbe=pk)
+    print(pk)
+    clientSale=Sale.objects.filter(user=request.user,Client_ID__Whats_App_Numbe=pk)
+    saleReturn=Sale_Return.objects.filter(user=request.user,Client_ID__Whats_App_Numbe=pk)
     clientid=pk
     total_sale=0
     total_pending_payment=0
@@ -1067,37 +1043,31 @@ def client_search(request):
     return JsonResponse({'clients': client_data})
 
 def CurrentSale(request, pk):
-    compydetail = CompanyDetail.objects.all()
+    compydetail = CompanyDetail.objects.filter(user=request.user).first()
     Invoice = Sale.objects.filter(user=request.user, Client_ID=pk).last()
-    comN = []
-    Email = []
-    address = []
-    phone = []
-    for com in compydetail:
-        name = com.name
-        comN.append(name)
-        email = com.email
-        Email.append(email)
-        office = com.Head_Office
-        address.append(office)
-        Phone = com.phone
-        phone.append(Phone)
-    
+   
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename="SaleInvoice.pdf"'
 
-    # Create a PDF document
-    pdf = SimpleDocTemplate(response, pagesize=landscape(letter))
+    # Create a PDF document in PORTRAIT mode with tight margins
+    pdf = SimpleDocTemplate(
+        response, 
+        pagesize=letter,  # Portrait orientation
+        rightMargin=20,
+        leftMargin=20,
+        topMargin=20,
+        bottomMargin=20
+    )
 
     # Define data for the invoice
-    company_logo_path = "media/Company Logo/logo1.png"  # Replace with actual path
-    company_name = comN[0]
-    company_email = Email[0]
-    Head_Office = address[0]
-    Phone = phone[0]
+    company_logo_path = compydetail.logo
+    company_name = compydetail.name
+    company_email = compydetail.email
+    Head_Office = compydetail.Head_Office
+    Phone = compydetail.phone 
     Date = datetime.now().strftime("%d/%m/%Y")
     Client_Name = Invoice.Client_Name
-    Client_ID=Invoice.Client_ID
+    Client_ID = Invoice.Client_ID
     client_address = Invoice.Shiping_Address
     client_city = Invoice.Shipping_City
     client_mobile = Invoice.Client_Phone_Number
@@ -1107,87 +1077,266 @@ def CurrentSale(request, pk):
     Vehicle_number = Invoice.Vehicle_Number
     Vehicle_Weight = Invoice.Vehicle_Weight
     Vehicle_Weight_Unit = Invoice.VECHCLE_WEIGHT_Unit
-    Paid_Amount=Invoice.Paid_Amount
-    Remaining=Invoice.Remaining
-    Gst=Invoice.GST
+    Paid_Amount = Invoice.Paid_Amount
+    Remaining = Invoice.Remaining
+    Gst = Invoice.GST
 
-
-    paymentstatus="Pending"
-    if Invoice.Payment_Status==True:
-        paymentstatus="Paid"
+    paymentstatus = "Pending"
+    if Invoice.Payment_Status == True:
+        paymentstatus = "Paid"
 
     sale = [
-        ["Items/Balles", "Weight", "Unit", "Sale Price", "Total Amount", "Discount", "Final Amount"],
-        [str(Invoice.Items_Or_Balles), str(Invoice.Weight), Invoice.Weight_Unit, str(Invoice.Sale_Price), str(Invoice.Total_Amount), str(Invoice.Discount), str(Invoice.Final_Amount)]
+        ["Items", "Weight", "Unit", "Price", "Amount", "Discount", "Final"],
+        [str(Invoice.Items_Or_Balles), f"{Invoice.Weight:.1f}", Invoice.Weight_Unit, 
+         f"₹{Invoice.Sale_Price:.0f}", f"₹{Invoice.Total_Amount:.0f}", f"₹{Invoice.Discount:.0f}", f"₹{Invoice.Final_Amount:.0f}"]
     ]
 
-    # Define styles
+    # Compact styles for single page
     styles = getSampleStyleSheet()
-    title_style = styles['Title']
-    paragraph_style = styles['Normal']
-
-    # Define table style
-    table_style = TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.white),
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-        ('BACKGROUND', (0, 1), (-1, -1), colors.white),
-        ('GRID', (0, 0), (-1, -1), 1, colors.black)
-    ])
+    
+    # Company name - smaller
+    company_name_style = ParagraphStyle(
+        'CompanyName',
+        parent=styles['Title'],
+        fontSize=18,
+        textColor=colors.HexColor('#1a365d'),
+        fontName='Helvetica-Bold',
+        alignment=0,
+        spaceAfter=2
+    )
+    
+    # Company info - compact
+    company_info_style = ParagraphStyle(
+        'CompanyInfo',
+        parent=styles['Normal'],
+        fontSize=9,
+        textColor=colors.HexColor('#4a5568'),
+        fontName='Helvetica',
+        alignment=0,
+        spaceBefore=1,
+        spaceAfter=1
+    )
+    
+    # Invoice title - smaller
+    invoice_title_style = ParagraphStyle(
+        'InvoiceTitle',
+        parent=styles['Heading1'],
+        fontSize=16,
+        textColor=colors.HexColor('#e53e3e'),
+        fontName='Helvetica-Bold',
+        alignment=2,
+        spaceBefore=0,
+        spaceAfter=3
+    )
+    
+    # Invoice info - compact
+    invoice_info_style = ParagraphStyle(
+        'InvoiceInfo',
+        parent=styles['Normal'],
+        fontSize=9,
+        textColor=colors.HexColor('#2d3748'),
+        fontName='Helvetica',
+        alignment=2,
+        spaceBefore=1,
+        spaceAfter=1
+    )
+    
+    # Section title - smaller
+    section_title_style = ParagraphStyle(
+        'SectionTitle',
+        parent=styles['Heading2'],
+        fontSize=10,
+        textColor=colors.white,
+        fontName='Helvetica-Bold',
+        alignment=1,
+        spaceBefore=0,
+        spaceAfter=0
+    )
+    
+    # Compact label style
+    label_style = ParagraphStyle(
+        'Label',
+        parent=styles['Normal'],
+        fontSize=8,
+        textColor=colors.HexColor('#2d3748'),
+        fontName='Helvetica-Bold',
+        alignment=0,
+        spaceBefore=1,
+        spaceAfter=1
+    )
 
     # Create invoice content
     content = []
-
-    # Company details and logo
-    company_logo = Image(company_logo_path, width=100, height=100)
-
-    # Header and Company Details
-    header_data = [
-        [company_logo, Paragraph("<b>{}</b>".format(company_name), title_style)],
-        ["", Paragraph("Email: {}".format(company_email), paragraph_style)],
-        ["", Paragraph("Head Office: {}".format(Head_Office), paragraph_style)],
-        ["", Paragraph("Contact No.: {}".format(Phone), paragraph_style)],
-    ]
-
-    header_table = Table(header_data, colWidths=[100, 400])
-    content.append(header_table)
-    content.append(Spacer(1, 12))
+    
+    # Generate invoice number
     invoice_number = random.randint(100000, 999999)
-    # Client and Driver details in parallel
-    client_driver_details = [
-        ["Invoice Number",str(invoice_number), "Client ID", str(Client_ID)],
-        ["Date", Date, "Driver Name", Driver_Name],
-        ["Client Name", Client_Name, "Driver Contact", Driver_Contact],
-        ["Paid Amount", str(Paid_Amount), "Pending Amount", str(Remaining)],
-        ["Phone Number", client_mobile, "Vehicle Number", Vehicle_number],
-        ["Shipping Address", client_address, "Vehicle Weight", str(Vehicle_Weight)],
-        ["Shipping City", client_city, "Vehicle Weight Unit", Vehicle_Weight_Unit],
-        ["Shipping State", client_state, "Payment Status", paymentstatus],
-        ["GST", str(Gst), "Vendor ", request.user.username],
-        
+
+    # COMPACT HEADER - Single row
+    try:
+        company_logo = Image(company_logo_path, width=50, height=50)
+    except:
+        company_logo = Paragraph("LOGO", company_name_style)
+
+    # Status color
+    status_color = 'green' if paymentstatus == 'Paid' else '#e53e3e'
+
+    # Ultra-compact header in single table
+    header_data = [
+        [company_logo, 
+         Paragraph(f"<b>{company_name}</b><br/>✉ {company_email}<br/>📍 {Head_Office}<br/>📞 {Phone}", 
+                  ParagraphStyle('CompanyCompact', parent=company_info_style, fontSize=8, leading=10)),
+         Paragraph(f"<b>SALES INVOICE</b><br/>Invoice #: {invoice_number}<br/>Date: {Date}<br/>Status: <font color='{status_color}'><b>{paymentstatus}</b></font>", 
+                  ParagraphStyle('InvoiceCompact', parent=invoice_info_style, fontSize=8, leading=10, alignment=2))
+        ]
     ]
 
-    details_data = [[Paragraph("<b>{}</b>".format(detail[0]), paragraph_style), Paragraph(detail[1], paragraph_style),
-                     Paragraph("<b>{}</b>".format(detail[2]), paragraph_style), Paragraph(detail[3], paragraph_style)] for detail in client_driver_details]
-    details_table = Table(details_data, colWidths=[150, 150, 150, 150])
-    details_table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (0, -1), colors.white),
-        ('TEXTCOLOR', (0, 0), (0, -1), colors.black),
-        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-        ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
-        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-        ('GRID', (0, 0), (-1, -1), 1, colors.black)
+    header_table = Table(header_data, colWidths=[60, 300, 200])
+    header_table.setStyle(TableStyle([
+        ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+        ('LEFTPADDING', (0, 0), (-1, -1), 5),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 5),
+        ('TOPPADDING', (0, 0), (-1, -1), 5),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
     ]))
 
-    content.append(details_table)
+    content.append(header_table)
+    content.append(Spacer(1, 8))
+
+    # Thin separator
+    separator = Table([[""]],colWidths=[560])
+    separator.setStyle(TableStyle([
+        ('LINEBELOW', (0, 0), (-1, -1), 2, colors.HexColor('#3182ce')),
+        ('TOPPADDING', (0, 0), (-1, -1), 0),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 0),
+    ]))
+    content.append(separator)
+    content.append(Spacer(1, 10))
+
+    # COMPACT INFORMATION SECTION - Side by side in single table
+    info_data = [
+        # Headers
+        [Paragraph("CLIENT INFORMATION", 
+                  ParagraphStyle('SectionHeaderLeft', parent=section_title_style, alignment=0, fontSize=9)), 
+         "",
+         Paragraph("SHIPPING & DRIVER INFO", 
+                  ParagraphStyle('SectionHeaderRight', parent=section_title_style, alignment=0, fontSize=9))],
+        
+        # Data rows
+        [Paragraph(f"<b>ID:</b> {Client_ID}", label_style),
+         "",
+         Paragraph(f"<b>Driver:</b> {Driver_Name}", label_style)],
+        
+        [Paragraph(f"<b>Name:</b> {Client_Name}", label_style),
+         "",
+         Paragraph(f"<b>Contact:</b> {Driver_Contact}", label_style)],
+        
+        [Paragraph(f"<b>Phone:</b> {client_mobile}", label_style),
+         "",
+         Paragraph(f"<b>Vehicle:</b> {Vehicle_number}", label_style)],
+        
+        [Paragraph(f"<b>Address:</b> {client_address}", label_style),
+         "",
+         Paragraph(f"<b>Weight:</b> {Vehicle_Weight:.1f} {Vehicle_Weight_Unit}", label_style)],
+        
+        [Paragraph(f"<b>City:</b> {client_city}, {client_state}", label_style),
+         "",
+         Paragraph(f"<b>Vendor:</b> {request.user.username} | <b>GST:</b> {Gst}%", label_style)]
+    ]
+
+    info_table = Table(info_data, colWidths=[270, 20, 270])
+    info_table.setStyle(TableStyle([
+        # Header row backgrounds
+        ('BACKGROUND', (0, 0), (0, 0), colors.HexColor('#3182ce')),
+        ('BACKGROUND', (2, 0), (2, 0), colors.HexColor('#3182ce')),
+        ('TEXTCOLOR', (0, 0), (0, 0), colors.white),
+        ('TEXTCOLOR', (2, 0), (2, 0), colors.white),
+        
+        # Data rows background
+        ('BACKGROUND', (0, 1), (0, -1), colors.HexColor('#f7fafc')),
+        ('BACKGROUND', (2, 1), (2, -1), colors.HexColor('#f7fafc')),
+        
+        # Borders
+        ('BOX', (0, 0), (0, -1), 1, colors.HexColor('#cbd5e0')),
+        ('BOX', (2, 0), (2, -1), 1, colors.HexColor('#cbd5e0')),
+        
+        # Padding - very compact
+        ('LEFTPADDING', (0, 0), (-1, -1), 8),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 8),
+        ('TOPPADDING', (0, 0), (-1, 0), 6),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 6),
+        ('TOPPADDING', (0, 1), (-1, -1), 4),
+        ('BOTTOMPADDING', (0, 1), (-1, -1), 4),
+        
+        ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+    ]))
+
+    content.append(info_table)
     content.append(Spacer(1, 12))
 
-    # Sale items table
-    items_table = Table(sale, colWidths=[90, 90, 100, 50, 70, 100, 100, 60])
-    items_table.setStyle(table_style)
+    # COMPACT ITEMS TABLE
+    items_table_style = TableStyle([
+        # Header
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#2d3748')),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, 0), 9),
+        ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
+        
+        # Data
+        ('BACKGROUND', (0, 1), (-1, -1), colors.white),
+        ('TEXTCOLOR', (0, 1), (-1, -1), colors.HexColor('#2d3748')),
+        ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+        ('FONTSIZE', (0, 1), (-1, -1), 9),
+        ('ALIGN', (0, 1), (-1, -1), 'CENTER'),
+        ('ALIGN', (3, 1), (-1, -1), 'RIGHT'),  # Right align amounts
+        
+        # Compact padding
+        ('TOPPADDING', (0, 0), (-1, -1), 8),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
+        ('LEFTPADDING', (0, 0), (-1, -1), 6),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 6),
+        
+        # Borders
+        ('BOX', (0, 0), (-1, -1), 1.5, colors.HexColor('#2d3748')),
+        ('INNERGRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#cbd5e0')),
+        
+        # Highlight final amount
+        ('BACKGROUND', (-1, 1), (-1, -1), colors.HexColor('#e6fffa')),
+        ('FONTNAME', (-1, 1), (-1, -1), 'Helvetica-Bold'),
+    ])
+
+    items_table = Table(sale, colWidths=[70, 70, 50, 80, 90, 80, 80])
+    items_table.setStyle(items_table_style)
     content.append(items_table)
+    content.append(Spacer(1, 12))
+
+    # COMPACT PAYMENT SUMMARY - Inline style
+    payment_data = [
+        [Paragraph(f"<b>PAYMENT SUMMARY:</b> Paid: ₹{Paid_Amount:.0f} | Remaining: ₹{Remaining:.0f} | Status: <font color='{status_color}'><b>{paymentstatus}</b></font>", 
+                  ParagraphStyle('PaymentSummary', parent=label_style, fontSize=10, alignment=1, 
+                               textColor=colors.HexColor('#2d3748'), fontName='Helvetica-Bold'))]
+    ]
+
+    payment_table = Table(payment_data, colWidths=[560])
+    payment_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor('#f0fff4')),
+        ('BOX', (0, 0), (-1, -1), 1, colors.HexColor('#38a169')),
+        ('LEFTPADDING', (0, 0), (-1, -1), 10),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 10),
+        ('TOPPADDING', (0, 0), (-1, -1), 8),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
+    ]))
+
+    content.append(payment_table)
+    content.append(Spacer(1, 15))
+
+    # COMPACT FOOTER
+    footer = Paragraph(
+        "<b>Thank you for your business!</b> For queries, contact us at the above details.",
+        ParagraphStyle('Footer', parent=styles['Normal'], fontSize=9, 
+                      textColor=colors.HexColor('#718096'), alignment=1, fontName='Helvetica-Oblique')
+    )
+    content.append(footer)
 
     # Build the PDF document
     pdf.build(content)
@@ -1226,30 +1375,15 @@ def ClientReport(request, pk):
     query2=request.GET.get('query2')
     fromdate=request.GET.get("fromdate")
     todate=request.GET.get('todate')
-    results = Sale.objects.filter(user=request.user,Client_ID=pk)
+    Client_id=Client.objects.filter(user=request.user,Whats_App_Numbe=pk).first()
+    results = Sale.objects.filter(user=request.user,Client_ID=Client_id)
     if query:
         results = results.filter(Sale_Production_Name__icontains=query)
     if query2:
         results = results.filter(Vehicle_Number__icontains=query2)
     if fromdate and todate:
         results = results.filter(date__lte=todate, date__gte=fromdate)   
-    compydetail = CompanyDetail.objects.all()    
-    
-    
-    comN = []
-    Email = []
-    address = []
-    phone = []
-    for com in compydetail:
-        name = com.name
-        comN.append(name)
-        email = com.email
-        Email.append(email)
-        office = com.Head_Office
-        address.append(office)
-        Phone = com.phone
-        phone.append(Phone)
-    
+     
     
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename="ClientReport.pdf"'
@@ -1258,13 +1392,14 @@ def ClientReport(request, pk):
     pdf = SimpleDocTemplate(response, pagesize=landscape(letter))
 
     # Define data for the invoice
-    company_logo_path = "media/Company Logo/logo1.png"  # Replace with actual path
-    company_name = comN[0]
-    company_email = Email[0]
-    Head_Office = address[0]
-    Phone = phone[0]
+    compydetail = CompanyDetail.objects.filter(user=request.user).first()
+    company_logo_path = compydetail.logo
+    company_name = compydetail.name
+    company_email = compydetail.email
+    Head_Office = compydetail.Head_Office
+    Phone = compydetail.phone 
     Date = datetime.now().strftime("%d/%m/%Y")
-    client=Client.objects.get(user=request.user,Whats_App_Number=pk)
+    client=Client.objects.get(user=request.user,Whats_App_Numbe=pk)
     Client_Name = client.Full_Name
     Client_ID=pk
     client_city = client.City
@@ -1408,23 +1543,7 @@ def  SaleReport(request):
         results = results.filter(Client_ID__icontains=query2)
     if fromdate and todate:
         results = results.filter(date__lte=todate, date__gte=fromdate)   
-    compydetail = CompanyDetail.objects.all()    
-    
-    
-    comN = []
-    Email = []
-    address = []
-    phone = []
-    for com in compydetail:
-        name = com.name
-        comN.append(name)
-        email = com.email
-        Email.append(email)
-        office = com.Head_Office
-        address.append(office)
-        Phone = com.phone
-        phone.append(Phone)
-    
+     
     
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename="ClientReport.pdf"'
@@ -1433,11 +1552,12 @@ def  SaleReport(request):
     pdf = SimpleDocTemplate(response, pagesize=landscape(letter))
 
     # Define data for the invoice
-    company_logo_path = "media/Company Logo/logo1.png"  # Replace with actual path
-    company_name = comN[0]
-    company_email = Email[0]
-    Head_Office = address[0]
-    Phone = phone[0]
+    compydetail = CompanyDetail.objects.filter(user=request.user).first()
+    company_logo_path = compydetail.logo
+    company_name = compydetail.name
+    company_email = compydetail.email
+    Head_Office = compydetail.Head_Office
+    Phone = compydetail.phone 
     Date = datetime.now().strftime("%d/%m/%Y")
     Total_Purchase_Amount=0
     Total_Pending_Amount=0
@@ -1616,22 +1736,7 @@ def currentPaymentInPdf(request,pk,id):
     return render(request,'PaymentInPDF.html',{'customerid':customerid,'id':id})
 @login_required
 def paymentInSlip(request, pk,id):
-    compydetail = CompanyDetail.objects.all()
     Invoice = Sale.objects.get(user=request.user, Client_ID=pk,id=id)
-    comN = []
-    Email = []
-    address = []
-    phone = []
-    for com in compydetail:
-        name = com.name
-        comN.append(name)
-        email = com.email
-        Email.append(email)
-        office = com.Head_Office
-        address.append(office)
-        Phone = com.phone
-        phone.append(Phone)
-    
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename="ClientPaidSlip.pdf"'
 
@@ -1639,11 +1744,12 @@ def paymentInSlip(request, pk,id):
     pdf = SimpleDocTemplate(response, pagesize=landscape(letter))
 
     # Define data for the invoice
-    company_logo_path = "media/Company Logo/logo1.png"  # Replace with actual path
-    company_name = comN[0]
-    company_email = Email[0]
-    Head_Office = address[0]
-    Phone = phone[0]
+    compydetail = CompanyDetail.objects.filter(user=request.user).first()
+    company_logo_path = compydetail.logo
+    company_name = compydetail.name
+    company_email = compydetail.email
+    Head_Office = compydetail.Head_Office
+    Phone = compydetail.phone 
     Date = datetime.now().strftime("%d/%m/%Y")
     Client_Name = Invoice.Client_Name
     Client_ID=Invoice.Client_ID
@@ -2081,7 +2187,7 @@ def ExpenseSlip(request):
     
     # Fetch company details (assuming there's only one company)
     try:
-        company_detail = CompanyDetail.objects.get()
+        company_detail = CompanyDetail.objects.filter(user=request.user).first()
     except CompanyDetail.DoesNotExist:
         company_detail = None
 
@@ -2222,7 +2328,7 @@ def PaymentOutSlip(request):
     
     # Fetch company details (assuming there's only one company)
     try:
-        company_detail = CompanyDetail.objects.get()
+        company_detail = CompanyDetail.objects.filter(user=request.user).first()
     except CompanyDetail.DoesNotExist:
         company_detail = None
 
@@ -2345,7 +2451,7 @@ def generate_Transactions_report(request):
     
     # Fetch company details (assuming there's only one company)
     try:
-        company_detail = CompanyDetail.objects.get()
+        company_detail = CompanyDetail.objects.filter(user=request.user).first()
     except CompanyDetail.DoesNotExist:
         company_detail = None
 
@@ -2521,22 +2627,7 @@ def  SaleReturnReport(request):
         results = results.filter(Client_ID__icontains=query2)
     if fromdate and todate:
         results = results.filter(date__lte=todate, date__gte=fromdate)   
-    compydetail = CompanyDetail.objects.all()    
-    
-    
-    comN = []
-    Email = []
-    address = []
-    phone = []
-    for com in compydetail:
-        name = com.name
-        comN.append(name)
-        email = com.email
-        Email.append(email)
-        office = com.Head_Office
-        address.append(office)
-        Phone = com.phone
-        phone.append(Phone)
+     
     
     
     response = HttpResponse(content_type='application/pdf')
@@ -2546,11 +2637,12 @@ def  SaleReturnReport(request):
     pdf = SimpleDocTemplate(response, pagesize=landscape(letter))
 
     # Define data for the invoice
-    company_logo_path = "media/Company Logo/logo1.png"  # Replace with actual path
-    company_name = comN[0]
-    company_email = Email[0]
-    Head_Office = address[0]
-    Phone = phone[0]
+    compydetail = CompanyDetail.objects.filter(user=request.user).first()
+    company_logo_path = compydetail.logo
+    company_name = compydetail.name
+    company_email = compydetail.email
+    Head_Office = compydetail.Head_Office
+    Phone = compydetail.phone 
     Date = datetime.now().strftime("%d/%m/%Y")
     Total_Return_Amount=0
     
@@ -2651,12 +2743,12 @@ def VendorSaleReturn_export_to_excel(request):
 
     return response
 @login_required
-def generate_daily_report():
+def generate_daily_report(request):
     today = date.today()
     
     # Fetch company details
     try:
-        company_detail = CompanyDetail.objects.get()
+        company_detail = CompanyDetail.objects.filter(user=request.user).first()
     except CompanyDetail.DoesNotExist:
         company_detail = None
 
@@ -3092,7 +3184,7 @@ def generate_Production_Labour_report(request):
     
     # Fetch company details (assuming there's only one company)
     try:
-        company_detail = CompanyDetail.objects.get()
+        company_detail = CompanyDetail.objects.filter(user=request.user).first()
     except CompanyDetail.DoesNotExist:
         company_detail = None
 
@@ -3244,7 +3336,7 @@ def generate_Loading_Labour_report(request):
     
     # Fetch company details (assuming there's only one company)
     try:
-        company_detail = CompanyDetail.objects.get()
+        company_detail = CompanyDetail.objects.filter(user=request.user).first()
     except CompanyDetail.DoesNotExist:
         company_detail = None
 
@@ -3768,11 +3860,12 @@ def  CustomerSaleReport(request):
     pdf = SimpleDocTemplate(response, pagesize=landscape(letter))
 
     # Define data for the invoice
-    company_logo_path = "media/Company Logo/logo1.png"  # Replace with actual path
-    company_name = comN[0]
-    company_email = Email[0]
-    Head_Office = address[0]
-    Phone = phone[0]
+    compydetail = CompanyDetail.objects.filter(user=request.user).first()
+    company_logo_path = compydetail.logo
+    company_name = compydetail.name
+    company_email = compydetail.email
+    Head_Office = compydetail.Head_Office
+    Phone = compydetail.phone 
     Date = datetime.now().strftime("%d/%m/%Y")
     Total_Purchase_Amount=0
     Total_Pending_Amount=0
@@ -3942,11 +4035,363 @@ def ManufactureCredit(request,bunkar):
 
 def Invocing(request):
     return render(request,"Invoice.html")
- 
-
-
-
-
-
 
  
+from django.views.decorators.http import require_http_methods
+from django.core.cache import cache
+from django.http import JsonResponse
+from django.core.mail import send_mail
+from .forms import CustomUserSignupForm
+from django.conf import settings
+from django.core.files.storage import default_storage
+
+
+@require_http_methods(["POST"])
+def send_otp_view(request):
+    form = CustomUserSignupForm(request.POST, request.FILES)
+
+    if form.is_valid():
+        data = {
+            'username': form.cleaned_data['username'],
+            'first_name': form.cleaned_data['first_name'],
+            'last_name': form.cleaned_data['last_name'],
+            'email': form.cleaned_data['email'],
+            'phone_number': form.cleaned_data['phone_number'],
+            'company_name': form.cleaned_data['company_name'],
+            'license_no': form.cleaned_data['license_no'],
+            'password1': form.cleaned_data['password1'],
+            'password2': form.cleaned_data['password2'],
+        }
+
+        # Save files temporarily and store paths (optional)
+        if 'business_logo' in request.FILES:
+            path = default_storage.save(f"temp/business_logo_{data['username']}.jpg", request.FILES['business_logo'])
+            data['business_logo_path'] = path
+
+        if 'document' in request.FILES:
+            path = default_storage.save(f"temp/document_{data['username']}.pdf", request.FILES['document'])
+            data['document_path'] = path
+
+        request.session['signup_data'] = data
+
+        # Generate and send OTP via email
+        otp = generate_otp()
+        cache_key = f"otp_email_{data['email']}"
+        cache.set(cache_key, otp, timeout=300)  # 5 minutes
+        print(otp)
+        # Send email (simplified)
+        # send_mail(
+        #     subject="Your OTP Code",
+        #     message=f"Your OTP code is: {otp}",
+        #     from_email="noreply@yourdomain.com",
+        #     recipient_list=[data['email']],
+        # )
+
+        return JsonResponse({
+            'success': True,
+            'message': 'OTP sent successfully',
+            'email': data['email']
+        })
+
+    return JsonResponse({
+        'success': False,
+        'errors': form.errors
+    }, status=400)
+@require_http_methods(["POST"])
+def resend_otp_view(request):
+    signup_data = request.session.get('signup_data')
+
+    if not signup_data:
+        return JsonResponse({"success": False, "message": "Session expired. Please start again."})
+
+    phone_number = signup_data['phone_number']
+    otp = generate_otp()
+    cache.set(f"otp_{phone_number}", otp, timeout=300)
+
+    # send_mail(
+    #     'Your Resent OTP for Vendor Signup',
+    #     f'Your new OTP is {otp}',
+    #     settings.DEFAULT_FROM_EMAIL,
+    #     [signup_data['email']],
+    #     fail_silently=False,
+    # )
+
+    return JsonResponse({"success": True, "message": "OTP resent successfully"})
+
+def signup_view(request):
+    if request.method == 'POST':
+        from random import randint
+        form = CustomUserSignupForm(request.POST)
+        if form.is_valid():
+            user = form.save(commit=False)
+            user.is_active = False  # temporarily inactive
+            user.save()
+            request.session['signup_email'] = user.email
+            print("emaill",user.email)
+            # Generate OTP
+            otp = str(randint(100000, 999999))
+            OTPRecord.objects.create(user=user, otp_code=otp)
+
+            # Send OTP (via email or SMS)
+            # send_mail(
+            #     subject='Your OTP Code',
+            #     message=f'Your OTP code is: {otp}',
+            #     from_email='evergreencornsilageservice@gmail.com',
+            #     recipient_list=[user.email],
+            #     fail_silently=True
+            # )
+
+            messages.success(request, f'OTP sent to {user.email}')
+            return redirect('verify_email_otp_view')
+    else:
+        form = CustomUserSignupForm()
+
+    return render(request, 'signupform.html', {'form': form})
+
+
+
+def generate_otp():
+    """Generate 6-digit OTP"""
+    return str(random.randint(100000, 999999))
+
+
+
+
+ 
+
+@require_http_methods(["POST",'GET'])
+def verify_email_otp_view(request):
+    """Verify OTP sent to user's email (no signup logic)."""
+    if request.method == 'POST':
+        # Get email from session-stored signup data
+        
+
+        
+        entered_otp = request.POST.get('otp')
+
+        if not entered_otp:
+            return JsonResponse({"success": False, "message": "OTP is required."}, status=400)
+        try:
+         check_otp=OTPRecord.objects.filter(otp_code=entered_otp).first()
+         
+        except OTPRecord.DoesNotExist:
+            return JsonResponse({"success": False, "message": "Invalid OTP code."}, status=404)
+        if  check_otp.otp_code== entered_otp:
+            check_otp.is_used=True
+            check_otp.save()
+            print(check_otp.user.email)
+            user=User.objects.filter(email=check_otp.user.email).first()
+            user.is_active = True
+            user.save()
+            messages.success(request, 'Your account has been verified. You can now log in.')
+            return redirect("login")
+            
+             
+        else:
+            return JsonResponse({"success": False, "message": "Invalid OTP."}, status=400)
+    else:
+        return render(request, 'verify_email_otp.html')
+def checkemail(request):
+    email=request.POST.get('email')
+    if User.objects.filter(email=email).exists():
+        return JsonResponse({'status': 'email_exists'})
+    else:
+        return JsonResponse({'status': 'email_not_exists'})
+import requests
+from django.conf import settings
+from django.shortcuts import render, redirect
+from django.http import JsonResponse
+
+
+def get_access_token():
+    url = f"{settings.BSECURE_API_BASE_URL}/oauth/token"
+    payload = {
+        "grant_type": "client_credentials",
+        "client_id": f"{settings.BSECURE_CLIENT_ID}:{settings.BSECURE_STORE_ID}",
+        "client_secret": settings.BSECURE_CLIENT_SECRET
+    }
+
+    response = requests.post(url, json=payload)
+    if response.status_code == 200:
+        return response.json().get("body", {}).get("access_token")
+    return None
+
+def initiate_payment(request):
+    access_token = get_access_token()
+    if not access_token:
+        return JsonResponse({"success": False, "message": "Failed to get access token"})
+
+    # Order Payload
+    order_payload = {
+        "store_id": settings.BSECURE_STORE_ID,
+        "lang": "en",
+        "order_id": "ORDER1234334423334347",
+        "total_amount": 1000,
+        "sub_total_amount": 1000,
+        "discount_amount": 0,
+        "shipment_charges": 150,
+        "shipment_method_name": "Standard",
+        "products": [
+            {
+                "id": "prod90",
+                "name": "Test Product",
+                "sku": "TP-001",
+                "quantity": 1,
+                "price": 1000,
+                "discount": 0,
+                "sale_price": 1000,
+                "sub_total": 1000,
+                "image": "https://yourdomain.com/product.jpg"
+            }
+        ],
+        "customer": {
+            "name": "Test User",
+            "email": "test@example.com",
+            "country_code": "92",
+            "phone_number": "3001234567"
+        },
+        "customer_address": {
+            "country": "PK",
+            "province": "Sindh",
+            "city": "Karachi",
+            "area": "Clifton",
+            "address": "Test Address"
+        }
+    }
+
+    headers = {
+        "Authorization": f"Bearer {access_token}",
+        "Content-Type": "application/json"
+    }
+
+    url = f"{settings.BSECURE_API_BASE_URL}/order/create"
+    response = requests.post(url, json=order_payload, headers=headers)
+
+    if response.status_code == 200:
+        data = response.json()
+        redirect_url = data.get("body", {}).get("checkout_url")  # Correct key
+
+        if redirect_url:
+            return redirect(redirect_url)
+        else:
+            return JsonResponse({
+                "success": False,
+                "message": "No checkout_url returned",
+                "bsecure_response": data
+            }, status=400)
+    else:
+        return JsonResponse({
+            "success": False,
+            "message": "Payment creation failed",
+            "status_code": response.status_code,
+            "response_text": response.text
+        }, status=500)
+
+
+
+def order_form(request):
+    return render(request, "initiate_payment.html")
+
+from django.shortcuts import render, redirect
+from django.views.decorators.csrf import csrf_exempt
+from django.http import HttpResponse, JsonResponse
+from django.urls import reverse
+from safepay_python.safepay import *
+
+def get_or_create_event_loop():
+    try:
+        return asyncio.get_event_loop()
+    except RuntimeError:
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        return loop
+
+# Setup Safepay Environment
+env = Safepay(
+    {
+        "environment": "sandbox",
+        "apiKey": "sec_edf830e8-8160-4427-b5a7-6d64e1610577",
+        "v1Secret": "33c34303433bac9c02a1de7bce45492ebd2adc4bde2cad1c291cc958df494853",
+        "webhookSecret": "foo",
+    }
+)
+@login_required
+def start_payment(request,plan_id):
+    get_or_create_event_loop()
+    plan = get_object_or_404(SubscriptionPlan, id=plan_id)
+    
+    payment_response = env.set_payment_details({
+        "currency": "PKR",
+        "amount": plan.price   
+    })
+
+    token = payment_response["data"]["token"]
+    sub, _ = UserSubscription.objects.get_or_create(user=request.user)
+    sub.plan = plan
+    sub.transaction_token = token
+    sub.is_active = False
+    sub.save()
+
+    # Create checkout URL
+    checkout_url = env.get_checkout_url({
+        "beacon": token,
+        "cancelUrl": request.build_absolute_uri(reverse("payment_cancel")),
+        "orderId": "T80089",
+        "redirectUrl": request.build_absolute_uri(reverse("payment_success")),
+        "source": "custom",
+        "webhooks": True,
+    })
+
+    return redirect(checkout_url)
+
+@login_required
+def payment_success(request):
+    token = request.GET.get('tracker')
+    sig = request.GET.get('order_id')
+
+    sub = get_object_or_404(UserSubscription, transaction_token=token)
+    sub.activate()
+    
+
+    if token:
+        return render(request, "success.html",{"sub":sub})
+    else:
+        return render(request, "payment_failed.html")
+
+@login_required
+def payment_cancel(request):
+    return render(request, "payment_cancel.html")
+
+
+@csrf_exempt
+def safepay_webhook(request):
+    if request.method == "POST":
+        signature = request.headers.get("x-sfpy-signature")
+        data = request.body  # raw payload
+
+        try:
+            import json
+            parsed_data = json.loads(data)
+
+            valid = env.is_webhook_valid(
+                {"x-sfpy-signature": signature},
+                {"data": parsed_data}
+            )
+
+            if valid:
+                # Mark invoice as paid
+                return JsonResponse({"message": "Payment confirmed"}, status=200)
+            else:
+                return JsonResponse({"error": "Invalid signature"}, status=400)
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+
+    return JsonResponse({"error": "Invalid request"}, status=400)
+@login_required
+def profile_view(request):
+    profile = get_object_or_404(Profile, user=request.user)
+    if request.htmx:
+        return render(request, 'components/profile.html',{"profile":profile})
+    else:
+
+      return render(request,"profile.html",{"profile":profile})

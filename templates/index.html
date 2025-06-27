@@ -375,6 +375,64 @@ keenSliderPreviousDesktop.addEventListener('click', () => keenSlider.prev())
 keenSliderNextDesktop.addEventListener('click', () => keenSlider.next())
 </script>
 
+<section class="bg-gradient-to-br from-white to-gray-100 py-16 px-6">
+  <div class="w-full max-w-6xl mx-auto">
+    <h1 class="text-4xl font-extrabold text-center text-gray-800 mb-12 tracking-tight">
+      Choose a Subscription Plan
+    </h1>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-10 ml-2 animate-fade-in-up">
+      {% for plan in plans %}
+        <div class="bg-white rounded-3xl shadow-xl p-8 text-center border-t-4 
+          {% if forloop.counter == 1 %} border-green-500 
+          {% elif forloop.counter == 2 %} border-blue-500 
+          {% else %} border-purple-600 {% endif %}
+          hover:shadow-2xl hover:scale-[1.03] transition-all duration-300 min-h-[480px] flex flex-col justify-between">
+          
+          <div>
+            <h2 class="text-2xl font-bold text-gray-800 mb-1 uppercase tracking-wide">{{ plan.name }}</h2>
+            <p class="text-sm text-gray-500 mb-4 italic">
+              {% if forloop.counter == 1 %}Perfect for small teams{% elif forloop.counter == 2 %}For growing businesses{% else %}Best for large teams{% endif %}
+            </p>
+
+            <div class="text-4xl font-extrabold text-gray-700 mb-6">
+              PKR {{ plan.price|floatformat:0 }}
+              <span class="text-sm font-normal text-gray-500">/month</span>
+            </div>
+
+            <ul class="text-sm text-gray-700 mb-6 space-y-2 text-left px-4">
+              <li>👥 <strong>Users:</strong> {{ plan.max_users|default:"Unlimited" }}</li>
+              <li>👤 <strong>Clients:</strong> {{ plan.max_clients|default:"Unlimited" }}</li>
+              <li>⚙️ <strong>Features:</strong> {{ plan.features }}</li>
+              <li>📅 <strong>Duration:</strong> {{ plan.duration_days }} days</li>
+            </ul>
+          </div>
+
+          <a href="{% url 'start_payment' plan.id %}" 
+             class="mt-4 inline-block w-full px-6 py-3 
+             {% if forloop.counter == 1 %} bg-green-600 hover:bg-green-700 
+             {% elif forloop.counter == 2 %} bg-blue-600 hover:bg-blue-700 
+             {% else %} bg-purple-600 hover:bg-purple-700 {% endif %}
+             text-white text-sm font-semibold rounded-full transition">
+            Subscribe Now
+          </a>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <style>
+    @keyframes fade-in-up {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .animate-fade-in-up {
+      animation: fade-in-up 0.8s ease-out both;
+    }
+  </style>
+</section>
+
 <section class="bg-white-100">
 <div class="mx-auto max-w-[1340px] px-4 py-12 sm:px-6 lg:me-0 lg:py-16 lg:pe-0 lg:ps-8 xl:py-24">
 <div class="grid grid-cols-1 gap-8 lg:grid-cols-3 lg:items-center lg:gap-16">

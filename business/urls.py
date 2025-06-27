@@ -79,8 +79,19 @@ urlpatterns = [
     path('CustomerSearch/',CustomerSearch,name='CustomerSearch'),
     path('CustomerSaleReport/',CustomerSaleReport,name='CustomerSaleReport'),
     path('ManufactureCredit/<str:bunkar>/',ManufactureCredit,name='ManufactureCredit'),
-    path('invoice/',Invocing,name='Invocing ')
-
+    path('invoice/',Invocing,name='Invocing '),
+    path('send-otp/', send_otp_view, name='send_otp'),
+    path('signup_view/', signup_view, name='signup_view'),
+    path('resend-otp/', resend_otp_view, name='resend_otp'),
+    path('verify_otp_signup/', verify_email_otp_view, name='verify_email_otp_view'),
+    path('order_form/', order_form, name="order_form"),
+    path('pay/', initiate_payment, name="initiate_payment"),
+    path('start_payment/<int:plan_id>/',  start_payment, name='start_payment'),
+    path('success/',  payment_success, name='payment_success'),
+    path('cancel/',  payment_cancel, name='payment_cancel'),
+    path('webhook/',  safepay_webhook, name='safepay_webhook'),
+    path("profile_view/",profile_view,name="profile_view")
+    
     
     
     

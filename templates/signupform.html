@@ -1,0 +1,498 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Vendor Signup</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Loopple/loopple-public-assets@main/motion-tailwind/motion-tailwind.css" rel="stylesheet">
+    <style>
+        /* Loader CSS */
+        .loader {
+            border: 16px solid #f3f3f3;
+            border-top: 16px solid green;
+            border-radius: 50%;
+            width: 120px;
+            height: 120px;
+            animation: spin 2s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Overlay CSS */
+        #loader-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            display: none;
+        }
+
+        .form-step {
+            display: none;
+        }
+        
+        .form-step.active {
+            display: block;
+        }
+
+        .step-indicator {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: #e5e7eb;
+            color: #6b7280;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .step-indicator.active {
+            background-color: #10b981;
+            color: white;
+        }
+
+        .step-indicator.completed {
+            background-color: #059669;
+            color: white;
+        }
+    </style>
+    <link rel="stylesheet" href="https://demos.creative-tim.com/notus-js/assets/vendor/@fortawesome/fontawesome-free/css/all.min.css">
+</head>
+<body class="bg-white rounded-lg py-5">
+
+<header class="bg-green-500 p-4 rounded-full">
+    <div class="container mx-auto flex justify-between items-center">
+        <div class="text-white text-xl font-bold">
+            <i class="fas fa-user-plus"></i> Join Our Vendor Portal
+        </div>
+    </div>
+</header>
+
+<div id="loader-overlay">
+    <div class="loader"></div>
+</div>
+
+<div class="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8">
+    <div class="sm:mx-auto sm:w-full sm:max-w-md">
+        <img class="mx-auto h-20 w-auto" src="{% static '/img/logo.jpg' %}" alt="Your Company">
+        <h2 class="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">Create Your Account</h2>
+        
+        <!-- Step Indicator -->
+        <div class="flex justify-center mt-6 space-x-4">
+            <div class="flex items-center">
+                <div class="step-indicator active" id="step1-indicator">1</div>
+                <span class="ml-2 text-sm font-medium text-gray-700">Details</span>
+            </div>
+            <div class="flex-1 h-0.5 bg-gray-300 mt-4"></div>
+            <div class="flex items-center">
+                <div class="step-indicator" id="step2-indicator">2</div>
+                <span class="ml-2 text-sm font-medium text-gray-700">Verify</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-md">
+        <!-- Step 1: Registration Form  id="signupForm"  --> 
+        <div class="form-step active" id="step1">
+            <form class="space-y-6" method="POST" action="/signup_view/" >
+                {% csrf_token %}
+                
+                <!-- Personal Information -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="first_name" class="block text-sm font-medium leading-6 text-gray-700">
+                            <i class="fas fa-user"></i> First Name
+                        </label>
+                        <div class="mt-2">
+                            <input id="first_name" name="first_name" type="text" placeholder="Enter First Name" required 
+                                   class="border-0 px-3 py-3 placeholder-gray-400 text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150">
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label for="last_name" class="block text-sm font-medium leading-6 text-gray-700">
+                            <i class="fas fa-user"></i> Last Name
+                        </label>
+                        <div class="mt-2">
+                            <input id="last_name" name="last_name" type="text" placeholder="Enter Last Name" required 
+                                   class="border-0 px-3 py-3 placeholder-gray-400 text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150">
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <label for="username" class="block text-sm font-medium leading-6 text-gray-700">
+                        <i class="fas fa-user-circle"></i> Username
+                    </label>
+                    <div class="mt-2">
+                        <input id="username" name="username" type="text" placeholder="Choose Username" required 
+                               class="border-0 px-3 py-3 placeholder-gray-400 text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150">
+                    </div>
+                </div>
+
+                <div>
+                    <label for="email" class="block text-sm font-medium leading-6 text-gray-700">
+                        <i class="fas fa-envelope"></i> Email Address
+                    </label>
+                    <div class="mt-2">
+                        <input id="email" name="email" type="email" placeholder="Enter Email Address" required 
+                               class="border-0 px-3 py-3 placeholder-gray-400 text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150">
+                    </div>
+                </div>
+
+                <div>
+                    <label for="phone_number" class="block text-sm font-medium leading-6 text-gray-700">
+                        <i class="fas fa-phone"></i> Phone Number
+                    </label>
+                    <div class="mt-2">
+                        <input id="phone_number" name="phone_number" type="tel" placeholder="+1234567890" required 
+                               class="border-0 px-3 py-3 placeholder-gray-400 text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150">
+                    </div>
+                </div>
+
+                <!-- Business Information -->
+                <div class="border-t pt-6">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Business Information</h3>
+                    
+                    <div>
+                        <label for="company_name" class="block text-sm font-medium leading-6 text-gray-700">
+                            <i class="fas fa-building"></i> Company Name
+                        </label>
+                        <div class="mt-2">
+                            <input id="company_name" name="company_name" type="text" placeholder="Enter Company Name" required 
+                                   class="border-0 px-3 py-3 placeholder-gray-400 text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="license_no" class="block text-sm font-medium leading-6 text-gray-700">
+                            <i class="fas fa-id-card"></i> License Number
+                        </label>
+                        <div class="mt-2">
+                            <input id="license_no" name="license_no" type="text" placeholder="Enter License Number" required 
+                                   class="border-0 px-3 py-3 placeholder-gray-400 text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="business_logo" class="block text-sm font-medium leading-6 text-gray-700">
+                            <i class="fas fa-image"></i> Business Logo
+                        </label>
+                        <div class="mt-2">
+                            <input id="business_logo" name="business_logo" type="file" accept="image/*" 
+                                   class="border-0 px-3 py-3 text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="document" class="block text-sm font-medium leading-6 text-gray-700">
+                            <i class="fas fa-file-alt"></i> Business Document
+                        </label>
+                        <div class="mt-2">
+                            <input id="document" name="document" type="file" accept=".pdf,.doc,.docx" 
+                                   class="border-0 px-3 py-3 text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Password -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="password1" class="block text-sm font-medium leading-6 text-gray-700">
+                            <i class="fas fa-lock"></i> Password
+                        </label>
+                        <div class="mt-2">
+                            <input id="password1" name="password1" type="password" placeholder="Enter Password" required 
+                                   class="border-0 px-3 py-3 placeholder-gray-400 text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="password2" class="block text-sm font-medium leading-6 text-gray-700">
+                            <i class="fas fa-lock"></i> Confirm Password
+                        </label>
+                        <div class="mt-2">
+                            <input id="password2" name="password2" type="password" placeholder="Confirm Password" required 
+                                   class="border-0 px-3 py-3 placeholder-gray-400 text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150">
+                        </div>
+                    </div>
+                </div>
+
+                {% comment %} <div>   id="nextStepBtn" {% endcomment %}
+                    <button type="submit"  
+                            class="flex w-full justify-center rounded-md bg-green-500 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-green-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-500">
+                        Next Step <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Step 2: OTP Verification -->
+        <div class="form-step" id="step2">
+            <div class="text-center mb-6">
+                <i class="fas fa-mobile-alt text-4xl text-green-500 mb-4"></i>
+                <h3 class="text-lg font-medium text-gray-900">Verify Your Phone Number</h3>
+                <p class="text-sm text-gray-600 mt-2">We've sent a verification code to <span id="phone-display" class="font-medium"></span></p>
+            </div>
+
+            <form class="space-y-6" id="otpForm">
+                {% csrf_token %}
+                <div>
+                    <label for="otp" class="block text-sm font-medium leading-6 text-gray-700 text-center">
+                        <i class="fas fa-key"></i> Enter Verification Code
+                    </label>
+                    <div class="mt-2">
+                        <input id="otp" name="otp" type="text" placeholder="Enter 6-digit code" maxlength="6" required 
+                               class="border-0 px-3 py-3 placeholder-gray-400 text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150 text-center text-2xl tracking-widest">
+                    </div>
+                </div>
+
+                <div class="flex space-x-4">
+                    <button type="button" id="backStepBtn" 
+                            class="flex-1 justify-center rounded-md bg-gray-500 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-gray-600">
+                        <i class="fas fa-arrow-left mr-2"></i> Back
+                    </button>
+                    <button type="submit" 
+                            class="flex-1 justify-center rounded-md bg-green-500 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-green-600">
+                        Verify & Sign Up
+                    </button>
+                </div>
+
+                <div class="text-center">
+                    <button type="button" id="resendOtpBtn" class="text-sm text-green-500 hover:text-green-600">
+                        Didn't receive code? Resend
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Error Messages -->
+        <div id="errorMessages" class="mt-4">
+            {% if form.errors %}
+                <div class="bg-red-50 border border-red-200 rounded-md p-4">
+                    {% for field in form %}
+                        {% for error in field.errors %}
+                            <p class="text-red-600 text-sm">{{ error|escape }}</p>
+                        {% endfor %}
+                    {% endfor %}
+                    {% for error in form.non_field_errors %}
+                        <p class="text-red-600 text-sm">{{ error|escape }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+
+        <p class="mt-10 text-center text-sm text-gray-500">
+            Already have an account?
+            <a href="{% url 'login' %}" class="font-semibold leading-6 text-green-500 hover:text-green-600">Sign in here</a>
+        </p>
+    </div>
+</div>
+<script>
+    document.addEventListener('htmx:afterOnLoad', function(evt) {
+        if (evt.detail.target.id === 'validation1') {
+            const response = JSON.parse(evt.detail.xhr.responseText);
+            const submitButton = document.getElementById('submit-button');
+            if (response.exists) {
+                submitButton.style.display = 'none';
+                document.getElementById('validation1').innerText = 'WhatsApp number already exists.';
+            } else {
+                submitButton.style.display = 'block';
+                document.getElementById('validation1').innerText = '';
+            }
+        }
+    });
+  </script>
+<script>
+    let currentStep = 1;
+    let formData = new FormData();
+
+    // Step navigation
+    document.getElementById('nextStepBtn').addEventListener('click', function() {
+        if (validateStep1()) {
+            // Store form data
+            const form = document.getElementById('signupForm');
+            const formDataObj = new FormData(form);
+            
+            // Send data to backend and request OTP
+            sendOTP(formDataObj);
+        }
+    });
+
+    document.getElementById('backStepBtn').addEventListener('click', function() {
+        goToStep(1);
+    });
+
+    // Form submissions
+    document.getElementById('otpForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        verifyOTPAndSignup();
+    });
+
+    document.getElementById('resendOtpBtn').addEventListener('click', function() {
+        resendOTP();
+    });
+
+    function validateStep1() {
+        const form = document.getElementById('signupForm');
+        const inputs = form.querySelectorAll('input[required]');
+        let isValid = true;
+
+        inputs.forEach(input => {
+            if (!input.value.trim()) {
+                input.classList.add('border-red-500');
+                isValid = false;
+            } else {
+                input.classList.remove('border-red-500');
+            }
+        });
+
+        // Password validation
+        const password1 = document.getElementById('password1').value;
+        const password2 = document.getElementById('password2').value;
+
+        if (password1 !== password2) {
+            document.getElementById('password2').classList.add('border-red-500');
+            showError('Passwords do not match');
+            isValid = false;
+        }
+
+        return isValid;
+    }
+
+    function goToStep(step) {
+        document.querySelectorAll('.form-step').forEach(s => s.classList.remove('active'));
+        document.querySelectorAll('.step-indicator').forEach(s => {
+            s.classList.remove('active', 'completed');
+        });
+
+        document.getElementById(`step${step}`).classList.add('active');
+        document.getElementById(`step${step}-indicator`).classList.add('active');
+
+        if (step > 1) {
+            for (let i = 1; i < step; i++) {
+                document.getElementById(`step${i}-indicator`).classList.add('completed');
+            }
+        }
+
+        currentStep = step;
+    }
+
+    function sendOTP(formData) {
+        showLoader();
+        
+        fetch('{% url "send_otp" %}', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            hideLoader();
+            if (data.success) {
+                document.getElementById('phone-display').textContent = data.phone_number;
+                goToStep(2);
+            } else {
+                showError(data.message || 'Error sending OTP');
+            }
+        })
+        .catch(error => {
+            hideLoader();
+            showError('Network error. Please try again.');
+        });
+    }
+
+    function verifyOTPAndSignup() {
+        showLoader();
+        
+        const otpForm = document.getElementById('otpForm');
+        const otpData = new FormData(otpForm);
+        
+        fetch('/verify_otp_signup/', {
+            method: 'POST',
+            body: otpData,
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            hideLoader();
+            if (data.success) {
+                window.location.href = data.redirect_url || '{% url "login" %}';
+            } else {
+                showError(data.message || 'Invalid OTP');
+            }
+        })
+        .catch(error => {
+            hideLoader();
+            showError('Network error. Please try again.');
+        });
+    }
+
+    function resendOTP() {
+        showLoader();
+        
+        fetch('{% url "resend_otp" %}', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            hideLoader();
+            if (data.success) {
+                showSuccess('OTP sent successfully');
+            } else {
+                showError(data.message || 'Error resending OTP');
+            }
+        })
+        .catch(error => {
+            hideLoader();
+            showError('Network error. Please try again.');
+        });
+    }
+
+    function showLoader() {
+        document.getElementById('loader-overlay').style.display = 'flex';
+    }
+
+    function hideLoader() {
+        document.getElementById('loader-overlay').style.display = 'none';
+    }
+
+    function showError(message) {
+        const errorDiv = document.getElementById('errorMessages');
+        errorDiv.innerHTML = `<div class="bg-red-50 border border-red-200 rounded-md p-4">
+            <p class="text-red-600 text-sm">${message}</p>
+        </div>`;
+    }
+
+    function showSuccess(message) {
+        const errorDiv = document.getElementById('errorMessages');
+        errorDiv.innerHTML = `<div class="bg-green-50 border border-green-200 rounded-md p-4">
+            <p class="text-green-600 text-sm">${message}</p>
+        </div>`;
+    }
+
+    // Auto-focus OTP input and format
+    document.getElementById('otp').addEventListener('input', function(e) {
+        this.value = this.value.replace(/\D/g, '');
+    });
+</script>
+
+</body>
+</html>

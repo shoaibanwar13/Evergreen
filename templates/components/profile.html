@@ -1,0 +1,217 @@
+<head>
+    <title>{{request.user.username}}|Vendor</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://demos.creative-tim.com/notus-js/assets/styles/tailwind.css">
+    <link rel="stylesheet" href="https://demos.creative-tim.com/notus-js/assets/vendor/@fortawesome/fontawesome-free/css/all.min.css">
+    
+    </head>
+    <div class="col-span-12 mt-8">
+    <!-- component -->
+    
+    <div class="container mx-auto p-4">
+    <section class="py-1">
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden lg:flex lg:items-start lg:space-x-4">
+            <!-- Profile Section -->
+            <div class="bg-green-500 p-4  lg:w-1/3 flex flex-col items-center justify-center" style="height: 430px;">
+                <img class="h-32 w-32 rounded-full mb-4" src="{{ profile.profilepic.url }}" alt="Client Photo">
+                <div class="text-center">
+                    <h1 class="text-white text-3xl font-semibold">{{ profile.user.username }}</h1>
+                    <p class="text-white text-lg"> <i class="fas fa-id-badge icon"></i> Profile Id: {{ request.profile.id }}</p>
+                </div>
+            </div>
+            
+            <!-- Details Section -->
+            <div class="p-6 w-full lg:w-2/3">
+                <div class="grid grid-cols-1 gap-4">
+                    <!-- Client Information -->
+                    <div class="bg-white-100 rounded-lg p-4 shadow-md">
+                        <h2 class="text-lg font-semibold text-gray-700 mb-2"><i class="fas fa-user icon"  ></i> Personal Information</h2>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <span class="text-gray-600 font-semibold"> <i class="fas fa-city icon"  ></i> City </span>
+<p>{{ profile.city }}</p>
+                            </div>
+                            <div>
+                                <span class="text-gray-600 font-semibold"><i class="fas fa-phone icon"  ></i> Phone Number </span>
+                                <p> {{ profile.phone }}</p>
+
+                            </div>
+                            <div class="col-span-full">
+                                <span class="text-gray-600 font-semibold"> <i class="fas fa-map-marker-alt icon"  ></i> Address </span>
+                                 {{ profile.address }}</p>
+                            </div>
+
+                            <div class="col-span-full">
+                                <span class="text-gray-600 font-semibold"> <i class="fa-solid fa-envelope"></i> Email</span>
+                                <p>{{ profile.email }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Financial Information -->
+                    <div class="bg-white-100 rounded-lg p-4 shadow-md">
+                        <h2 class="text-lg font-semibold text-gray-700 mb-2"><i class="fas fa-money-bill-wave icon " ></i> Financial Information</h2>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <span class="text-gray-600 font-semibold"><i class="fas fa-dollar-sign icon"  ></i> Purchase Amount </span>
+                                <p   > {{ profile.Total_Purchase|floatformat:2 }},</p>
+                            </div>
+                            <div>
+                                <span class="text-gray-600 font-semibold"><i class="fas fa-exclamation-circle icon" ></i> Total Sale Amount </span>
+                                <p class="text-red-600"  >{{ profile.Total_Sale|floatformat:2 }}</p>
+                            </div>
+                            <div>
+                                <span class="text-gray-600 font-semibold"><i class="fas fa-check-circle icon"  ></i> Expense Amount </span>
+                                <p class="text-green-600">{{ profile.Total_Expense|floatformat:2 }}</p>
+                            </div>
+                            <div>
+                                <span class="text-gray-600 font-semibold"><i class="fas fa-undo icon"  style="color:aqua;"></i> Balance </span>
+                                <p class="text-red-600" style="color:aqua;">{{ profile.Balance|floatformat:2 }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+         
+          
+        <!-- Chart Section -->
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden mt-8 p-6">
+            <h2 class="text-gray-700 font-semibold mb-4">Financial Overview</h2>
+            <canvas id="financialChart"></canvas>
+        </div>
+    </div>
+    </div>
+</section>    
+</div>
+
+    
+<script>
+    const ctx = document.getElementById('financialChart').getContext('2d');
+    const financialChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Summary'],  // <--- This is required!
+            datasets: [
+                {
+                    label: 'Total Purchase',
+                    data: [{{ profile.Total_Purchase|floatformat:2 }}],
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                },
+                {
+                    label: 'Total Sale',
+                    data: [{{ profile.Total_Sale|floatformat:2 }}],
+                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    borderWidth: 1
+                },
+                {
+                    label: 'Total Expense',
+                    data: [{{ profile.Total_Expense|floatformat:2 }}],
+                    backgroundColor: 'rgba(255, 206, 86, 0.2)',
+                    borderColor: 'rgba(255, 206, 86, 1)',
+                    borderWidth: 1
+                },
+                {
+                    label: 'Profit/Lose',
+                    data: [{{ profile.Profit_OR_Lose|floatformat:2 }}],
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                },
+                {
+                    label: 'Balance',
+                    data: [{{ profile.Balance|floatformat:2 }}],
+                    backgroundColor: 'rgba(38, 58, 97, 0.2)',
+                    borderColor: 'rgb(146, 7, 173)',
+                    borderWidth: 1
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+</script>
+ 
+   <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script>
+
+    function data() {
+    
+    return {
+    
+    isSideMenuOpen: false,
+    toggleSideMenu() {
+    this.isSideMenuOpen = !this.isSideMenuOpen
+    },
+    closeSideMenu() {
+    this.isSideMenuOpen = false
+    },
+    isNotificationsMenuOpen: false,
+    toggleNotificationsMenu() {
+    this.isNotificationsMenuOpen = !this.isNotificationsMenuOpen
+    },
+    closeNotificationsMenu() {
+    this.isNotificationsMenuOpen = false
+    },
+    isProfileMenuOpen: false,
+    toggleProfileMenu() {
+    this.isProfileMenuOpen = !this.isProfileMenuOpen
+    },
+    closeProfileMenu() {
+    this.isProfileMenuOpen = false
+    },
+    isPagesMenuOpen: false,
+    togglePagesMenu() {
+    this.isPagesMenuOpen = !this.isPagesMenuOpen
+    },
+    
+    }
+    }
+    </script>
+     
+    <script>
+      document.addEventListener('htmx:afterOnLoad', function(evt) {
+          if (evt.detail.target.id === 'product-exists-message') {
+              const response = JSON.parse(evt.detail.xhr.responseText);
+              const submitButton = document.getElementById('submit-button');
+              if (response.exists) {
+                  submitButton.style.display = 'none';
+                  document.getElementById('product-exists-message').innerText = 'Product name already exists.';
+              } else {
+                  submitButton.style.display = 'block';
+                  document.getElementById('product-exists-message').innerText = '';
+              }
+          }
+      });
+    </script>
+    <script>
+      document.getElementById('AddDailyProduction').addEventListener('submit', function() {
+          document.getElementById('loader-overlay').style.display = 'flex';
+      });
+    
+      window.addEventListener('load', function() {
+          document.getElementById('loader-overlay').style.display = 'none';
+      });
+    </script>
+    <script>
+      // Function to update file name display
+      document.getElementById('profilepic').addEventListener('change', function() {
+          var input = this;
+          var fileName = input.files[0].name;
+          document.getElementById('file-name').textContent = fileName;
+      });
+      </script>
+    
+    
+    
+    

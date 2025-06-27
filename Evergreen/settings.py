@@ -113,7 +113,7 @@ WSGI_APPLICATION = 'Evergreen.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-DEVELOPMENT_MODE=2
+DEVELOPMENT_MODE=1
 
 if DEVELOPMENT_MODE == 1:
     DATABASES = {
@@ -212,4 +212,14 @@ EMAIL_HOST_USER = 'evergreencornsilageservice@gmail.com'
 EMAIL_HOST_PASSWORD = 'hqgf geji jlpa wisj'
 
 
+AUTH_USER_MODEL = 'business.User'  
+FILE_UPLOAD_MAX_MEMORY_SIZE = 5242880  # 5MB
+DATA_UPLOAD_MAX_MEMORY_SIZE = 5242880  # 5MB
+
+# settings.py
+
+BSECURE_CLIENT_ID = "4c67e4dd-da0c-495e-bf5c-b0668116f73b"
+BSECURE_CLIENT_SECRET = "ntYYHorOeDCOQe4xve5AElOF+kiVeBMqgc5n05/BlvI="
+BSECURE_STORE_ID = "ST-0031110573"  # Replace with actual
+BSECURE_API_BASE_URL = "https://api.bsecure.pk/v1"
 

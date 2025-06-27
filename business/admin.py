@@ -1,6 +1,60 @@
 from django.contrib import admin
+from django.contrib.auth.admin import UserAdmin
+from django.utils.html import format_html
 
 from .models import *
+@admin.register(User)
+class CustomUserAdmin(UserAdmin):
+    """Custom admin interface for CustomUser model"""
+    
+    # Fields to display in the admin list view
+    list_display = (
+        'username', 'email', 'first_name', 'last_name', 
+        'phone_number', 'license_no', 'is_verified', 
+        'is_staff', 'date_joined'
+    )
+    
+    # Fields that can be used for filtering
+    list_filter = (
+        'is_staff', 'is_superuser', 'is_active', 
+        'is_verified', 'date_joined', 'last_login'
+    )
+    
+    # Fields that can be searched
+    search_fields = ('username', 'first_name', 'last_name', 'email', 'phone_number', 'license_no')
+    
+    # Ordering
+    ordering = ('-date_joined',)
+    
+    # Fields to display in the admin form
+    fieldsets = UserAdmin.fieldsets + (
+        ('Business Information', {
+            'fields': ('phone_number', 'business_logo', 'license_no', 'document')
+        }),
+        ('Additional Info', {
+            'fields': ('is_verified', 'created_at', 'updated_at')
+        }),
+    )
+    
+    # Fields to display when adding a new user
+    add_fieldsets = UserAdmin.add_fieldsets + (
+        ('Business Information', {
+            'fields': ('phone_number', 'business_logo', 'license_no', 'document')
+        }),
+        ('Additional Info', {
+            'fields': ('is_verified',)
+        }),
+    )
+    
+    # Read-only fields
+    readonly_fields = ('created_at', 'updated_at', 'date_joined', 'last_login')
+    
+    def get_readonly_fields(self, request, obj=None):
+        """Make timestamp fields read-only"""
+        if obj:  # Editing an existing object
+            return self.readonly_fields + ('username',)
+        return self.readonly_fields
+
 class ManufacturingInline(admin.TabularInline):
     model = Manufacturing
     extra = 0 
@@ -48,6 +102,9 @@ admin.site.register(Loading_Labour)
 admin.site.register(LoadingLabourRecord)
 admin.site.register(Loading_Labour_Advance_Payment)
 admin.site.register(Production_Labour_Advance_Payment)
+admin.site.register(OTPRecord)
+admin.site.register(UserSubscription)
+admin.site.register(SubscriptionPlan)
 
 admin.site.site_header = "SoftApex Technologies"
 admin.site.site_title = "SoftApex Technologies"
