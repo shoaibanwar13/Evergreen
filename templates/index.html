@@ -1,840 +1,796 @@
-{% extends 'base.html' %}
 {% load static %}
-{% block content%}
- 
-<div class="relative bg-gradient-to-r from-purple-600 to-blue-600 h-screen text-white overflow-hidden">
-    <div class="absolute inset-0">
-      <img src="{% static '/img/slider.jpg' %}" alt="Background Image" class="object-cover object-center w-full h-full" />
-      <div class="absolute inset-0 bg-black opacity-50"></div>
-    </div>
-    
-    <div class="relative z-10 flex flex-col justify-center items-center h-full text-center">
-      <h1 class="text-5xl font-bold leading-tight mb-4 " id="typewriter">Welcome to Our Awesome Website</h1>
-      <p class="text-lg text-gray-300 mb-8">Discover amazing Quality and services that await you.</p>
-      <a href="#" class="bg-green-500 text-white hover:bg-accent py-2 px-6 rounded-full text-lg font-semibold transition duration-300 ease-in-out transform hover:scale-105 hover:shadow-lg">Get Started</a>
-    </div>
-  </div>
-  <!-- component -->
-<div class="bg-white relative   flex items-center  n justify-center overflow-hidden z-50 ">
- 
-<div class="relative mx-auto h-full px-4  pb-20   md:pb-10 sm:max-w-xl md:max-w-full md:px-24 lg:max-w-screen-xl lg:px-8">
-    <div class="flex flex-col items-center justify-between lg:flex-row py-16">
-        <div class=" relative ">
-            <div class=" absolute top-0 -left-48 z-0  opacity-50 ">
-                <img src="https://placehold.co/200x100" class="w-36 z-0  h-full    object-fill fill-y text-y   ">
-            </div>
-            <div class="lg:max-w-xl lg:pr-5 relative z-40">
-                <p class="flex text-sm uppercase text-green-500 ">
-                     
-                    About Us
-                </p>
-                <h2 class="mb-6 max-w-lg text-5xl font-light leading-snug tracking-tight text-g1 sm:text-7xl sm:leading-snug">
-                    We make you look
-                    <span class="my-1 inline-block border-b-8 border-g4 bg-white px-4 font-bold text-g4 animate__animated animate__flash">different</span>
-                </h2>
-                <p class="text-base text-gray-700">We Are Best For Your
-                Dairy Farming and Life Stock</p>
-                <div class="mt-10 flex flex-col items-center md:flex-row">
-                    <a href="/" class="mb-3 inline-flex h-12 w-full items-center justify-center rounded bg-green-500 px-6 font-medium tracking-wide text-white shadow-md transition hover:bg-accent focus:outline-none md:mr-4 md:mb-0 md:w-auto">
-                        View More</a>
-                     <button class="group inline-flex items-center font-semibold text-g1" onclick="my_modal_3.showModal()">Watch how
-                        it works
-                        <svg xmlns="http://www.w3.org/2000/svg" class="ml-4 h-6 w-6 transition-transform group-hover:translate-x-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
-                        </svg>
-                    </button>
-                    <dialog id="my_modal_3" class="modal">
-                        <div class="modal-box">
-                          <form method="dialog">
-                            <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
-                          </form>
-                          
-                     <video class="w-85" controls>
-                     <source src="{% for compydetail in compydetail %}{{compydetail.Intro_Video.url}}{% endfor %}" type="video/mp4">
-                       Your browser does not support the video tag.
-                     </video>
-
-                        </div>
-                      </dialog>
-                </div>
-            </div>
-            
-
-            
-           
-        </div>
-        <div class="relative hidden lg:ml-32 lg:block lg:w-1/2">
-            <svg xmlns="http://www.w3.org/2000/svg" class="my-6 mx-auto h-10 w-10 animate-bounce rounded-full bg-white p-2 lg:hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M16 17l-4 4m0 0l-4-4m4 4V3"></path>
-            </svg>
-            <div class="abg-orange-400 mx-auto w-fit overflow-hidden rounded-[6rem] rounded-br-none rounded-tl-none">
-                 <img src="{% static '/img/about.jpg' %}">
-            </div>
-        </div>
-    </div>
-</div> 
-<div class="hidden text-9xl varien absolute top-6 left-1/4 text-g/10 z-40 text-bold     ">
-    About Us
-</div>
-<div class=" absolute -bottom-24 left-10 z-0  opacity-10 "> 
-    <svg width="800px" height="800px" viewBox="0 0 24 24" class="w-96 z-0  h-full    object-fill fill-gray-300 text-gray-300" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path fill-rule="evenodd" clip-rule="evenodd" d="M12 6C12 5.44772 11.5523 5 11 5C10.4477 5 10 5.44772 10 6V16C10 16.5523 10.4477 17 11 17C11.5523 17 12 16.5523 12 16V6ZM9 9C9 8.44772 8.55228 8 8 8C7.44772 8 7 8.44772 7 9V16C7 16.5523 7.44772 17 8 17C8.55228 17 9 16.5523 9 16V9ZM15 9C15 8.44772 14.5523 8 14 8C13.4477 8 13 8.44772 13 9V16C13 16.5523 13.4477 17 14 17C14.5523 17 15 16.5523 15 16V9ZM18 13C18 12.4477 17.5523 12 17 12C16.4477 12 16 12.4477 16 13V16C16 16.5523 16.4477 17 17 17C17.5523 17 18 16.5523 18 16V13ZM6 15C6 14.4477 5.55228 14 5 14C4.44772 14 4 14.4477 4 15V16C4 16.5523 4.44772 17 5 17C5.55228 17 6 16.5523 6 16V15ZM21 15C21 14.4477 20.5523 14 20 14C19.4477 14 19 14.4477 19 15V16C19 16.5523 19.4477 17 20 17C20.5523 17 21 16.5523 21 16V15ZM4 18C3.44772 18 3 18.4477 3 19C3 19.5523 3.44772 20 4 20H21C21.5523 20 22 19.5523 22 19C22 18.4477 21.5523 18 21 18H4Z"></path>
-    </svg>
-</div>
- 
-<div class=" absolute -bottom-0 left-3/4 z-0  opacity-10 "> 
-    <svg width="800px" height="800px" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg" class="w-48 z-0  h-full -rotate-90   object-fill fill-red-300 text-red-300">
-        <path d="M32 225h12.993A4.004 4.004 0 0 0 49 220.997V138.01c0-4.976.724-5.04 1.614-.16l12.167 66.708c.397 2.177 2.516 3.942 4.713 3.942h8.512a3.937 3.937 0 0 0 3.947-4S79 127.5 80 129s14.488 52.67 14.488 52.67c.559 2.115 2.8 3.83 5.008 3.83h8.008a3.993 3.993 0 0 0 3.996-3.995v-43.506c0-4.97 1.82-5.412 4.079-.965l10.608 20.895c1.001 1.972 3.604 3.571 5.806 3.571h9.514a3.999 3.999 0 0 0 3.993-4.001v-19.49c0-4.975 2.751-6.074 6.155-2.443l6.111 6.518c1.51 1.61 4.528 2.916 6.734 2.916h7c2.21 0 5.567-.855 7.52-1.92l9.46-5.16c1.944-1.06 5.309-1.92 7.524-1.92h23.992a4.002 4.002 0 0 0 4.004-3.992v-7.516a3.996 3.996 0 0 0-4.004-3.992h-23.992c-2.211 0-5.601.823-7.564 1.834l-4.932 2.54c-4.423 2.279-12.028 3.858-16.993 3.527l2.97.198c-4.962-.33-10.942-4.12-13.356-8.467l-11.19-20.14c-1.07-1.929-3.733-3.492-5.939-3.492h-7c-2.21 0-4 1.794-4 4.001v19.49c0 4.975-1.14 5.138-2.542.382l-12.827-43.535c-.625-2.12-2.92-3.838-5.127-3.838h-8.008c-2.207 0-3.916 1.784-3.817 4.005l1.92 42.998c.221 4.969-.489 5.068-1.585.224l-15.13-66.825c-.488-2.155-2.681-3.902-4.878-3.902h-8.512a3.937 3.937 0 0 0-3.947 4s.953 77-.047 75.5-13.937-92.072-13.937-92.072C49.252 34.758 47.21 33 45 33H31.999" fill-rule="evenodd"></path>
-    </svg>
-</div> 
-<div class=" absolute top-10 left-3/4 z-0  opacity-10 "> 
-     
-    <svg fill="#000000" width="800px" height="800px" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg" class="w-96 z-0  h-full    object-fill fill-blue-300 text-blue-300">
-        <path d="M230.704 99.2a4.004 4.004 0 0 0-4.01-3.995h-50.981c-2.215 0-5.212-1.327-6.693-2.964L155.289 77.08c-17.795-19.65-41.628-16.256-53.234 7.58l-38.736 79.557C60.42 170.172 52.705 175 46.077 175H29.359a3.996 3.996 0 0 0-3.994 3.995v10.01A4 4 0 0 0 29.372 193h24.7c8.835 0 19.208-6.395 23.174-14.293l43.645-86.914c3.964-7.894 12.233-9.228 18.473-2.974l17.184 17.219c3.123 3.13 9.242 5.667 13.647 5.667H226.7a4.005 4.005 0 0 0 4.004-3.994v-8.512z" fill-rule="evenodd"></path>
-    </svg>
-</div> 
-
-</div>
-<div class="container relative flex flex-col justify-between h-full max-w-6xl px-10 mx-auto xl:px-0 mt-5" id="service">
-<h2 class="mb-1 text-3xl font-extrabold leading-tight text-green-500">Services</h2>
-<p class="mb-12 text-lg text-gray-500">Here is a few of the awesome Services we provide.</p>
-<div class="w-full">
-    <div class="flex flex-col w-full mb-10 sm:flex-row">
-        <div class="w-full mb-10 sm:mb-0 sm:w-1/2">
-            <div class="relative h-full ml-0 mr-0 sm:mr-10">
-                <span class="absolute top-0 left-0 w-full h-full mt-1 ml-1 bg-indigo-500 rounded-lg"></span>
-                <div class="relative h-full p-5 bg-white border-2 border-indigo-500 rounded-lg">
-                    <div class="flex items-center -mt-1">
-                        <h3 class="my-2 ml-3 text-lg font-bold text-gray-800">Transportation</h3>
-                    </div>
-                    <p class="mt-3 mb-1 text-xs font-medium text-indigo-500 uppercase">------------</p>
-                    <p class="mb-2 text-gray-600">{% for compydetail in compydetail %}{{compydetail.name}}{% endfor %} prides itself on providing reliable and efficient transportation services for our products. We understand the critical role transportation plays in ensuring our customers receive their orders on time and in perfect condition. Our dedicated fleet of vehicles is equipped to handle large quantities of cornsilage, ensuring safe and timely delivery to various destinations. We employ experienced drivers who are familiar with the best routes to ensure prompt deliveries while maintaining the quality of our products throughout the journey.</p>
-                </div>
-            </div>
-        </div>
-        <div class="w-full sm:w-1/2">
-            <div class="relative h-full ml-0 md:mr-10">
-                <span class="absolute top-0 left-0 w-full h-full mt-1 ml-1 bg-purple-500 rounded-lg"></span>
-                <div class="relative h-full p-5 bg-white border-2 border-purple-500 rounded-lg">
-                    <div class="flex items-center -mt-1">
-                        <h3 class="my-2 ml-3 text-lg font-bold text-gray-800">Report Generation</h3>
-                    </div>
-                    <p class="mt-3 mb-1 text-xs font-medium text-purple-500 uppercase">------------</p>
-                    <p class="mb-2 text-gray-600">
-                      At {% for compydetail in compydetail %}{{compydetail.name}}{% endfor %}, we believe in transparency and accountability. To support our clients and internal operations, we provide comprehensive report generation services. Our advanced reporting system captures detailed data on sales, production, expenses, and payment outflows, providing valuable insights for better decision-making. Clients receive regular reports, customized to meet their specific needs, enabling them to track their transactions, monitor inventory levels, and analyze market trends. Our goal is to keep our clients well-informed and empowered to make strategic business decisions.</p>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="flex flex-col w-full mb-5 sm:flex-row">
-        <div class="w-full mb-10 sm:mb-0 sm:w-1/2">
-            <div class="relative h-full ml-0 mr-0 sm:mr-10">
-                <span class="absolute top-0 left-0 w-full h-full mt-1 ml-1 bg-blue-400 rounded-lg"></span>
-                <div class="relative h-full p-5 bg-white border-2 border-blue-400 rounded-lg">
-                    <div class="flex items-center -mt-1">
-                        <h3 class="my-2 ml-3 text-lg font-bold text-gray-800">Sale Return</h3>
-                    </div>
-                    <p class="mt-3 mb-1 text-xs font-medium text-blue-400 uppercase">------------</p>
-                    <p class="mb-2 text-gray-600">Customer satisfaction is our top priority at {% for compydetail in compydetail %}{{compydetail.name}}{% endfor %}. We have a straightforward sale return policy to address any issues our clients may encounter with their orders. If there is a problem with the quality or quantity of the delivered cornsilage, clients can initiate a return request through our customer service department. Our team will promptly evaluate the situation and ensure a hassle-free return process, including the collection of the returned product and issuance of refunds or replacements as needed. We strive to resolve any issues quickly and efficiently, maintaining the trust and confidence of our clients.</p>
-                </div>
-            </div>
-        </div>
-        <div class="w-full mb-10 sm:mb-0 sm:w-1/2">
-            <div class="relative h-full ml-0 mr-0 sm:mr-10">
-                <span class="absolute top-0 left-0 w-full h-full mt-1 ml-1 bg-yellow-400 rounded-lg"></span>
-                <div class="relative h-full p-5 bg-white border-2 border-yellow-400 rounded-lg">
-                    <div class="flex items-center -mt-1">
-                        <h3 class="my-2 ml-3 text-lg font-bold text-gray-800">Discounts</h3>
-                    </div>
-                    <p class="mt-3 mb-1 text-xs font-medium text-yellow-400 uppercase">------------</p>
-                    <p class="mb-2 text-gray-600">{% for compydetail in compydetail %}{{compydetail.name}}{% endfor %} offers competitive pricing and attractive discounts to our valued customers. We provide seasonal discounts, bulk purchase discounts, and special promotions to make our high-quality cornsilage more accessible and affordable. Our discount programs are designed to reward our loyal customers and incentivize larger purchases, ensuring that our clients get the best value for their money. We regularly update our discount offerings to reflect market conditions and customer needs, helping our clients maximize their savings while enjoying top-notch products.</p>
-                </div>
-            </div>
-        </div>
-        <div class="w-full sm:w-1/2">
-            <div class="relative h-full ml-0 md:mr-10">
-                <span class="absolute top-0 left-0 w-full h-full mt-1 ml-1 bg-green-500 rounded-lg"></span>
-                <div class="relative h-full p-5 bg-white border-2 border-green-500 rounded-lg">
-                    <div class="flex items-center -mt-1">
-                        <h3 class="my-2 ml-3 text-lg font-bold text-gray-800">Fast Delivery Method</h3>
-                    </div>
-                    <p class="mt-3 mb-1 text-xs font-medium text-green-500 uppercase">------------</p>
-                    <p class="mb-2 text-gray-600">
-                      In today’s fast-paced world, we understand the importance of quick and reliable delivery. {% for compydetail in compydetail %}{{compydetail.name}}{% endfor %} has implemented a fast delivery method to ensure our products reach customers in the shortest time possible without compromising quality. We utilize advanced logistics planning, efficient route optimization, and real-time tracking systems to expedite our delivery process. Our commitment to fast delivery means our clients can rely on us for timely replenishment of their stock, reducing downtime and enhancing their operational efficiency.</p>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-</div>
-<section class="py-6 sm:py-12 dark:bg-gray-100 dark:text-gray-800" id="product">
-<div class="container p-6 mx-auto space-y-8">
-    <div class="space-y-2 text-center">
-        <h2 class="text-3xl font-bold text-green-500">Our Awesome Products</h2>
-        <p class="font-serif text-sm dark:text-gray-600">We Provide Quality and Quantity Of Our Product.</p>
-    </div>
-    <div class="grid grid-cols-1 gap-x-4 gap-y-8 md:grid-cols-2 lg:grid-cols-4">
-        <article class="flex flex-col dark:bg-gray-50">
-            <a rel="noopener noreferrer" href="#" aria-label="Te nulla oportere reprimique his dolorum">
-                <img alt="" class="object-cover w-full h-52 dark:bg-gray-500" src="https://images.pexels.com/photos/20234940/pexels-photo-20234940/free-photo-of-a-corn-field.jpeg?auto=compress&cs=tinysrgb&w=600">
-            </a>
-            <div class="flex flex-col flex-1 p-6">
-                <a rel="noopener noreferrer" href="#" aria-label="Te nulla oportere reprimique his dolorum"></a>
-                <a rel="noopener noreferrer" href="#" class="text-xs tracking-wider uppercase hover:underline dark:text-violet-600"> Corn Silage</a>
-                <h3 class="flex-1 py-2 text-lg font-semibold leading-snug">Corn Silage is the best solution to ensure Higher Quality and more milk from your animals year round. What is Corn Silage?  </h3>
-                <div class="flex flex-wrap justify-between pt-3 space-x-2 text-xs dark:text-gray-600">
-                    <span>June 1, 2020</span>
-                    <span>2.1K views</span>
-                </div>
-            </div>
-        </article>
-        <article class="flex flex-col dark:bg-gray-50">
-            <a rel="noopener noreferrer" href="#" aria-label="Te nulla oportere reprimique his dolorum">
-                <img alt="" class="object-cover w-full h-52 dark:bg-gray-500" src="https://media.istockphoto.com/id/483803742/photo/silage.jpg?b=1&s=612x612&w=0&k=20&c=cnaww-iEKIha3qcye1QVfSKh49cBXZZZFCZ1FFgM_1A=">
-            </a>
-            <div class="flex flex-col flex-1 p-6">
-                <a rel="noopener noreferrer" href="#" aria-label="Te nulla oportere reprimique his dolorum"></a>
-                <a rel="noopener noreferrer" href="#" class="text-xs tracking-wider uppercase hover:underline dark:text-violet-600"> Corn Silage</a>
-                <h3 class="flex-1 py-2 text-lg font-semibold leading-snug">.High in quality .
-                  .Harvest Management.
-                  .Low in ph.
-                  .High dry matter.
-                  .Excellent palatability.
-                  .Formentation through use of inoculants.
-                  .Aflatoxin free</h3>
-                <div class="flex flex-wrap justify-between pt-3 space-x-2 text-xs dark:text-gray-600">
-                    <span>June 2, 2020</span>
-                    <span>2.2K views</span>
-                </div>
-            </div>
-        </article>
-        <article class="flex flex-col dark:bg-gray-50">
-            <a rel="noopener noreferrer" href="#" aria-label="Te nulla oportere reprimique his dolorum">
-                <img alt="" class="object-cover w-full h-52 dark:bg-gray-500" src="https://media.istockphoto.com/id/507640460/photo/harvesting-silage-corn-maize.jpg?b=1&s=612x612&w=0&k=20&c=lnr9VB8je-RuJFWdhwFf3nQw43WyFkLi7SGqRqx1lLc=">
-            </a>
-            <div class="flex flex-col flex-1 p-6">
-                <a rel="noopener noreferrer" href="#" aria-label="Te nulla oportere reprimique his dolorum"></a>
-                <a rel="noopener noreferrer" href="#" class="text-xs tracking-wider uppercase hover:underline dark:text-violet-600"> Corn Silage</a>
-                <h3 class="flex-1 py-2 text-lg font-semibold leading-snug">
-                  High in digestibility. .Nutritional Values.
-                  .Nutrients Ranges Dry Matter 30-35.
-                  .Carbohydrates 22-29
-                  .Inoculants Addition 25-3Mcal/kg Energy Ph 38-4 79
-                  .Improves quality of fermentation
-                  .Increases digestibility Protein ADF</h3>
-                <div class="flex flex-wrap justify-between pt-3 space-x-2 text-xs dark:text-gray-600">
-                    <span>June 3, 2020</span>
-                    <span>2.3K views</span>
-                </div>
-            </div>
-        </article>
-        <article class="flex flex-col dark:bg-gray-50">
-            <a rel="noopener noreferrer" href="#" aria-label="Te nulla oportere reprimique his dolorum">
-                <img alt="" class="object-cover w-full h-52 dark:bg-gray-500" src="https://media.istockphoto.com/id/1364771582/photo/pouring-corn-grain-into-tractor-trailer.jpg?b=1&s=612x612&w=0&k=20&c=SUwKy6KB1ZG9jFE_0QPJAo-IBTZF5CFszetLzmS07ss=">
-            </a>
-            <div class="flex flex-col flex-1 p-6">
-                <a rel="noopener noreferrer" href="#" aria-label="Te nulla oportere reprimique his dolorum"></a>
-                <a rel="noopener noreferrer" href="#" class="text-xs tracking-wider uppercase hover:underline dark:text-violet-600"> Corn Silage</a>
-                <h3 class="flex-1 py-2 text-lg font-semibold leading-snug">The chopped crop is compressed and packed in a bale/bag Fermentation happens, loading to formation of acetic acid and lactic acid Fermentation continues for 3 weeks creating a nutritious and high energy food for livestock.</h3>
-                <div class="flex flex-wrap justify-between pt-3 space-x-2 text-xs dark:text-gray-600">
-                    <span>June 4, 2020</span>
-                    <span>2.4K views</span>
-                </div>
-            </div>
-        </article>
-    </div>
-</div>
-</section>
- 
-<!-- component -->
-<div class="    flex items-center justify-center bg-white mt-0">
-<div class="max-w-7xl w-full mx-auto py-6 sm:px-6 lg:px-8">
-  <div class="flex flex-col lg:flex-row w-full lg:space-x-2 space-y-2 lg:space-y-0 mb-2 lg:mb-4">
-
-      <div class="w-full lg:w-1/5">
-          <div class="widget w-full p-4 rounded-lg bg-white border-l-4 border-purple-400">
-              <div class="flex items-center">
-                  <div class="icon w-14 p-3.5 bg-purple-400 text-white rounded-full mr-3">
-                      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
-                      </svg>
-                  </div>
-                  <div class="flex flex-col justify-center">
-                      <div class="text-lg">2k</div>
-                      <div class="text-sm text-gray-400">Sales</div>
-                  </div>
-              </div>
-          </div>
-      </div>
-
-      <div class="w-full lg:w-1/5">
-          <div class="widget w-full p-4 rounded-lg bg-white border-l-4 border-blue-400">
-              <div class="flex items-center">
-                  <div class="icon w-14 p-3.5 bg-blue-400 text-white rounded-full mr-3">
-                      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                      </svg>
-                  </div>
-                  <div class="flex flex-col justify-center">
-                      <div class="text-lg">3456</div>
-                      <div class="text-sm text-gray-400">Customers</div>
-                  </div>
-              </div>
-          </div>
-      </div>
-
-      <div class="w-full lg:w-1/5">
-          <div class="widget w-full p-4 rounded-lg bg-white border-l-4 border-yellow-400">
-              <div class="flex items-center">
-                  <div class="icon w-14 p-3.5 bg-yellow-400 text-white rounded-full mr-3">
-                      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
-                      </svg>
-                  </div>
-                  <div class="flex flex-col justify-center">
-                      <div class="text-lg">2</div>
-                      <div class="text-sm text-gray-400">Products</div>
-                  </div>
-              </div>
-          </div>
-      </div>
-
-      <div class="w-full lg:w-1/5">
-          <div class="widget w-full p-4 rounded-lg bg-white border-l-4 border-red-400">
-              <div class="flex items-center">
-                  <div class="icon w-14 p-3.5 bg-red-400 text-white rounded-full mr-3">
-                      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                      </svg>
-                  </div>
-                  <div class="flex flex-col justify-center">
-                      <div class="text-lg">12658</div>
-                      <div class="text-sm text-gray-400">Orders</div>
-                  </div>
-              </div>
-          </div>
-      </div>
-
-      <div class="w-full lg:w-1/5">
-          <div class="widget w-full p-4 rounded-lg bg-white border-l-4 border-green-400">
-              <div class="flex items-center">
-                  <div class="icon w-14 p-3.5 bg-green-400 text-white rounded-full mr-3">
-                      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                  </div>
-                  <div class="flex flex-col justify-center">
-                      <div class="text-lg">Not Menssion</div>
-                      <div class="text-sm text-gray-400">Revenue</div>
-                  </div>
-              </div>
-          </div>
-      </div>
-
-  </div>
-</div>
-</div>
- 
-<link href="https://cdn.jsdelivr.net/npm/keen-slider@6.8.6/keen-slider.min.css" rel="stylesheet" />
-
-<script type="module">
-import KeenSlider from 'https://cdn.jsdelivr.net/npm/keen-slider@6.8.6/+esm'
-
-const keenSlider = new KeenSlider(
-'#keen-slider',
-{
-  loop: true,
-  slides: {
-    origin: 'center',
-    perView: 1.25,
-    spacing: 16,
-  },
-  breakpoints: {
-    '(min-width: 1024px)': {
-      slides: {
-        origin: 'auto',
-        perView: 1.5,
-        spacing: 32,
-      },
-    },
-  },
-},
-[]
-)
-
-const keenSliderPrevious = document.getElementById('keen-slider-previous')
-const keenSliderNext = document.getElementById('keen-slider-next')
-
-const keenSliderPreviousDesktop = document.getElementById('keen-slider-previous-desktop')
-const keenSliderNextDesktop = document.getElementById('keen-slider-next-desktop')
-
-keenSliderPrevious.addEventListener('click', () => keenSlider.prev())
-keenSliderNext.addEventListener('click', () => keenSlider.next())
-
-keenSliderPreviousDesktop.addEventListener('click', () => keenSlider.prev())
-keenSliderNextDesktop.addEventListener('click', () => keenSlider.next())
-</script>
-
-<section class="bg-gradient-to-br from-white to-gray-100 py-16 px-6">
-  <div class="w-full max-w-6xl mx-auto">
-    <h1 class="text-4xl font-extrabold text-center text-gray-800 mb-12 tracking-tight">
-      Choose a Subscription Plan
-    </h1>
-
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-10 ml-2 animate-fade-in-up">
-      {% for plan in plans %}
-        <div class="bg-white rounded-3xl shadow-xl p-8 text-center border-t-4 
-          {% if forloop.counter == 1 %} border-green-500 
-          {% elif forloop.counter == 2 %} border-blue-500 
-          {% else %} border-purple-600 {% endif %}
-          hover:shadow-2xl hover:scale-[1.03] transition-all duration-300 min-h-[480px] flex flex-col justify-between">
-          
-          <div>
-            <h2 class="text-2xl font-bold text-gray-800 mb-1 uppercase tracking-wide">{{ plan.name }}</h2>
-            <p class="text-sm text-gray-500 mb-4 italic">
-              {% if forloop.counter == 1 %}Perfect for small teams{% elif forloop.counter == 2 %}For growing businesses{% else %}Best for large teams{% endif %}
-            </p>
-
-            <div class="text-4xl font-extrabold text-gray-700 mb-6">
-              PKR {{ plan.price|floatformat:0 }}
-              <span class="text-sm font-normal text-gray-500">/month</span>
-            </div>
-
-            <ul class="text-sm text-gray-700 mb-6 space-y-2 text-left px-4">
-              <li>👥 <strong>Users:</strong> {{ plan.max_users|default:"Unlimited" }}</li>
-              <li>👤 <strong>Clients:</strong> {{ plan.max_clients|default:"Unlimited" }}</li>
-              <li>⚙️ <strong>Features:</strong> {{ plan.features }}</li>
-              <li>📅 <strong>Duration:</strong> {{ plan.duration_days }} days</li>
-            </ul>
-          </div>
-
-          <a href="{% url 'start_payment' plan.id %}" 
-             class="mt-4 inline-block w-full px-6 py-3 
-             {% if forloop.counter == 1 %} bg-green-600 hover:bg-green-700 
-             {% elif forloop.counter == 2 %} bg-blue-600 hover:bg-blue-700 
-             {% else %} bg-purple-600 hover:bg-purple-700 {% endif %}
-             text-white text-sm font-semibold rounded-full transition">
-            Subscribe Now
-          </a>
-        </div>
-      {% endfor %}
-    </div>
-  </div>
-
-  <style>
-    @keyframes fade-in-up {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .animate-fade-in-up {
-      animation: fade-in-up 0.8s ease-out both;
-    }
-  </style>
-</section>
-
-<section class="bg-white-100">
-<div class="mx-auto max-w-[1340px] px-4 py-12 sm:px-6 lg:me-0 lg:py-16 lg:pe-0 lg:ps-8 xl:py-24">
-<div class="grid grid-cols-1 gap-8 lg:grid-cols-3 lg:items-center lg:gap-16">
-  <div class="max-w-xl text-center ltr:sm:text-left rtl:sm:text-right">
-    <h2 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
-      Don't just take our word for it...
-    </h2>
-
-    <p class="mt-4 text-gray-700">
-      Here’s what our clients are Saying...
-    </p>
-
-    <div class="hidden lg:mt-8 lg:flex lg:gap-4">
-      <button
-        aria-label="Previous slide"
-        id="keen-slider-previous-desktop"
-        class="rounded-full border border-green-600 p-3 text-green-600 transition hover:bg-green-600 hover:text-white"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke-width="1.5"
-          stroke="currentColor"
-          class="size-5 rtl:rotate-180"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            d="M15.75 19.5L8.25 12l7.5-7.5"
-          />
-        </svg>
-      </button>
-
-      <button
-        aria-label="Next slide"
-        id="keen-slider-next-desktop"
-        class="rounded-full border border-green-600 p-3 text-green-600 transition hover:bg-green-600 hover:text-white"
-      >
-        <svg
-          class="size-5 rtl:rotate-180"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            d="M9 5l7 7-7 7"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-          />
-        </svg>
-      </button>
-    </div>
-  </div>
-
-  <div class="-mx-6 lg:col-span-2 lg:mx-0">
-    <div id="keen-slider" class="keen-slider">
-      <div class="keen-slider__slide">
-        <blockquote
-          class="flex h-full flex-col justify-between bg-white p-6 shadow-sm sm:p-8 lg:p-12"
-        >
-          <div>
-            <div class="flex gap-0.5 text-green-500">
-              <svg
-                class="h-5 w-5"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"
-                />
-              </svg>
-
-              <svg
-                class="h-5 w-5"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"
-                />
-              </svg>
-
-              <svg
-                class="h-5 w-5"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"
-                />
-              </svg>
-
-              <svg
-                class="h-5 w-5"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"
-                />
-              </svg>
-
-              <svg
-                class="h-5 w-5"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"
-                />
-              </svg>
-            </div>
-
-            <div class="mt-4">
-              <p class="text-2xl font-bold text-rose-600 sm:text-3xl">Stayin' Alive</p>
-
-              <p class="mt-4 leading-relaxed text-gray-700">
-                No, Rose, they are not breathing. And they have no arms or legs … Where are
-                they? You know what? If we come across somebody with no arms or legs, do we
-                bother resuscitating them? I mean, what quality of life do we have there?
-              </p>
-            </div>
-          </div>
-
-          <footer class="mt-4 text-sm font-medium text-gray-700 sm:mt-6">
-            &mdash; Michael Scott
-          </footer>
-        </blockquote>
-      </div>
-
-      <div class="keen-slider__slide">
-        <blockquote
-          class="flex h-full flex-col justify-between bg-white p-6 shadow-sm sm:p-8 lg:p-12"
-        >
-          <div>
-            <div class="flex gap-0.5 text-green-500">
-              <svg
-                class="h-5 w-5"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"
-                />
-              </svg>
-
-              <svg
-                class="h-5 w-5"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"
-                />
-              </svg>
-
-              <svg
-                class="h-5 w-5"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"
-                />
-              </svg>
-
-              <svg
-                class="h-5 w-5"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"
-                />
-              </svg>
-
-              <svg
-                class="h-5 w-5"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"
-                />
-              </svg>
-            </div>
-
-            <div class="mt-4">
-              <p class="text-2xl font-bold text-rose-600 sm:text-3xl">Stayin' Alive</p>
-
-              <p class="mt-4 leading-relaxed text-gray-700">
-                No, Rose, they are not breathing. And they have no arms or legs … Where are
-                they? You know what? If we come across somebody with no arms or legs, do we
-                bother resuscitating them? I mean, what quality of life do we have there?
-              </p>
-            </div>
-          </div>
-
-          <footer class="mt-4 text-sm font-medium text-gray-700 sm:mt-6">
-            &mdash; Michael Scott
-          </footer>
-        </blockquote>
-      </div>
-
-      <div class="keen-slider__slide">
-        <blockquote
-          class="flex h-full flex-col justify-between bg-white p-6 shadow-sm sm:p-8 lg:p-12"
-        >
-          <div>
-            <div class="flex gap-0.5 text-green-500">
-              <svg
-                class="h-5 w-5"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"
-                />
-              </svg>
-
-              <svg
-                class="h-5 w-5"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"
-                />
-              </svg>
-
-              <svg
-                class="h-5 w-5"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"
-                />
-              </svg>
-
-              <svg
-                class="h-5 w-5"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"
-                />
-              </svg>
-
-              <svg
-                class="h-5 w-5"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"
-                />
-              </svg>
-            </div>
-
-            <div class="mt-4">
-              <p class="text-2xl font-bold text-rose-600 sm:text-3xl">Stayin' Alive</p>
-
-              <p class="mt-4 leading-relaxed text-gray-700">
-                No, Rose, they are not breathing. And they have no arms or legs … Where are
-                they? You know what? If we come across somebody with no arms or legs, do we
-                bother resuscitating them? I mean, what quality of life do we have there?
-              </p>
-            </div>
-          </div>
-
-          <footer class="mt-4 text-sm font-medium text-gray-700 sm:mt-6">
-            &mdash; Michael Scott
-          </footer>
-        </blockquote>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div class="mt-8 flex justify-center gap-4 lg:hidden">
-  <button
-    aria-label="Previous slide"
-    id="keen-slider-previous"
-    class="rounded-full border border-rose-600 p-4 text-rose-600 transition hover:bg-rose-600 hover:text-white"
-  >
-    <svg
-      class="size-5 -rotate-180 transform"
-      fill="none"
-      stroke="currentColor"
-      viewBox="0 0 24 24"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" />
-    </svg>
-  </button>
-
-  <button
-    aria-label="Next slide"
-    id="keen-slider-next"
-    class="rounded-full border border-rose-600 p-4 text-rose-600 transition hover:bg-rose-600 hover:text-white"
-  >
-    <svg
-      class="h-5 w-5"
-      fill="none"
-      stroke="currentColor"
-      viewBox="0 0 24 24"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" />
-    </svg>
-  </button>
-</div>
-</div>
-</section>
- 
-<div class="flex min-h-screen items-center justify-start bg-white " id="contact">
-<div class="mx-auto w-full max-w-lg">
-<h1 class="text-4xl font-medium">Contact us</h1>
-<p class="mt-3">Email us at {% for compydetail in compydetail %}{{compydetail.email}}{% endfor %} or message us here:</p>
-
-<div class="flex items-center mt-8 text-gray-600 dark:text-gray-400">
-  <svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24" class="w-8 h-8 text-gray-500">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
-  </svg>
-  <div class="ml-4 text-md tracking-wide font-semibold w-40">
-    {% for compydetail in compydetail %}{{compydetail.Head_Office}}{% endfor %}
-
-  </div>
-</div>
-
-<div class="flex items-center mt-4 text-gray-600 dark:text-gray-400">
-  <svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24" class="w-8 h-8 text-gray-500">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
-  </svg>
-  <div class="ml-4 text-md tracking-wide font-semibold w-40">
-    {% for compydetail in compydetail %}{{compydetail.phone}}{% endfor %} 
-  </div>
-</div>
-
- 
-</div>
-</div>
-<!-- ====== Blog Section End -->
-   
-  <!-- component -->
-
-  
-  <script>
-    const words = [ "Welcome to {% for compydetail in compydetail %}{{compydetail.name}}{% endfor %}  ", "The Name Of Trust.","Our  Quality and Quantity Is First Priorty "];
-    let i = 0;
-    let j = 0;
-    let currentWord = "";
-    let isDeleting = false;
-    
-    function type() {
-      currentWord = words[i];
-      if (isDeleting) {
-        document.getElementById("typewriter").textContent = currentWord.substring(0, j-1);
-        j--;
-        if (j == 0) {
-          isDeleting = false;
-          i++;
-          if (i == words.length) {
-            i = 0;
-          }
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> Evergreen Corn Silage - Premium Corn Silage Solutions</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Inter', sans-serif; }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #065f46 0%, #10b981 50%, #6ee7b7 100%);
         }
-      } else {
-        document.getElementById("typewriter").textContent = currentWord.substring(0, j+1);
-        j++;
-        if (j == currentWord.length) {
-          isDeleting = true;
+        
+        .card-hover {
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
+        
+        .card-hover:hover {
+            transform: translateY(-15px) scale(1.02);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+        }
+        
+        .floating {
+            animation: floating 3s ease-in-out infinite;
+        }
+        
+        @keyframes floating {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        .slide-in-left {
+            animation: slideInLeft 1s ease-out;
+        }
+        
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-100px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        
+        .slide-in-right {
+            animation: slideInRight 1s ease-out;
+        }
+        
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(100px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        
+        .fade-in-up {
+            animation: fadeInUp 1s ease-out;
+        }
+        
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .pulse-green {
+            animation: pulseGreen 2s infinite;
+        }
+        
+        @keyframes pulseGreen {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+        }
+        
+        .leaf-pattern {
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%2310b981' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+        
+        .navbar-blur {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.9);
+        }
+    </style>
+    <style>
+      html, body {
+        overflow-x: hidden;
       }
-      setTimeout(type, 100);
-    }
+      img {
+        max-width: 100%;
+        height: auto;
+        display: block;
+      }
+      .floating {
+        will-change: transform;
+      }
+      section.relative {
+        overflow-x: clip;
+      }
+    </style>
     
-    type();
+</head>
+<body class="font-sans">
+    <!-- Enhanced Navigation -->
+    <nav class="fixed w-full z-50 bg-white border-b border-green-100 transition-all duration-300">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center h-16">
+          <!-- Logo -->
+          <div class="flex items-center space-x-2">
+             
+            <div class="flex justify-center mb-4">
+              <img class="h-20 w-auto " src="{% static '/img/evergreen.png' %}" alt="Evergreen Logo">
+            </div>
+ 
+            <span class="text-2xl font-bold text-gray-800">Evergreen</span>
+          </div>
+          
+    
+          <!-- Desktop nav -->
+          <div class="hidden md:flex space-x-8">
+            <a href="#home" class="text-gray-700 hover:text-green-600 transition-colors duration-200 font-medium">Home</a>
+            <a href="#about" class="text-gray-700 hover:text-green-600 transition-colors duration-200 font-medium">About</a>
+            <a href="#services" class="text-gray-700 hover:text-green-600 transition-colors duration-200 font-medium">Services</a>
+            <a href="#products" class="text-gray-700 hover:text-green-600 transition-colors duration-200 font-medium">Products</a>
+            <a href="#contact" class="text-gray-700 hover:text-green-600 transition-colors duration-200 font-medium">Contact</a>
+          </div>
+    
+          <!-- CTA button (desktop) -->
+          <div class="hidden md:block">
+            <button class="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-6 py-2 rounded-full hover:shadow-lg transition-all duration-300 pulse-green">
+              <a href="{% url 'login' %}">Business Login</a>
+            </button>
+          </div>
+    
+          <!-- Hamburger for mobile -->
+          <div class="md:hidden">
+            <button id="mobile-menu-btn" class="text-gray-800 focus:outline-none">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M4 6h16M4 12h16M4 18h16"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    
+      <!-- Mobile Menu -->
+      <div id="mobile-menu" class="hidden md:hidden bg-white border-t border-green-100 px-4 py-4">
+        <a href="#home" class="block py-2 text-gray-700 hover:text-green-600 font-medium">Home</a>
+        <a href="#about" class="block py-2 text-gray-700 hover:text-green-600 font-medium">About</a>
+        <a href="#services" class="block py-2 text-gray-700 hover:text-green-600 font-medium">Services</a>
+        <a href="#products" class="block py-2 text-gray-700 hover:text-green-600 font-medium">Products</a>
+        <a href="#contact" class="block py-2 text-gray-700 hover:text-green-600 font-medium">Contact</a>
+        <button class="w-full mt-4 bg-gradient-to-r from-green-500 to-emerald-600 text-white px-6 py-2 rounded-full hover:shadow-lg transition-all duration-300">Get Quote</button>
+      </div>
+    </nav>
+    
+    <!-- Toggle script -->
+    <script>
+      const btn = document.getElementById('mobile-menu-btn');
+      const menu = document.getElementById('mobile-menu');
+    
+      btn.addEventListener('click', () => {
+        menu.classList.toggle('hidden');
+      });
     </script>
- 
     
-    {% endblock  %}
-   
-      
- 
+
+    <!-- Enhanced Hero Section -->
+    <section id="home" class="relative min-h-screen flex items-center justify-center leaf-pattern">
+        <div class="absolute inset-0 gradient-bg opacity-90"></div>
+        <div class="absolute inset-0">
+            <div class="absolute inset-0 bg-black opacity-40"></div>
+        </div>
+        
+        <!-- Floating Elements -->
+        <div class="absolute top-20 left-10 w-20 h-20 bg-white bg-opacity-10 rounded-full floating"></div>
+        <div class="absolute bottom-32 right-16 w-16 h-16 bg-green-300 bg-opacity-20 rounded-full floating" style="animation-delay: 1s;"></div>
+        <div class="absolute top-1/3 right-1/4 w-12 h-12 bg-emerald-300 bg-opacity-15 rounded-full floating" style="animation-delay: 2s;"></div>
+        
+        <div class="relative z-10 text-center px-4 max-w-6xl mx-auto">
+            <h1 class="text-6xl md:text-8xl font-extrabold text-white mb-6 slide-in-left">
+                <span id="typewriter" class="bg-gradient-to-r from-green-300 to-emerald-300 bg-clip-text text-transparent"></span>
+            </h1>
+            <p class="text-xl md:text-2xl text-green-100 mb-8 max-w-3xl mx-auto slide-in-right">
+                🌾 Premium Quality Corn Silage for Superior Livestock Nutrition
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center fade-in-up">
+                <button class="bg-white text-green-600 px-8 py-4 rounded-full font-semibold text-lg hover:bg-green-50 transition-all duration-300 transform hover:scale-105 shadow-xl">
+                    🚀 Explore Products
+                </button>
+                <button class="border-2 border-white text-white px-8 py-4 rounded-full font-semibold text-lg hover:bg-white hover:text-green-600 transition-all duration-300 transform hover:scale-105">
+                    📞 Contact Us
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Enhanced About Section -->
+    <section id="about" class="py-20 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid lg:grid-cols-2 gap-16 items-center">
+                <div class="slide-in-left">
+                    <div class="inline-flex items-center px-4 py-2 bg-green-100 rounded-full text-green-700 font-medium mb-6">
+                        🌱 About  Evergreen Corn Silage
+                    </div>
+                    <h2 class="text-5xl font-bold text-gray-900 mb-6">
+                        Revolutionizing
+                        <span class="bg-gradient-to-r from-green-500 to-emerald-600 bg-clip-text text-transparent">Agriculture</span>
+                        with Premium Silage
+                    </h2>
+                    <p class="text-lg text-gray-600 mb-8 leading-relaxed">
+                        We are the leading provider of high-quality corn silage, dedicated to enhancing dairy farming and livestock nutrition. Our premium products ensure optimal animal health and maximum milk production year-round.
+                    </p>
+                    <div class="grid grid-cols-2 gap-6 mb-8">
+                        <div class="text-center p-4 bg-white rounded-xl shadow-sm card-hover">
+                            <div class="text-3xl font-bold text-green-600">15+</div>
+                            <div class="text-gray-600">Years Experience</div>
+                        </div>
+                        <div class="text-center p-4 bg-white rounded-xl shadow-sm card-hover">
+                            <div class="text-3xl font-bold text-green-600">500+</div>
+                            <div class="text-gray-600">Happy Farmers</div>
+                        </div>
+                    </div>
+                    <button class="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-8 py-4 rounded-full font-semibold hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                        Learn More About Us
+                    </button>
+                </div>
+                
+                <div class="slide-in-right">
+                    <div class="relative">
+                        <div class="absolute -inset-4 bg-gradient-to-r from-green-400 to-emerald-500 rounded-3xl opacity-20 blur"></div>
+                        <img src="https://images.unsplash.com/photo-1625246333195-78d9c38ad449?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" 
+                             alt="Agriculture" 
+                             class="relative w-full h-96 object-cover rounded-3xl shadow-2xl">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent rounded-3xl"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Enhanced Services Section -->
+    <section id="services" class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16 fade-in-up">
+                <div class="inline-flex items-center px-4 py-2 bg-green-100 rounded-full text-green-700 font-medium mb-4">
+                    🚚 Our Services
+                </div>
+                <h2 class="text-5xl font-bold text-gray-900 mb-4">
+                    Complete Agricultural
+                    <span class="bg-gradient-to-r from-green-500 to-emerald-600 bg-clip-text text-transparent">Solutions</span>
+                </h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                    From transportation to reporting, we provide end-to-end services for modern farming operations
+                </p>
+            </div>
+            
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Service Cards -->
+                <div class="card-hover bg-gradient-to-br from-blue-50 to-cyan-50 p-8 rounded-2xl border border-blue-100">
+                    <div class="w-16 h-16 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center mb-6">
+                        <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"/>
+                            <path d="M3 4a1 1 0 00-1 1v10a1 1 0 001 1h1.05a2.5 2.5 0 014.9 0H10a1 1 0 001-1V5a1 1 0 00-1-1H3zM14 7a1 1 0 00-1 1v6.05A2.5 2.5 0 0115.95 16H17a1 1 0 001-1V8a1 1 0 00-1-1h-3z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-4">🚛 Premium Transportation</h3>
+                    <p class="text-gray-600 mb-6">Reliable fleet with temperature-controlled vehicles ensuring fresh delivery of corn silage to your doorstep.</p>
+                    <button class="text-blue-600 font-semibold hover:text-blue-700 transition-colors">Learn More →</button>
+                </div>
+                
+                <div class="card-hover bg-gradient-to-br from-purple-50 to-pink-50 p-8 rounded-2xl border border-purple-100">
+                    <div class="w-16 h-16 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl flex items-center justify-center mb-6">
+                        <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
+                            <path fill-rule="evenodd" d="M4 5a2 2 0 012-2v1a1 1 0 102 0V3a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 2a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-4">📊 Smart Analytics</h3>
+                    <p class="text-gray-600 mb-6">Advanced reporting system providing insights on sales, production, and market trends for better decisions.</p>
+                    <button class="text-purple-600 font-semibold hover:text-purple-700 transition-colors">Learn More →</button>
+                </div>
+                
+                <div class="card-hover bg-gradient-to-br from-green-50 to-emerald-50 p-8 rounded-2xl border border-green-100">
+                    <div class="w-16 h-16 bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl flex items-center justify-center mb-6">
+                        <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-4">🔄 Easy Returns</h3>
+                    <p class="text-gray-600 mb-6">Hassle-free return policy with quick resolution and customer satisfaction guarantee.</p>
+                    <button class="text-green-600 font-semibold hover:text-green-700 transition-colors">Learn More →</button>
+                </div>
+                
+                <div class="card-hover bg-gradient-to-br from-yellow-50 to-orange-50 p-8 rounded-2xl border border-yellow-100">
+                    <div class="w-16 h-16 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-xl flex items-center justify-center mb-6">
+                        <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4zM18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-4">💰 Special Discounts</h3>
+                    <p class="text-gray-600 mb-6">Seasonal offers, bulk purchase discounts, and loyalty programs for maximum savings.</p>
+                    <button class="text-yellow-600 font-semibold hover:text-yellow-700 transition-colors">Learn More →</button>
+                </div>
+                
+                <div class="card-hover bg-gradient-to-br from-red-50 to-rose-50 p-8 rounded-2xl border border-red-100">
+                    <div class="w-16 h-16 bg-gradient-to-r from-red-500 to-rose-500 rounded-xl flex items-center justify-center mb-6">
+                        <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-4">⚡ Fast Delivery</h3>
+                    <p class="text-gray-600 mb-6">Express delivery service with real-time tracking and guaranteed fresh products.</p>
+                    <button class="text-red-600 font-semibold hover:text-red-700 transition-colors">Learn More →</button>
+                </div>
+                
+                <div class="card-hover bg-gradient-to-br from-indigo-50 to-blue-50 p-8 rounded-2xl border border-indigo-100">
+                    <div class="w-16 h-16 bg-gradient-to-r from-indigo-500 to-blue-500 rounded-xl flex items-center justify-center mb-6">
+                        <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-4">🎧 24/7 Support</h3>
+                    <p class="text-gray-600 mb-6">Round-the-clock customer support with expert agricultural consultancy services.</p>
+                    <button class="text-indigo-600 font-semibold hover:text-indigo-700 transition-colors">Learn More →</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Enhanced Products Section -->
+    <section id="products" class="py-20 bg-gradient-to-br from-green-50 to-emerald-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16 fade-in-up">
+                <div class="inline-flex items-center px-4 py-2 bg-green-100 rounded-full text-green-700 font-medium mb-4">
+                    🌾 Premium Products
+                </div>
+                <h2 class="text-5xl font-bold text-gray-900 mb-4">
+                    Superior Quality
+                    <span class="bg-gradient-to-r from-green-500 to-emerald-600 bg-clip-text text-transparent">Corn Silage</span>
+                </h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                    High-energy, nutrient-rich silage solutions for optimal livestock health and productivity
+                </p>
+            </div>
+            
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <!-- Product Cards -->
+                <div class="card-hover bg-white rounded-2xl overflow-hidden shadow-lg">
+                    <div class="relative h-48 overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" 
+                             alt="Fresh Corn Silage" 
+                             class="w-full h-full object-cover">
+                        <div class="absolute top-4 left-4 bg-green-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
+                            Premium
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold text-gray-900 mb-2">🌽 Fresh Corn Silage</h3>
+                        <p class="text-gray-600 mb-4">High-quality fresh corn silage with optimal moisture content for maximum nutrition.</p>
+                        <div class="flex items-center justify-between">
+                            <span class="text-2xl font-bold text-green-600">$45/ton</span>
+                            <button class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors">
+                                Order Now
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card-hover bg-white rounded-2xl overflow-hidden shadow-lg">
+                    <div class="relative h-48 overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1596854407944-bf87f6fdd49e?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" 
+                             alt="Fermented Corn Silage" 
+                             class="w-full h-full object-cover">
+                        <div class="absolute top-4 left-4 bg-blue-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
+                            Premium+
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold text-gray-900 mb-2">🦠 Fermented Silage</h3>
+                        <p class="text-gray-600 mb-4">Properly fermented silage with added probiotics for enhanced digestibility.</p>
+                        <div class="flex items-center justify-between">
+                            <span class="text-2xl font-bold text-green-600">$52/ton</span>
+                            <button class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors">
+                                Order Now
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card-hover bg-white rounded-2xl overflow-hidden shadow-lg">
+                    <div class="relative h-48 overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1605000797499-95a51c5269ae?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" 
+                             alt="Organic Corn Silage" 
+                             class="w-full h-full object-cover">
+                        <div class="absolute top-4 left-4 bg-purple-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
+                            Organic
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold text-gray-900 mb-2">🌱 Organic Silage</h3>
+                        <p class="text-gray-600 mb-4">100% organic corn silage free from pesticides and chemical additives.</p>
+                        <div class="flex items-center justify-between">
+                            <span class="text-2xl font-bold text-green-600">$58/ton</span>
+                            <button class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors">
+                                Order Now
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card-hover bg-white rounded-2xl overflow-hidden shadow-lg">
+                    <div class="relative h-48 overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1500937386664-56d1dfef3854?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" 
+                             alt="Bulk Corn Silage" 
+                             class="w-full h-full object-cover">
+                        <div class="absolute top-4 left-4 bg-orange-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
+                            Bulk
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold text-gray-900 mb-2">📦 Bulk Orders</h3>
+                        <p class="text-gray-600 mb-4">Large quantity orders with special pricing for commercial dairy operations.</p>
+                        <div class="flex items-center justify-between">
+                            <span class="text-2xl font-bold text-green-600">$38/ton</span>
+                            <button class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors">
+                                Quote
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Enhanced Statistics Section -->
+    <section class="py-16 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-8">
+                <div class="text-center card-hover bg-gradient-to-br from-purple-50 to-pink-50 p-6 rounded-2xl">
+                    <div class="text-4xl font-bold text-purple-600 mb-2">2K+</div>
+                    <div class="text-gray-600 font-medium">Total Sales</div>
+                </div>
+                <div class="text-center card-hover bg-gradient-to-br from-blue-50 to-cyan-50 p-6 rounded-2xl">
+                    <div class="text-4xl font-bold text-blue-600 mb-2">3.5K+</div>
+                    <div class="text-gray-600 font-medium">Happy Customers</div>
+                </div>
+                <div class="text-center card-hover bg-gradient-to-br from-yellow-50 to-orange-50 p-6 rounded-2xl">
+                    <div class="text-4xl font-bold text-yellow-600 mb-2">25+</div>
+                    <div class="text-gray-600 font-medium">Products</div>
+                </div>
+                <div class="text-center card-hover bg-gradient-to-br from-red-50 to-rose-50 p-6 rounded-2xl">
+                    <div class="text-4xl font-bold text-red-600 mb-2">12.6K+</div>
+                    <div class="text-gray-600 font-medium">Orders Delivered</div>
+                </div>
+                <div class="text-center card-hover bg-gradient-to-br from-green-50 to-emerald-50 p-6 rounded-2xl">
+                    <div class="text-4xl font-bold text-green-600 mb-2">$2.5M+</div>
+                    <div class="text-gray-600 font-medium">Revenue</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Enhanced Testimonials Section -->
+    <section class="py-20 bg-gradient-to-br from-gray-50 to-gray-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <div class="inline-flex items-center px-4 py-2 bg-green-100 rounded-full text-green-700 font-medium mb-4">
+                    💬 Client Testimonials
+                </div>
+                <h2 class="text-5xl font-bold text-gray-900 mb-4">
+                    What Our
+                    <span class="bg-gradient-to-r from-green-500 to-emerald-600 bg-clip-text text-transparent">Farmers Say</span>
+                </h2>
+            </div>
+            
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="card-hover bg-white p-8 rounded-2xl shadow-lg">
+                    <div class="flex items-center mb-4">
+                        <div class="flex text-yellow-400">
+                            ⭐⭐⭐⭐⭐
+                        </div>
+                    </div>
+                    <p class="text-gray-600 mb-6 italic">
+                        "The quality of corn silage from  Evergreen Corn Silage has significantly improved our milk production. Our cows are healthier and more productive than ever!"
+                    </p>
+                    <div class="flex items-center">
+                        <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80" 
+                             alt="John Smith" 
+                             class="w-12 h-12 rounded-full object-cover mr-4">
+                        <div>
+                            <div class="font-semibold text-gray-900">John Smith</div>
+                            <div class="text-gray-600 text-sm">Dairy Farm Owner</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card-hover bg-white p-8 rounded-2xl shadow-lg">
+                    <div class="flex items-center mb-4">
+                        <div class="flex text-yellow-400">
+                            ⭐⭐⭐⭐⭐
+                        </div>
+                    </div>
+                    <p class="text-gray-600 mb-6 italic">
+                        "Excellent service and premium quality products. The delivery is always on time and the customer support is outstanding. Highly recommended!"
+                    </p>
+                    <div class="flex items-center">
+                        <img src="https://images.unsplash.com/photo-1494790108755-2616b612b786?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80" 
+                             alt="Sarah Johnson" 
+                             class="w-12 h-12 rounded-full object-cover mr-4">
+                        <div>
+                            <div class="font-semibold text-gray-900">Sarah Johnson</div>
+                            <div class="text-gray-600 text-sm">Livestock Manager</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card-hover bg-white p-8 rounded-2xl shadow-lg">
+                    <div class="flex items-center mb-4">
+                        <div class="flex text-yellow-400">
+                            ⭐⭐⭐⭐⭐
+                        </div>
+                    </div>
+                    <p class="text-gray-600 mb-6 italic">
+                        " Evergreen Corn Silage has been our trusted partner for over 5 years. Their consistent quality and competitive pricing make them the best choice for our farm."
+                    </p>
+                    <div class="flex items-center">
+                        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80" 
+                             alt="Mike Wilson" 
+                             class="w-12 h-12 rounded-full object-cover mr-4">
+                        <div>
+                            <div class="font-semibold text-gray-900">Mike Wilson</div>
+                            <div class="text-gray-600 text-sm">Commercial Farmer</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Enhanced Contact Section -->
+    <section id="contact" class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid lg:grid-cols-2 gap-16">
+                <div class="slide-in-left">
+                    <div class="inline-flex items-center px-4 py-2 bg-green-100 rounded-full text-green-700 font-medium mb-6">
+                        📞 Get In Touch
+                    </div>
+                    <h2 class="text-5xl font-bold text-gray-900 mb-6">
+                        Let's Grow
+                        <span class="bg-gradient-to-r from-green-500 to-emerald-600 bg-clip-text text-transparent">Together</span>
+                    </h2>
+                    <p class="text-xl text-gray-600 mb-8">
+                        Ready to enhance your farm's productivity? Contact our agricultural experts today for personalized solutions.
+                    </p>
+                    
+                    <div class="space-y-6">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
+                                <svg class="w-6 h-6 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <div class="font-semibold text-gray-900">Head Office</div>
+                                <div class="text-gray-600">123 Agriculture Street, Farm City, FC 12345</div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center space-x-4">
+                            <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
+                                <svg class="w-6 h-6 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <div class="font-semibold text-gray-900">Phone</div>
+                                <div class="text-gray-600">+1 (555) 123-4567</div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center space-x-4">
+                            <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
+                                <svg class="w-6 h-6 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/>
+                                    <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <div class="font-semibold text-gray-900">Email</div>
+                                <div class="text-gray-600">info@ Evergreen Corn Silage.com</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="slide-in-right">
+                    <form class="bg-gradient-to-br from-green-50 to-emerald-50 p-8 rounded-3xl shadow-lg">
+                        <div class="grid md:grid-cols-2 gap-6 mb-6">
+                            <div>
+                                <label class="block text-gray-700 font-medium mb-2">First Name</label>
+                                <input type="text" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200">
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 font-medium mb-2">Last Name</label>
+                                <input type="text" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200">
+                            </div>
+                        </div>
+                        <div class="mb-6">
+                            <label class="block text-gray-700 font-medium mb-2">Email Address</label>
+                            <input type="email" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200">
+                        </div>
+                        <div class="mb-6">
+                            <label class="block text-gray-700 font-medium mb-2">Phone Number</label>
+                            <input type="tel" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200">
+                        </div>
+                        <div class="mb-6">
+                            <label class="block text-gray-700 font-medium mb-2">Message</label>
+                            <textarea rows="4" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 resize-none"></textarea>
+                        </div>
+                        <button type="submit" class="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white py-4 px-6 rounded-xl font-semibold text-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                            Send Message 🚀
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Enhanced Footer -->
+    <footer class="bg-gray-900 text-white py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid md:grid-cols-4 gap-8 mb-8">
+                <div>
+                    <div class="flex items-center space-x-2 mb-4">
+                        <div class="w-10 h-10 bg-gradient-to-r from-green-500 to-emerald-600 rounded-lg flex items-center justify-center">
+                            <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                            </svg>
+                        </div>
+                        <span class="text-2xl font-bold"> Evergreen Corn Silage</span>
+                    </div>
+                    <p class="text-gray-300 mb-4">
+                        Leading provider of premium corn silage solutions for modern agriculture. Growing together for a sustainable future.
+                    </p>
+                    <div class="flex space-x-4">
+                        <button class="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-green-600 transition-colors">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M20 10c0-5.523-4.477-10-10-10S0 4.477 0 10c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V10h2.54V7.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V10h2.773l-.443 2.89h-2.33v6.988C16.343 19.128 20 14.991 20 10z"/>
+                            </svg>
+                        </button>
+                        <button class="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-green-600 transition-colors">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M6.29 18.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0020 3.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.073 4.073 0 01.8 7.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 010 16.407a11.616 11.616 0 006.29 1.84"/>
+                            </svg>
+                        </button>
+                        <button class="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-green-600 transition-colors">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.338 16.338H13.67V12.16c0-.995-.017-2.277-1.387-2.277-1.39 0-1.601 1.086-1.601 2.207v4.248H8.014v-8.59h2.559v1.174h.037c.356-.675 1.227-1.387 2.526-1.387 2.703 0 3.203 1.778 3.203 4.092v4.711zM5.005 6.575a1.548 1.548 0 11-.003-3.096 1.548 1.548 0 01.003 3.096zm-1.337 9.763H6.34v-8.59H3.667v8.59zM17.668 1H2.328C1.595 1 1 1.581 1 2.298v15.403C1 18.418 1.595 19 2.328 19h15.34c.734 0 1.332-.582 1.332-1.299V2.298C19 1.581 18.402 1 17.668 1z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Quick Links</h3>
+                    <ul class="space-y-2 text-gray-300">
+                        <li><a href="#home" class="hover:text-green-400 transition-colors">Home</a></li>
+                        <li><a href="#about" class="hover:text-green-400 transition-colors">About Us</a></li>
+                        <li><a href="#services" class="hover:text-green-400 transition-colors">Services</a></li>
+                        <li><a href="#products" class="hover:text-green-400 transition-colors">Products</a></li>
+                        <li><a href="#contact" class="hover:text-green-400 transition-colors">Contact</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Products</h3>
+                    <ul class="space-y-2 text-gray-300">
+                        <li><a href="#" class="hover:text-green-400 transition-colors">Fresh Corn Silage</a></li>
+                        <li><a href="#" class="hover:text-green-400 transition-colors">Fermented Silage</a></li>
+                        <li><a href="#" class="hover:text-green-400 transition-colors">Organic Silage</a></li>
+                        <li><a href="#" class="hover:text-green-400 transition-colors">Bulk Orders</a></li>
+                        <li><a href="#" class="hover:text-green-400 transition-colors">Custom Solutions</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Newsletter</h3>
+                    <p class="text-gray-300 mb-4">Subscribe for agricultural tips and updates</p>
+                    <div class="flex w-full max-w-sm mx-auto">
+                      <input 
+                        type="email" 
+                        placeholder="Enter your email"
+                        class="w-2/3 px-4 py-2 rounded-l-lg bg-gray-800 text-white border-t border-b border-l border-gray-700 focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                      >
+                      <button 
+                        class="w-1/3 px-4 py-2 bg-green-600 rounded-r-lg hover:bg-green-700 transition-colors">
+                        Subscribe
+                      </button>
+                    </div>
+                    
+                    
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-800 pt-8 text-center">
+                <p class="text-gray-300">
+                    © 2024  Evergreen Corn Silage. All rights reserved. Made with 💚 for farmers worldwide.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Smooth Scrolling Script -->
+    <script>
+        // Enhanced Typewriter Effect
+        const words = [
+            "Premium Corn Silage",
+            "Quality & Nutrition",
+            "Trusted by Farmers",
+            "Growing Excellence"
+        ];
+        let i = 0;
+        let j = 0;
+        let currentWord = "";
+        let isDeleting = false;
+        
+        function type() {
+            currentWord = words[i];
+            if (isDeleting) {
+                document.getElementById("typewriter").textContent = currentWord.substring(0, j-1);
+                j--;
+                if (j == 0) {
+                    isDeleting = false;
+                    i++;
+                    if (i == words.length) {
+                        i = 0;
+                    }
+                }
+            } else {
+                document.getElementById("typewriter").textContent = currentWord.substring(0, j+1);
+                j++;
+                if (j == currentWord.length) {
+                    isDeleting = true;
+                }
+            }
+            setTimeout(type, isDeleting ? 50 : 100);
+        }
+        
+        type();
+
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Navbar scroll effect
+        window.addEventListener('scroll', function() {
+            const navbar = document.querySelector('nav');
+            if (window.scrollY > 100) {
+                navbar.classList.add('shadow-lg');
+            } else {
+                navbar.classList.remove('shadow-lg');
+            }
+        });
+
+        // Intersection Observer for animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver(function(entries) {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        // Observe elements for animation
+        document.querySelectorAll('.fade-in-up, .slide-in-left, .slide-in-right').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(30px)';
+            observer.observe(el);
+        });
+    </script>
+</body>
+</html>

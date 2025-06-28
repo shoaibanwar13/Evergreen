@@ -38,7 +38,8 @@ from django.core.cache import cache
 from django.http import JsonResponse
 from django.contrib.auth import get_user_model
 User = get_user_model()
-
+from django.views.decorators.csrf import csrf_exempt  # If needed for testing
+from django.views.decorators.http import require_POST
 def index(request):
     compydetail=CompanyDetail.objects.all()
     plans = SubscriptionPlan.objects.all()
@@ -4119,37 +4120,45 @@ def resend_otp_view(request):
     # )
 
     return JsonResponse({"success": True, "message": "OTP resent successfully"})
-
 def signup_view(request):
-    if request.method == 'POST':
-        from random import randint
-        form = CustomUserSignupForm(request.POST)
-        if form.is_valid():
-            user = form.save(commit=False)
-            user.is_active = False  # temporarily inactive
-            user.save()
-            request.session['signup_email'] = user.email
-            print("emaill",user.email)
-            # Generate OTP
-            otp = str(randint(100000, 999999))
-            OTPRecord.objects.create(user=user, otp_code=otp)
+    return render(request,"signupform.html")
+@require_POST
+def signup_api_view(request):
+    from random import randint
 
-            # Send OTP (via email or SMS)
-            send_mail(
-                subject='Your OTP Code',
-                message=f'Your OTP code is: {otp}',
-                from_email='evergreencornsilageservice@gmail.com',
-                recipient_list=[user.email],
-                fail_silently=True
-            )
+    form = CustomUserSignupForm(request.POST)
+    
+    if form.is_valid():
+        user = form.save(commit=False)
+        user.is_active = False
+        user.save()
 
-            messages.success(request, f'OTP sent to {user.email}')
-            return redirect('verify_email_otp_view')
+        request.session['signup_email'] = user.email
+
+        otp = str(randint(100000, 999999))
+        OTPRecord.objects.create(user=user, otp_code=otp)
+
+        # send_mail(
+        #     subject='Your OTP Code',
+        #     message=f'Your OTP code is: {otp}',
+        #     from_email='evergreencornsilageservice@gmail.com',
+        #     recipient_list=[user.email],
+        #     fail_silently=True
+        # )
+        print(otp)
+
+        return JsonResponse({
+            'success': True,
+            'message': f'OTP sent to {user.email}',
+            'email': user.email
+        })
     else:
-        form = CustomUserSignupForm()
-
-    return render(request, 'signupform.html', {'form': form})
-
+        errors = form.errors.get_json_data()
+        return JsonResponse({
+            'success': False,
+            'errors': errors,
+            'message': 'There were errors with your form submission.'
+        }, status=400)
 
 
 def generate_otp():
@@ -4161,38 +4170,39 @@ def generate_otp():
 
  
 
-@require_http_methods(["POST",'GET'])
+@require_http_methods(["POST", "GET"])
 def verify_email_otp_view(request):
     """Verify OTP sent to user's email (no signup logic)."""
     if request.method == 'POST':
-        # Get email from session-stored signup data
-        
-
-        
         entered_otp = request.POST.get('otp')
-
         if not entered_otp:
             return JsonResponse({"success": False, "message": "OTP is required."}, status=400)
-        try:
-         check_otp=OTPRecord.objects.filter(otp_code=entered_otp).first()
-         
-        except OTPRecord.DoesNotExist:
-            return JsonResponse({"success": False, "message": "Invalid OTP code."}, status=404)
-        if  check_otp.otp_code== entered_otp:
-            check_otp.is_used=True
+
+        check_otp = OTPRecord.objects.filter(otp_code=entered_otp).first()
+        print("CHECK OTP:", check_otp)
+
+        if check_otp is None:
+            return JsonResponse({"success": False, "message": "Invalid OTP code."}, status=400)
+
+        if check_otp.is_used:
+            return JsonResponse({"success": False, "message": "OTP has already been used."}, status=400)
+
+        if check_otp.otp_code == entered_otp:
+            check_otp.is_used = True
             check_otp.save()
-            print(check_otp.user.email)
-            user=User.objects.filter(email=check_otp.user.email).first()
-            user.is_active = True
-            user.save()
-            messages.success(request, 'Your account has been verified. You can now log in.')
-            return redirect("login")
-            
-             
+
+            user = User.objects.filter(email=check_otp.user.email).first()
+            if user:
+                user.is_active = True
+                user.save()
+
+            return JsonResponse({"success": True, "message": "Account Created!"}, status=200)
         else:
             return JsonResponse({"success": False, "message": "Invalid OTP."}, status=400)
+
     else:
         return render(request, 'verify_email_otp.html')
+
 def checkemail(request):
     email=request.POST.get('email')
     if User.objects.filter(email=email).exists():
@@ -4397,3 +4407,92 @@ def profile_view(request):
     else:
 
       return render(request,"profile.html",{"profile":profile})
+@require_http_methods(["GET", "POST"])
+def password_reset_request_view(request):
+    if request.method == "POST":
+        email = request.POST.get('email')
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            messages.error(request, "User with this email does not exist.")
+            return redirect('password_reset_request')
+
+        otp = str(random.randint(100000, 999999))
+        OTPRecord.objects.create(user=user, otp_code=otp)
+
+        # 
+        print(otp)
+
+        request.session['reset_email'] = email
+        messages.success(request, "OTP sent to your email.")
+        return redirect('password_reset_verify')
+
+    return render(request, 'reset_request.html')
+
+
+@require_http_methods(["GET", "POST"])
+def password_reset_verify_view(request):
+    if request.method == "POST":
+        entered_otp = request.POST.get('otp')
+        email = request.session.get('reset_email')
+        user = User.objects.get(email=email)
+        otp_record = OTPRecord.objects.filter(user=user, otp_code=entered_otp, is_used=False).first()
+
+        if otp_record:
+            otp_record.is_used = True
+            otp_record.save()
+            request.session['otp_verified'] = True
+            return redirect('password_reset_new_password')
+        else:
+            messages.error(request, "Invalid OTP.")
+            return redirect('password_reset_verify')
+
+    return render(request, 'reset_verify.html')
+
+
+@require_http_methods(["GET", "POST"])
+def password_reset_new_password_view(request):
+    if not request.session.get('otp_verified'):
+        return redirect('password_reset_request')
+
+    if request.method == "POST":
+        password1 = request.POST.get('password1')
+        password2 = request.POST.get('password2')
+        if password1 != password2:
+            messages.error(request, "Passwords do not match.")
+            return redirect('password_reset_new_password')
+
+        email = request.session.get('reset_email')
+        user = User.objects.get(email=email)
+        user.set_password(password1)
+        user.save()
+
+        messages.success(request, "Password reset successfully!")
+        return redirect('login')
+
+    return render(request, 'reset_new_password.html')
+from django.contrib.auth import authenticate, login
+from django.db.models import Q
+def farm_vendor_login(request):
+    if request.method == 'POST':
+        identifier = request.POST.get('username')  # this can be username OR email
+        password = request.POST.get('password')
+
+        # Try to find user by username OR email
+        try:
+            user = User.objects.get(Q(username=identifier) | Q(email=identifier),is_active=True)
+        except User.DoesNotExist:
+            user = None
+
+        if user:
+            # Authenticate using username (always)
+            user = authenticate(request, username=user.username, password=password)
+            if user is not None:
+                login(request, user)
+                return redirect('Vendor')  # or your dashboard URL name
+            else:
+                messages.error(request, 'Invalid credentials. Please try again.')
+        else:
+            messages.error(request, 'Account not found. Please check your username/email.')
+    
+    return render(request, 'login.html')

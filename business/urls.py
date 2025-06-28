@@ -10,7 +10,7 @@ urlpatterns = [
     path("Client_Whatsapp_filter/",Client_Whatsapp_filter,name="Client_Whatsapp_filter"),
     path("Client_mobileno_filter/",Client_mobileno_filter,name="Client_mobileno_filter"),
     path('logout/', views.LogoutView.as_view(), name='logout'),
-    path('login/', views.LoginView.as_view(template_name='login.html'), name='login'),
+    path('login/', farm_vendor_login, name='login'),
     path('check_product_name/', check_product_name, name='check_product_name'),
     path('NewPurchasepdf/', NewPurchasepdf, name='NewPurchasepdf'),
     path('TotalVendorPurchase/', TotalVendorPurchase, name='TotalVendorPurchase'),
@@ -90,7 +90,12 @@ urlpatterns = [
     path('success/',  payment_success, name='payment_success'),
     path('cancel/',  payment_cancel, name='payment_cancel'),
     path('webhook/',  safepay_webhook, name='safepay_webhook'),
-    path("profile_view/",profile_view,name="profile_view")
+    path("profile_view/",profile_view,name="profile_view"),
+    path('signup_api_view/',signup_api_view,name="signup_api_view"),
+    path('password-reset/', password_reset_request_view, name='password_reset_request'),
+    path('password-reset/verify/', password_reset_verify_view, name='password_reset_verify'),
+    path('password-reset/new/', password_reset_new_password_view, name='password_reset_new_password'),
+
     
     
     

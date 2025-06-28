@@ -2,14 +2,37 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Vendor Signup</title>
+    <title>Farm Vendor Registration</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Loopple/loopple-public-assets@main/motion-tailwind/motion-tailwind.css" rel="stylesheet">
     <style>
+        /* Agricultural color palette */
+        :root {
+            --farm-green: #2d5016;
+            --leaf-green: #4a7c23;
+            --earth-brown: #8b4513;
+            --wheat-gold: #f4a460;
+            --soil-dark: #3e2723;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f4f1de 0%, #e9c46a 100%);
+             
+        }
+
+        /* Agricultural pattern overlay */
+        .farm-pattern {
+            background-image: 
+                radial-gradient(circle at 25% 25%, #4a7c23 2px, transparent 2px),
+                radial-gradient(circle at 75% 75%, #8b4513 1px, transparent 1px);
+            background-size: 50px 50px;
+            opacity: 0.1;
+        }
+
         /* Loader CSS */
         .loader {
-            border: 16px solid #f3f3f3;
-            border-top: 16px solid green;
+            border: 16px solid #f4f1de;
+            border-top: 16px solid #4a7c23;
             border-radius: 50%;
             width: 120px;
             height: 120px;
@@ -28,7 +51,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.5);
+            background: rgba(45, 80, 22, 0.7);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -45,259 +68,389 @@
         }
 
         .step-indicator {
-            width: 30px;
-            height: 30px;
+            width: 35px;
+            height: 35px;
             border-radius: 50%;
-            background-color: #e5e7eb;
-            color: #6b7280;
+            background-color: #e9c46a;
+            color: #2d5016;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: bold;
+            border: 3px solid #4a7c23;
         }
 
         .step-indicator.active {
-            background-color: #10b981;
+            background-color: #4a7c23;
             color: white;
+            border-color: #2d5016;
         }
 
         .step-indicator.completed {
-            background-color: #059669;
+            background-color: #2d5016;
             color: white;
+            border-color: #4a7c23;
+        }
+
+        /* Custom input styling */
+        .farm-input {
+            background: rgba(244, 241, 222, 0.9);
+            border: 2px solid #e9c46a;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .farm-input:focus {
+            border-color: #4a7c23;
+            box-shadow: 0 0 0 3px rgba(74, 124, 35, 0.1);
+            background: white;
+        }
+
+        .farm-button {
+            background: linear-gradient(135deg, #4a7c23 0%, #2d5016 100%);
+            border: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(45, 80, 22, 0.2);
+        }
+
+        .farm-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(45, 80, 22, 0.3);
+        }
+
+        .form-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 2px solid #e9c46a;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(45, 80, 22, 0.1);
+        }
+
+        /* Agricultural icons */
+        .wheat-icon::before {
+            content: "🌾";
+            margin-right: 8px;
+        }
+        
+        .tractor-icon::before {
+            content: "🚜";
+            margin-right: 8px;
+        }
+        
+        .farm-icon::before {
+            content: "🏡";
+            margin-right: 8px;
         }
     </style>
     <link rel="stylesheet" href="https://demos.creative-tim.com/notus-js/assets/vendor/@fortawesome/fontawesome-free/css/all.min.css">
 </head>
-<body class="bg-white rounded-lg py-5">
+<body class="relative">
 
-<header class="bg-green-500 p-4 rounded-full">
+<!-- Background Pattern -->
+<div class="farm-pattern fixed inset-0 pointer-events-none"></div>
+
+<header class="bg-gradient-to-r from-green-800 to-green-700 p-6 shadow-lg">
     <div class="container mx-auto flex justify-between items-center">
-        <div class="text-white text-xl font-bold">
-            <i class="fas fa-user-plus"></i> Join Our Vendor Portal
+        <div class="text-white text-2xl font-bold flex items-center">
+            <i class="fas fa-seedling text-yellow-300 mr-3"></i>
+            <span class="wheat-icon">Evergreen Portal</span>
+        </div>
+        <div class="hidden md:flex space-x-4 text-white text-sm">
+            <span class="flex items-center"><i class="fas fa-leaf mr-2"></i>Sustainable Farming</span>
+            <span class="flex items-center"><i class="fas fa-handshake mr-2"></i>Partner with Us</span>
         </div>
     </div>
 </header>
 
 <div id="loader-overlay">
-    <div class="loader"></div>
+    <div class="text-center">
+        <div class="loader mx-auto"></div>
+        <p class="text-white mt-4 font-medium">Growing your account...</p>
+    </div>
 </div>
 
-<div class="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8">
-    <div class="sm:mx-auto sm:w-full sm:max-w-md">
-        <img class="mx-auto h-20 w-auto" src="{% static '/img/logo.jpg' %}" alt="Your Company">
-        <h2 class="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">Create Your Account</h2>
+<div class="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8 relative z-10">
+    <div class="sm:mx-auto sm:w-full sm:max-w-lg">
+        <div class="text-center mb-8">
+            <div class="mx-auto h-24 w-24 bg-gradient-to-br from-white-400 to-orange-500 rounded-full flex items-center justify-center mb-4 shadow-lg">
+                <div class="flex justify-center mb-4">
+                    <img class="h-20 w-auto" src="{% static '/img/evergreen.png' %}" alt="Evergreen Logo">
+                  </div>
+            </div>
+            <h1 class="text-4xl font-bold text-green-800 mb-2">Join Our Business Network</h1>
+            <p class="text-lg text-green-700">Connect with agricultural communities nationwide</p>
+        </div>
         
         <!-- Step Indicator -->
-        <div class="flex justify-center mt-6 space-x-4">
-            <div class="flex items-center">
-                <div class="step-indicator active" id="step1-indicator">1</div>
-                <span class="ml-2 text-sm font-medium text-gray-700">Details</span>
-            </div>
-            <div class="flex-1 h-0.5 bg-gray-300 mt-4"></div>
-            <div class="flex items-center">
-                <div class="step-indicator" id="step2-indicator">2</div>
-                <span class="ml-2 text-sm font-medium text-gray-700">Verify</span>
+        <div class="flex justify-center mb-8 px-4">
+            <div class="flex items-center space-x-4 bg-white/80 backdrop-blur-sm rounded-full px-6 py-3 shadow-lg">
+                <div class="flex items-center">
+                    <div class="step-indicator active" id="step1-indicator">
+                        <i class="fas fa-user-edit text-sm"></i>
+                    </div>
+                    <span class="ml-3 text-sm font-semibold text-green-800">Business Details</span>
+                </div>
+                <div class="flex-1 h-1 bg-yellow-300 rounded-full mx-4 min-w-12"></div>
+                <div class="flex items-center">
+                    <div class="step-indicator" id="step2-indicator">
+                        <i class="fas fa-mobile-alt text-sm"></i>
+                    </div>
+                    <span class="ml-3 text-sm font-semibold text-green-800">Verify</span>
+                </div>
             </div>
         </div>
     </div>
 
-    <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-md">
-        <!-- Step 1: Registration Form  id="signupForm"  --> 
+    <div class="sm:mx-auto sm:w-full sm:max-w-2xl">
+        <!-- Step 1: Registration Form -->
         <div class="form-step active" id="step1">
-            <form class="space-y-6" method="POST" action="/signup_view/" >
-                {% csrf_token %}
-                
-                <!-- Personal Information -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label for="first_name" class="block text-sm font-medium leading-6 text-gray-700">
-                            <i class="fas fa-user"></i> First Name
-                        </label>
-                        <div class="mt-2">
-                            <input id="first_name" name="first_name" type="text" placeholder="Enter First Name" required 
-                                   class="border-0 px-3 py-3 placeholder-gray-400 text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150">
+            <div class="form-container p-8">
+                <form class="space-y-6" method="POST" action="/signup_view/" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <!-- Personal Information -->
+                    <div class="border-l-4 border-green-600 pl-4 mb-6">
+                        <h3 class="text-xl font-bold text-green-800 mb-4 flex items-center">
+                            <i class="fas fa-user text-yellow-600 mr-3"></i>
+                            Personal Information
+                        </h3>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="first_name" class="block text-sm font-semibold leading-6 text-green-800 mb-2">
+                                <i class="fas fa-user text-yellow-600"></i> First Name
+                            </label>
+                            <input id="first_name" name="first_name" type="text" placeholder="Enter your first name" required 
+                                   class="farm-input w-full px-4 py-3 text-green-900 placeholder-green-600 focus:outline-none">
                         </div>
+                        
+                        <div>
+                            <label for="last_name" class="block text-sm font-semibold leading-6 text-green-800 mb-2">
+                                <i class="fas fa-user text-yellow-600"></i> Last Name
+                            </label>
+                            <input id="last_name" name="last_name" type="text" placeholder="Enter your last name" required 
+                                   class="farm-input w-full px-4 py-3 text-green-900 placeholder-green-600 focus:outline-none">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="username" class="block text-sm font-semibold leading-6 text-green-800 mb-2">
+                            <i class="fas fa-user-circle text-yellow-600"></i> Username
+                        </label>
+                        <input id="username" name="username" type="text" placeholder="Choose a unique username" required 
+                               class="farm-input w-full px-4 py-3 text-green-900 placeholder-green-600 focus:outline-none">
+                    </div>
+
+                    <div>
+                        <label for="email" class="block text-sm font-semibold leading-6 text-green-800 mb-2">
+                            <i class="fas fa-envelope text-yellow-600"></i> Email Address
+                        </label>
+                        <input id="email" name="email" type="email" placeholder="your.email@example.com" required 
+                               class="farm-input w-full px-4 py-3 text-green-900 placeholder-green-600 focus:outline-none">
+                    </div>
+
+                    <div>
+                        <label for="phone_number" class="block text-sm font-semibold leading-6 text-green-800 mb-2">
+                            <i class="fas fa-phone text-yellow-600"></i> Phone Number
+                        </label>
+                        <input id="phone_number" name="phone_number" type="tel" placeholder="+1 (555) 123-4567" required 
+                               class="farm-input w-full px-4 py-3 text-green-900 placeholder-green-600 focus:outline-none">
+                    </div>
+
+                    <!-- Farm/Business Information -->
+                    <div class="border-l-4 border-yellow-500 pl-4 pt-6">
+                        <h3 class="text-xl font-bold text-green-800 mb-4 flex items-center">
+                            <i class="fas fa-seedling text-green-600 mr-3"></i>
+                            Farm & Business Details
+                        </h3>
                     </div>
                     
                     <div>
-                        <label for="last_name" class="block text-sm font-medium leading-6 text-gray-700">
-                            <i class="fas fa-user"></i> Last Name
+                        <label for="company_name" class="block text-sm font-semibold leading-6 text-green-800 mb-2">
+                            <i class="fas fa-tractor text-yellow-600"></i> Farm/Company Name
                         </label>
-                        <div class="mt-2">
-                            <input id="last_name" name="last_name" type="text" placeholder="Enter Last Name" required 
-                                   class="border-0 px-3 py-3 placeholder-gray-400 text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150">
-                        </div>
-                    </div>
-                </div>
-
-                <div>
-                    <label for="username" class="block text-sm font-medium leading-6 text-gray-700">
-                        <i class="fas fa-user-circle"></i> Username
-                    </label>
-                    <div class="mt-2">
-                        <input id="username" name="username" type="text" placeholder="Choose Username" required 
-                               class="border-0 px-3 py-3 placeholder-gray-400 text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150">
-                    </div>
-                </div>
-
-                <div>
-                    <label for="email" class="block text-sm font-medium leading-6 text-gray-700">
-                        <i class="fas fa-envelope"></i> Email Address
-                    </label>
-                    <div class="mt-2">
-                        <input id="email" name="email" type="email" placeholder="Enter Email Address" required 
-                               class="border-0 px-3 py-3 placeholder-gray-400 text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150">
-                    </div>
-                </div>
-
-                <div>
-                    <label for="phone_number" class="block text-sm font-medium leading-6 text-gray-700">
-                        <i class="fas fa-phone"></i> Phone Number
-                    </label>
-                    <div class="mt-2">
-                        <input id="phone_number" name="phone_number" type="tel" placeholder="+1234567890" required 
-                               class="border-0 px-3 py-3 placeholder-gray-400 text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150">
-                    </div>
-                </div>
-
-                <!-- Business Information -->
-                <div class="border-t pt-6">
-                    <h3 class="text-lg font-medium text-gray-900 mb-4">Business Information</h3>
-                    
-                    <div>
-                        <label for="company_name" class="block text-sm font-medium leading-6 text-gray-700">
-                            <i class="fas fa-building"></i> Company Name
-                        </label>
-                        <div class="mt-2">
-                            <input id="company_name" name="company_name" type="text" placeholder="Enter Company Name" required 
-                                   class="border-0 px-3 py-3 placeholder-gray-400 text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150">
-                        </div>
+                        <input id="company_name" name="company_name" type="text" placeholder="Green Valley Farms" required 
+                               class="farm-input w-full px-4 py-3 text-green-900 placeholder-green-600 focus:outline-none">
                     </div>
 
                     <div>
-                        <label for="license_no" class="block text-sm font-medium leading-6 text-gray-700">
-                            <i class="fas fa-id-card"></i> License Number
+                        <label for="license_no" class="block text-sm font-semibold leading-6 text-green-800 mb-2">
+                            <i class="fas fa-certificate text-yellow-600"></i> Agricultural License Number
                         </label>
-                        <div class="mt-2">
-                            <input id="license_no" name="license_no" type="text" placeholder="Enter License Number" required 
-                                   class="border-0 px-3 py-3 placeholder-gray-400 text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150">
+                        <input id="license_no" name="license_no" type="text" placeholder="AGR-2024-001234" required 
+                               class="farm-input w-full px-4 py-3 text-green-900 placeholder-green-600 focus:outline-none">
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="business_logo" class="block text-sm font-semibold leading-6 text-green-800 mb-2">
+                                <i class="fas fa-image text-yellow-600"></i> Farm Logo
+                            </label>
+                            <div class="farm-input p-4 border-dashed border-2 border-yellow-400 text-center">
+                                <input id="business_logo" name="business_logo" type="file" accept="image/*" 
+                                       class="hidden" onchange="updateFileName(this, 'logo-name')">
+                                <label for="business_logo" class="cursor-pointer">
+                                    <i class="fas fa-cloud-upload-alt text-2xl text-green-600 mb-2 block"></i>
+                                    <span class="text-green-700 font-medium">Click to upload logo</span>
+                                    <p id="logo-name" class="text-sm text-green-600 mt-1">PNG, JPG up to 5MB</p>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="document" class="block text-sm font-semibold leading-6 text-green-800 mb-2">
+                                <i class="fas fa-file-alt text-yellow-600"></i> Business Documents
+                            </label>
+                            <div class="farm-input p-4 border-dashed border-2 border-yellow-400 text-center">
+                                <input id="document" name="document" type="file" accept=".pdf,.doc,.docx" 
+                                       class="hidden" onchange="updateFileName(this, 'doc-name')">
+                                <label for="document" class="cursor-pointer">
+                                    <i class="fas fa-file-upload text-2xl text-green-600 mb-2 block"></i>
+                                    <span class="text-green-700 font-medium">Upload certificates</span>
+                                    <p id="doc-name" class="text-sm text-green-600 mt-1">PDF, DOC up to 10MB</p>
+                                </label>
+                            </div>
                         </div>
                     </div>
 
-                    <div>
-                        <label for="business_logo" class="block text-sm font-medium leading-6 text-gray-700">
-                            <i class="fas fa-image"></i> Business Logo
-                        </label>
-                        <div class="mt-2">
-                            <input id="business_logo" name="business_logo" type="file" accept="image/*" 
-                                   class="border-0 px-3 py-3 text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150">
-                        </div>
+                    <!-- Security -->
+                    <div class="border-l-4 border-orange-500 pl-4 pt-6">
+                        <h3 class="text-xl font-bold text-green-800 mb-4 flex items-center">
+                            <i class="fas fa-shield-alt text-orange-600 mr-3"></i>
+                            Account Security
+                        </h3>
                     </div>
 
-                    <div>
-                        <label for="document" class="block text-sm font-medium leading-6 text-gray-700">
-                            <i class="fas fa-file-alt"></i> Business Document
-                        </label>
-                        <div class="mt-2">
-                            <input id="document" name="document" type="file" accept=".pdf,.doc,.docx" 
-                                   class="border-0 px-3 py-3 text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Password field -->
+                        <div class="relative">
+                          <label for="password1" class="block text-sm font-semibold leading-6 text-green-800 mb-2">
+                            <i class="fas fa-lock text-yellow-600"></i> Password
+                          </label>
+                          <div class="relative">
+                            <input id="password1" name="password1" type="password" placeholder="Create strong password" required
+                              class="farm-input w-full px-4 py-3 pr-12 text-green-900 placeholder-green-600 focus:outline-none">
+                            <span class="absolute inset-y-0 right-4 flex items-center cursor-pointer text-green-700"
+                              onclick="togglePassword('password1', 'toggleIcon1')">
+                              <i id="toggleIcon1" class="fas fa-eye"></i>
+                            </span>
+                          </div>
                         </div>
-                    </div>
-                </div>
-
-                <!-- Password -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label for="password1" class="block text-sm font-medium leading-6 text-gray-700">
-                            <i class="fas fa-lock"></i> Password
-                        </label>
-                        <div class="mt-2">
-                            <input id="password1" name="password1" type="password" placeholder="Enter Password" required 
-                                   class="border-0 px-3 py-3 placeholder-gray-400 text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150">
+                      
+                        <!-- Confirm Password field -->
+                        <div class="relative">
+                          <label for="password2" class="block text-sm font-semibold leading-6 text-green-800 mb-2">
+                            <i class="fas fa-lock text-yellow-600"></i> Confirm Password
+                          </label>
+                          <div class="relative">
+                            <input id="password2" name="password2" type="password" placeholder="Re-enter password" required
+                              class="farm-input w-full px-4 py-3 pr-12 text-green-900 placeholder-green-600 focus:outline-none">
+                            <span class="absolute inset-y-0 right-4 flex items-center cursor-pointer text-green-700"
+                              onclick="togglePassword('password2', 'toggleIcon2')">
+                              <i id="toggleIcon2" class="fas fa-eye"></i>
+                            </span>
+                          </div>
                         </div>
+                      </div>
+                      
+                    <div class="pt-6">
+                        <button type="button" id="nextStepBtn" 
+                                class="farm-button w-full px-6 py-4 text-lg font-semibold text-white flex items-center justify-center">
+                            Continue to Verification
+                            <i class="fas fa-arrow-right ml-3"></i>
+                        </button>
                     </div>
-
-                    <div>
-                        <label for="password2" class="block text-sm font-medium leading-6 text-gray-700">
-                            <i class="fas fa-lock"></i> Confirm Password
-                        </label>
-                        <div class="mt-2">
-                            <input id="password2" name="password2" type="password" placeholder="Confirm Password" required 
-                                   class="border-0 px-3 py-3 placeholder-gray-400 text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150">
-                        </div>
-                    </div>
-                </div>
-
-                {% comment %} <div>   id="nextStepBtn" {% endcomment %}
-                    <button type="submit"  
-                            class="flex w-full justify-center rounded-md bg-green-500 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-green-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-500">
-                        Next Step <i class="fas fa-arrow-right ml-2"></i>
-                    </button>
-                </div>
-            </form>
+                </form>
+            </div>
         </div>
 
         <!-- Step 2: OTP Verification -->
         <div class="form-step" id="step2">
-            <div class="text-center mb-6">
-                <i class="fas fa-mobile-alt text-4xl text-green-500 mb-4"></i>
-                <h3 class="text-lg font-medium text-gray-900">Verify Your Phone Number</h3>
-                <p class="text-sm text-gray-600 mt-2">We've sent a verification code to <span id="phone-display" class="font-medium"></span></p>
-            </div>
-
-            <form class="space-y-6" id="otpForm">
-                {% csrf_token %}
-                <div>
-                    <label for="otp" class="block text-sm font-medium leading-6 text-gray-700 text-center">
-                        <i class="fas fa-key"></i> Enter Verification Code
-                    </label>
-                    <div class="mt-2">
-                        <input id="otp" name="otp" type="text" placeholder="Enter 6-digit code" maxlength="6" required 
-                               class="border-0 px-3 py-3 placeholder-gray-400 text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150 text-center text-2xl tracking-widest">
+            <div class="form-container p-8 text-center">
+                <div class="mb-8">
+                    <div class="mx-auto h-20 w-20 bg-gradient-to-br from-green-500 to-green-700 rounded-full flex items-center justify-center mb-4 shadow-lg">
+                        <i class="fas fa-mobile-alt text-2xl text-white"></i>
                     </div>
+                    <h3 class="text-2xl font-bold text-green-800 mb-2">Verify Your Phone</h3>
+                    <p class="text-green-700">We've sent a verification code to</p>
+                    <p class="font-semibold text-green-800 text-lg" id="phone-display"></p>
                 </div>
 
-                <div class="flex space-x-4">
-                    <button type="button" id="backStepBtn" 
-                            class="flex-1 justify-center rounded-md bg-gray-500 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-gray-600">
-                        <i class="fas fa-arrow-left mr-2"></i> Back
-                    </button>
-                    <button type="submit" 
-                            class="flex-1 justify-center rounded-md bg-green-500 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-green-600">
-                        Verify & Sign Up
-                    </button>
-                </div>
+                <form class="space-y-6" id="otpForm">
+                    {% csrf_token %}
+                    <div>
+                        <label for="otp" class="block text-lg font-semibold text-green-800 mb-4">
+                            <i class="fas fa-key text-yellow-600"></i> Enter Verification Code
+                        </label>
+                        <input id="otp" name="otp" type="text" placeholder="000000" maxlength="6" required 
+                               class="farm-input w-full px-4 py-4 text-center text-3xl tracking-widest font-bold text-green-800 focus:outline-none">
+                    </div>
 
-                <div class="text-center">
-                    <button type="button" id="resendOtpBtn" class="text-sm text-green-500 hover:text-green-600">
-                        Didn't receive code? Resend
-                    </button>
-                </div>
-            </form>
+                    <div class="flex space-x-4">
+                        <button type="button" id="backStepBtn" 
+                                class="flex-1 px-6 py-3 bg-gradient-to-r from-gray-500 to-gray-600 text-white font-semibold rounded-lg hover:from-gray-600 hover:to-gray-700 transition-all duration-300 flex items-center justify-center">
+                            <i class="fas fa-arrow-left mr-2"></i> Back
+                        </button>
+                        <button type="submit" 
+                                class="farm-button flex-1 px-6 py-3 text-white font-semibold text-lg flex items-center justify-center">
+                            <i class="fas fa-check-circle mr-2"></i> Verify & Join
+                        </button>
+                    </div>
+
+                    <div class="pt-4">
+                        <button type="button" id="resendOtpBtn" class="text-green-600 hover:text-green-800 font-medium transition-colors duration-300">
+                            <i class="fas fa-redo mr-2"></i>Didn't receive code? Resend
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
 
         <!-- Error Messages -->
-        <div id="errorMessages" class="mt-4">
+        <div id="errorMessages" class="mt-6">
             {% if form.errors %}
-                <div class="bg-red-50 border border-red-200 rounded-md p-4">
+                <div class="bg-red-50 border-2 border-red-200 rounded-lg p-4 shadow-sm">
                     {% for field in form %}
                         {% for error in field.errors %}
-                            <p class="text-red-600 text-sm">{{ error|escape }}</p>
+                            <p class="text-red-700 font-medium flex items-center">
+                                <i class="fas fa-exclamation-triangle mr-2"></i>{{ error|escape }}
+                            </p>
                         {% endfor %}
                     {% endfor %}
                     {% for error in form.non_field_errors %}
-                        <p class="text-red-600 text-sm">{{ error|escape }}</p>
+                        <p class="text-red-700 font-medium flex items-center">
+                            <i class="fas fa-exclamation-triangle mr-2"></i>{{ error|escape }}
+                        </p>
                     {% endfor %}
                 </div>
             {% endif %}
         </div>
 
-        <p class="mt-10 text-center text-sm text-gray-500">
-            Already have an account?
-            <a href="{% url 'login' %}" class="font-semibold leading-6 text-green-500 hover:text-green-600">Sign in here</a>
-        </p>
+        <div class="mt-10 text-center">
+            <p class="text-green-700 text-lg">
+                Already growing with us?
+                <a href="{% url 'login' %}" class="font-bold text-green-800 hover:text-yellow-600 transition-colors duration-300 ml-2">
+                    Sign in here <i class="fas fa-sign-in-alt ml-1"></i>
+                </a>
+            </p>
+        </div>
     </div>
 </div>
+
+<!-- Footer -->
+<footer class="bg-green-800 text-white py-8 mt-12">
+    <div class="container mx-auto text-center">
+        <div class="flex justify-center space-x-8 mb-4">
+            <span class="flex items-center"><i class="fas fa-leaf mr-2"></i> Sustainable Agriculture</span>
+            <span class="flex items-center"><i class="fas fa-users mr-2"></i> Farm Community</span>
+            <span class="flex items-center"><i class="fas fa-handshake mr-2"></i> Fair Trade</span>
+        </div>
+        <p class="text-green-200">&copy; 2024 AgriVendor Portal. Growing together for a sustainable future.</p>
+    </div>
+</footer>
+
 <script>
     document.addEventListener('htmx:afterOnLoad', function(evt) {
         if (evt.detail.target.id === 'validation1') {
@@ -305,26 +458,30 @@
             const submitButton = document.getElementById('submit-button');
             if (response.exists) {
                 submitButton.style.display = 'none';
-                document.getElementById('validation1').innerText = 'WhatsApp number already exists.';
+                document.getElementById('validation1').innerText = 'Phone number already registered.';
             } else {
                 submitButton.style.display = 'block';
                 document.getElementById('validation1').innerText = '';
             }
         }
     });
-  </script>
-<script>
+
     let currentStep = 1;
     let formData = new FormData();
+
+    // File upload helpers
+    function updateFileName(input, displayId) {
+        const display = document.getElementById(displayId);
+        if (input.files && input.files[0]) {
+            display.textContent = input.files[0].name;
+        }
+    }
 
     // Step navigation
     document.getElementById('nextStepBtn').addEventListener('click', function() {
         if (validateStep1()) {
-            // Store form data
-            const form = document.getElementById('signupForm');
+            const form = document.querySelector('#step1 form');
             const formDataObj = new FormData(form);
-            
-            // Send data to backend and request OTP
             sendOTP(formDataObj);
         }
     });
@@ -344,16 +501,18 @@
     });
 
     function validateStep1() {
-        const form = document.getElementById('signupForm');
+        const form = document.querySelector('#step1 form');
         const inputs = form.querySelectorAll('input[required]');
         let isValid = true;
 
         inputs.forEach(input => {
             if (!input.value.trim()) {
                 input.classList.add('border-red-500');
+                input.classList.remove('border-yellow-400');
                 isValid = false;
             } else {
                 input.classList.remove('border-red-500');
+                input.classList.add('border-yellow-400');
             }
         });
 
@@ -390,29 +549,40 @@
 
     function sendOTP(formData) {
         showLoader();
-        
-        fetch('{% url "send_otp" %}', {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-            }
+      
+        fetch('{% url "signup_api_view" %}', {
+          method: 'POST',
+          body: formData,
+          headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+          }
         })
         .then(response => response.json())
         .then(data => {
-            hideLoader();
-            if (data.success) {
-                document.getElementById('phone-display').textContent = data.phone_number;
-                goToStep(2);
-            } else {
-                showError(data.message || 'Error sending OTP');
+          hideLoader();
+          if (data.success) {
+            document.getElementById('phone-display').textContent = data.phone_number;
+            goToStep(2);
+          } else {
+            let combinedErrors = '';
+      
+            if (data.errors) {
+              Object.keys(data.errors).forEach(field => {
+                data.errors[field].forEach(err => {
+                  combinedErrors += `${err.message}<br>`;
+                });
+              });
             }
+      
+            showError(combinedErrors || data.message || 'Error sending OTP');
+          }
         })
         .catch(error => {
-            hideLoader();
-            showError('Network error. Please try again.');
+          hideLoader();
+          showError('Network error. Please try again.');
         });
-    }
+      }
+      
 
     function verifyOTPAndSignup() {
         showLoader();
@@ -433,7 +603,7 @@
             if (data.success) {
                 window.location.href = data.redirect_url || '{% url "login" %}';
             } else {
-                showError(data.message || 'Invalid OTP');
+                showError(data.message || 'Invalid verification code');
             }
         })
         .catch(error => {
@@ -455,9 +625,9 @@
         .then(data => {
             hideLoader();
             if (data.success) {
-                showSuccess('OTP sent successfully');
+                showSuccess('Verification code sent successfully');
             } else {
-                showError(data.message || 'Error resending OTP');
+                showError(data.message || 'Error resending code');
             }
         })
         .catch(error => {
@@ -476,23 +646,53 @@
 
     function showError(message) {
         const errorDiv = document.getElementById('errorMessages');
-        errorDiv.innerHTML = `<div class="bg-red-50 border border-red-200 rounded-md p-4">
-            <p class="text-red-600 text-sm">${message}</p>
+        errorDiv.innerHTML = `<div class="bg-red-50 border-2 border-red-200 rounded-lg p-4 shadow-sm">
+            <p class="text-red-700 font-medium flex items-center">
+                <i class="fas fa-exclamation-triangle mr-2"></i>${message}
+            </p>
         </div>`;
     }
 
     function showSuccess(message) {
         const errorDiv = document.getElementById('errorMessages');
-        errorDiv.innerHTML = `<div class="bg-green-50 border border-green-200 rounded-md p-4">
-            <p class="text-green-600 text-sm">${message}</p>
+        errorDiv.innerHTML = `<div class="bg-green-50 border-2 border-green-200 rounded-lg p-4 shadow-sm">
+            <p class="text-green-700 font-medium flex items-center">
+                <i class="fas fa-check-circle mr-2"></i>${message}
+            </p>
         </div>`;
     }
 
-    // Auto-focus OTP input and format
+    // Auto-format OTP input
     document.getElementById('otp').addEventListener('input', function(e) {
         this.value = this.value.replace(/\D/g, '');
     });
-</script>
 
+    // Add some interactive effects
+    document.querySelectorAll('.farm-input').forEach(input => {
+        input.addEventListener('focus', function() {
+            this.parentElement.style.transform = 'scale(1.02)';
+        });
+        
+        input.addEventListener('blur', function() {
+            this.parentElement.style.transform = 'scale(1)';
+        });
+    });
+</script>
+<script>
+    function togglePassword(inputId, iconId) {
+      const passwordInput = document.getElementById(inputId);
+      const toggleIcon = document.getElementById(iconId);
+      if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        toggleIcon.classList.remove('fa-eye');
+        toggleIcon.classList.add('fa-eye-slash');
+      } else {
+        passwordInput.type = 'password';
+        toggleIcon.classList.remove('fa-eye-slash');
+        toggleIcon.classList.add('fa-eye');
+      }
+    }
+  </script>
+  
 </body>
 </html>
