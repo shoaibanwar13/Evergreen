@@ -18,3 +18,9 @@ __pycache__/
 __pycache__/
 *.pyc
 
+# SQLite database
+db.sqlite3
+
+# Django migration files
+**/migrations/
+!**/migrations/__init__.py
