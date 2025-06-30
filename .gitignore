@@ -18,3 +18,7 @@ __pycache__/
 __pycache__/
 *.pyc
 
+# SQLite database
+db.sqlite3
+
+ 
