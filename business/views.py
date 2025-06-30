@@ -398,7 +398,7 @@ def NewPurchasepdf(request):
         return HttpResponse("You need to log in to view this page.", status=401)
     compydetail=CompanyDetail.objects.filter(user=request.user).first()
     purchase=DailyProduction.objects.filter(user=request.user).last()
-    comN=compydetail.name
+    comN=request.user.b
     Email=compydetail.email
     address=compydetail.Head_Office
     phone=compydetail.phone
@@ -1344,14 +1344,48 @@ def CurrentSale(request, pk):
     # Build the PDF document
     pdf.build(content)
     return response
+ 
+
+import weasyprint
+from django.http import HttpResponse
+from django.template.loader import render_to_string
+from django.conf import settings
 @login_required
-def currentInvoice(request,pk):
-    customerid=pk
+def currentInvoice(request, pk):
+    customerid = pk
     compydetail = CompanyDetail.objects.first()
     Date = datetime.now().strftime("%d/%m/%Y")
     invoice_number = random.randint(100000, 999999)
-    Invoice = Sale.objects.filter(user=request.user, Client_ID=pk).last()
-    return render(request,'CurrentsalePDF.html',{'customerid':customerid,'invoice_number':invoice_number,'compydetail':compydetail,'invoice_number ':invoice_number,'Invoice':Invoice,'Date':Date })
+    client=Client.objects.filter(user=request.user,Whats_App_Number=pk).first()
+    
+     
+    Invoice = Sale.objects.filter(user=request.user,Client_ID=client).last()
+    print(Invoice)
+    html_string = render_to_string(
+        'CurrentsalePDF.html',
+        {
+            'customerid': customerid,
+            'invoice_number': invoice_number,
+            'logo':request.build_absolute_uri(request.user.business_logo.url),
+            'Invoice': Invoice,
+            'Date': Date,
+            'Head_Office':request.user.business_address,
+            "phone":request.user.phone_number,
+            "email":request.user.email,
+            "company":request.user.company_name
+            }
+    )
+
+    # Generate PDF from HTML
+    pdf_file = weasyprint.HTML(string=html_string).write_pdf(
+    )
+
+    # Return response to open in new tab
+    response = HttpResponse(pdf_file, content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="Invoice_{invoice_number}.pdf"'
+    return response
+     
+
 @login_required
 def ClientSearchAndPurchase(request,pk):
     query = request.GET.get('query')
@@ -4126,7 +4160,7 @@ def signup_view(request):
 def signup_api_view(request):
     from random import randint
 
-    form = CustomUserSignupForm(request.POST)
+    form = CustomUserSignupForm(request.POST,request.FILES)
     
     if form.is_valid():
         user = form.save(commit=False)

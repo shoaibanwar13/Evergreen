@@ -29,7 +29,7 @@ class CustomUserAdmin(UserAdmin):
     # Fields to display in the admin form
     fieldsets = UserAdmin.fieldsets + (
         ('Business Information', {
-            'fields': ('phone_number', 'business_logo', 'license_no', 'document')
+            'fields': ('company_name','phone_number', 'business_logo', 'license_no', 'document','business_address')
         }),
         ('Additional Info', {
             'fields': ('is_verified', 'created_at', 'updated_at')
