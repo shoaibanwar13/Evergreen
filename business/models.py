@@ -61,7 +61,8 @@ class User(AbstractUser):
     business_logo = models.ImageField(upload_to='business_logos/', blank=True, null=True)
     license_no = models.CharField(max_length=100, blank=True, null=True, unique=True)
     document = models.FileField(upload_to='user_documents/', blank=True, null=True)
-
+    company_name=models.CharField(max_length=100, blank=True, null=True, unique=True)
+    business_address=models.CharField(max_length=100, blank=True, null=True, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     is_verified = models.BooleanField(default=False)

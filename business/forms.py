@@ -87,11 +87,26 @@ class CustomUserSignupForm(UserCreationForm):
             'accept': '.pdf,.doc,.docx'
         })
     )
-
+    business_address=forms.CharField(
+        max_length=100,
+        required=True,
+        widget=forms.TextInput(attrs={
+            'class': 'border-0 px-3 py-3 placeholder-gray-400 text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150',
+            'placeholder': 'Enter License Number'
+        })
+    )
+    business_address=forms.CharField(
+        max_length=100,
+        required=True,
+        widget=forms.TextInput(attrs={
+            'class': 'border-0 px-3 py-3 placeholder-gray-400 text-black bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150',
+            'placeholder': 'Enter License Number'
+        })
+    )
     class Meta:
         model = User
         fields = ('username', 'first_name', 'last_name', 'email', 'phone_number', 
-                 'company_name', 'license_no', 'business_logo', 'document', 
+                 'company_name','license_no', 'business_logo', 'document', 'business_address',
                  'password1', 'password2')
 
     def __init__(self, *args, **kwargs):
@@ -118,6 +133,8 @@ class CustomUserSignupForm(UserCreationForm):
         user.license_no = self.cleaned_data['license_no']
         user.business_logo = self.cleaned_data.get('business_logo')
         user.document = self.cleaned_data.get('document')
+        user.business_address = self.cleaned_data['business_address']
+        user.company_name=self.cleaned_data['company_name']
         
         if commit:
             user.save()

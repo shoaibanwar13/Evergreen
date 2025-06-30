@@ -14,11 +14,11 @@ def create_profile(sender,instance,created,**kwargs):
     if created:
         Profile.objects.create(user=instance)
 
-@receiver(post_save, sender=Sale)
-def send_sale_email(sender, instance, created, **kwargs):
-    if created:
-        send_email_to_admin(instance)
-        send_email_to_customer(instance)
+# @receiver(post_save, sender=Sale)
+# def send_sale_email(sender, instance, created, **kwargs):
+#     if created:
+#         send_email_to_admin(instance)
+#         send_email_to_customer(instance)
 @receiver(post_save, sender=DailyProduction)
 def send_production_email(sender, instance, created, **kwargs):
     if created:
