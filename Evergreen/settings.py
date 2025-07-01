@@ -113,7 +113,7 @@ WSGI_APPLICATION = 'Evergreen.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-DEVELOPMENT_MODE=1
+DEVELOPMENT_MODE=3
 
 if DEVELOPMENT_MODE == 1:
     DATABASES = {
