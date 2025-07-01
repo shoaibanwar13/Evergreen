@@ -269,15 +269,22 @@
                     
                     <div>
                         <label for="company_name" class="block text-sm font-semibold leading-6 text-green-800 mb-2">
-                            <i class="fas fa-tractor text-yellow-600"></i> Farm/Company Name
+                            <i class="fas fa-tractor text-yellow-600"></i>Business Name
                         </label>
                         <input id="company_name" name="company_name" type="text" placeholder="Green Valley Farms" required 
+                               class="farm-input w-full px-4 py-3 text-green-900 placeholder-green-600 focus:outline-none">
+                    </div>
+                    <div>
+                        <label for="company_name" class="block text-sm font-semibold leading-6 text-green-800 mb-2">
+                            <i class="fas fa-location text-yellow-600"></i>Business Address
+                        </label>
+                        <input id="company_name" name="business_address" type="text" placeholder="Green Valley Farms" required 
                                class="farm-input w-full px-4 py-3 text-green-900 placeholder-green-600 focus:outline-none">
                     </div>
 
                     <div>
                         <label for="license_no" class="block text-sm font-semibold leading-6 text-green-800 mb-2">
-                            <i class="fas fa-certificate text-yellow-600"></i> Agricultural License Number
+                            <i class="fas fa-certificate text-yellow-600"></i> License Number
                         </label>
                         <input id="license_no" name="license_no" type="text" placeholder="AGR-2024-001234" required 
                                class="farm-input w-full px-4 py-3 text-green-900 placeholder-green-600 focus:outline-none">
@@ -286,7 +293,7 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label for="business_logo" class="block text-sm font-semibold leading-6 text-green-800 mb-2">
-                                <i class="fas fa-image text-yellow-600"></i> Farm Logo
+                                <i class="fas fa-image text-yellow-600"></i> Business Logo
                             </label>
                             <div class="farm-input p-4 border-dashed border-2 border-yellow-400 text-center">
                                 <input id="business_logo" name="business_logo" type="file" accept="image/*" 
@@ -308,7 +315,7 @@
                                        class="hidden" onchange="updateFileName(this, 'doc-name')">
                                 <label for="document" class="cursor-pointer">
                                     <i class="fas fa-file-upload text-2xl text-green-600 mb-2 block"></i>
-                                    <span class="text-green-700 font-medium">Upload certificates</span>
+                                    <span class="text-green-700 font-medium">Business certificates</span>
                                     <p id="doc-name" class="text-sm text-green-600 mt-1">PDF, DOC up to 10MB</p>
                                 </label>
                             </div>
@@ -447,7 +454,7 @@
             <span class="flex items-center"><i class="fas fa-users mr-2"></i> Farm Community</span>
             <span class="flex items-center"><i class="fas fa-handshake mr-2"></i> Fair Trade</span>
         </div>
-        <p class="text-green-200">&copy; 2024 AgriVendor Portal. Growing together for a sustainable future.</p>
+        <p class="text-green-200">&copy; 2024 Evergreen Portal. Growing together for a sustainable future.</p>
     </div>
 </footer>
 

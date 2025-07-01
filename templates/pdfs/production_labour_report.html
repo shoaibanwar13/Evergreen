@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Production Labour Report</title>
+  <style>
+    @page {
+      size: A4;
+      margin: 2cm;
+    }
+    body {
+      font-family: 'Open Sans', sans-serif;
+      color: #333;
+      margin: 0;
+    }
+    .report-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid #2d5016;
+      padding-bottom: 10px;
+      margin-bottom: 20px;
+    }
+    .logo {
+      height: 60px;
+    }
+    .company-info {
+      text-align: right;
+      font-size: 12px;
+    }
+    .company-name {
+      font-weight: bold;
+      color: #2d5016;
+      font-size: 18px;
+    }
+    h2 {
+      text-align: center;
+      color: #2d5016;
+      margin-bottom: 20px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 11px;
+      margin-bottom: 20px;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 6px 5px;
+    }
+    th {
+      background: #2d5016;
+      color: #fff;
+      text-transform: uppercase;
+    }
+    .amount {
+      text-align: right;
+      font-weight: bold;
+      color: #2d5016;
+    }
+    .summary {
+      font-size: 14px;
+      font-weight: bold;
+      color: #2d5016;
+      text-align: right;
+      margin-top: 20px;
+    }
+    .footer-info {
+      border-top: 1px solid #ccc;
+      font-size: 11px;
+      color: #777;
+      text-align: center;
+      padding-top: 8px;
+      margin-top: 30px;
+    }
+  </style>
+</head>
+<body>
+  <div>
+    <div class="report-header">
+      
+      <img src="{{ company_logo_path }}" alt="Company Logo" class="logo">
+     
+      <div class="company-info">
+        <div class="company-name">{{ company_name }}</div>
+        <div>{{ head_office }}</div>
+        <div>Phone: {{ phone_number }}</div>
+        <div>Email: {{ email }}</div>
+      </div>
+    </div>
+
+   {% if  key_for_loading %} <h2>Loading  Labour Report</h2>{% else %}<h2>Production  Labour Report</h2>{% endif %}
+    <p><strong>Report Date:</strong> {{ date }}</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Leader</th>
+          <th>Labour ID</th>
+          <th>Bankar</th>
+          <th>Bales</th>
+          <th>Per Bale Price</th>
+         
+          
+          <th>Paid Amount</th>
+          <th>Remaining</th>
+          <th>Total Amount</th>
+          <th>Status</th>
+          <th>Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for record in records %}
+        <tr>
+          <td>{{ record.Team_Leader }}</td>
+          <td>{{ record.Labour_Id }}</td>
+          <td>{{ record.Bankar }}</td>
+          <td>{{ record.Bales }}</td>
+          <td>{{ record.Per_Bale_Price }}</td>
+          
+           
+          <td>{{ record.Paid_Amount }}</td>
+          <td>{{ record.Remaining }}</td>
+          <td>{{ record.Total_Amount }}</td>
+          <td>{{ record.Payment_Status }}</td>
+          <td>{{ record.date }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <div class="summary">
+   
+      <strong>Total Paid:</strong> {{ paid }}<br>
+      <strong>Total Remaining:</strong> {{ pending }}<br>
+      <strong>Total Amount:</strong> {{ total_amount }}
+    </div>
+
+    <div class="footer-info">
+      This report is system-generated on {{ date }}. Thank you.
+    </div>
+  </div>
+</body>
+</html>

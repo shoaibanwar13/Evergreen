@@ -1,91 +1,454 @@
-{% extends 'dashboard.html' %}
-{% block content  %}
-{% load static %}
+<!DOCTYPE html>
+<html lang="en">
 <head>
-<title>{{request.user.username}}|Vendor</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sale Invoice</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    @page { 
+      size: A4; 
+      margin: 1cm; 
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f8fffe;
+      min-height: 100vh;
+      padding: 20px;
+      color: #1a1a1a;
+    }
+
+    .invoice-container {
+      max-width: 850px;
+      margin: 0 auto;
+      background: #ffffff;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+      border: 1px solid #e5e7eb;
+    }
+
+    .invoice-header {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: white;
+      padding: 30px 30px 25px;
+      position: relative;
+    }
+
+    .invoice-header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+    }
+
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      position: relative;
+      z-index: 1;
+    }
+
+    .logo-section {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .logo {
+      width: 70px;
+      height: 70px;
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .company-info h1 {
+      font-size: 26px;
+      font-weight: 700;
+      margin-bottom: 4px;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    }
+
+    .company-info p {
+      font-size: 14px;
+      opacity: 0.9;
+    }
+
+    .invoice-meta {
+      text-align: right;
+    }
+
+    .invoice-title {
+      font-size: 36px;
+      font-weight: 300;
+      margin-bottom: 12px;
+      letter-spacing: -0.5px;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    }
+
+    .meta-item {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      min-width: 220px;
+    }
+
+    .meta-label {
+      opacity: 0.85;
+      font-weight: 400;
+    }
+
+    .meta-value {
+      font-weight: 600;
+    }
+
+    .invoice-body {
+      padding: 30px;
+    }
+
+    .billing-section {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 25px;
+      margin-bottom: 30px;
+    }
+
+    .bill-card {
+      background: #ffffff;
+      border: 2px solid #f0fdf4;
+      border-radius: 12px;
+      padding: 20px;
+      border-left: 4px solid #10b981;
+      box-shadow: 0 2px 8px rgba(16, 185, 129, 0.08);
+    }
+
+    .card-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #065f46;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card-title::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      background: #10b981;
+      border-radius: 50%;
+    }
+
+    .card-content {
+      color: #1f2937;
+      line-height: 1.7;
+      font-size: 14px;
+    }
+
+    .payment-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-top: 12px;
+    }
+
+    .status-paid {
+      background: #dcfce7;
+      color: #166534;
+      border: 1px solid #bbf7d0;
+    }
+
+    .status-pending {
+      background: #fef2f2;
+      color: #dc2626;
+      border: 1px solid #fecaca;
+    }
+
+    .items-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 30px;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      border: 1px solid #e5e7eb;
+    }
+
+    .table-header {
+      background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+      color: white;
+    }
+
+    .table-header th {
+      padding: 14px 16px;
+      text-align: left;
+      font-weight: 600;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid #374151;
+    }
+
+    .table-header th:last-child {
+      text-align: right;
+    }
+
+    .table-row td {
+      padding: 16px;
+      border-bottom: 1px solid #f3f4f6;
+      font-size: 14px;
+      color: #374151;
+    }
+
+    .table-row:hover {
+      background: #f9fafb;
+    }
+
+    .table-row td:first-child {
+      font-weight: 600;
+      color: #1f2937;
+    }
+
+    .table-row td:last-child {
+      text-align: right;
+      font-weight: 700;
+      color: #059669;
+    }
+
+    .totals-section {
+      background: #f8fffe;
+      border: 2px solid #ecfdf5;
+      border-radius: 12px;
+      padding: 22px;
+      margin-top: 20px;
+    }
+
+    .total-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      font-size: 15px;
+      color: #374151;
+    }
+
+    .total-row:not(:last-child) {
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .total-row.grand-total {
+      font-size: 20px;
+      font-weight: 700;
+      color: #1f2937;
+      padding: 20px 0 0 0;
+      margin-top: 12px;
+      border-top: 3px solid #10b981;
+      background: linear-gradient(135deg, #ecfdf5 0%, #f0fdf4 100%);
+      padding: 20px;
+      border-radius: 8px;
+      margin: 16px -8px 0 -8px;
+    }
+
+    .total-row.grand-total .total-amount {
+      color: #059669;
+    }
+
+    .footer {
+      background: #f9fafb;
+      padding: 20px 30px;
+      text-align: center;
+      color: #6b7280;
+      font-size: 12px;
+      line-height: 1.5;
+      border-top: 1px solid #e5e7eb;
+    }
+
+    .footer-divider {
+      width: 80px;
+      height: 3px;
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      margin: 0 auto 20px;
+      border-radius: 2px;
+    }
+
+    .footer strong {
+      color: #1f2937;
+    }
+
+    @media (max-width: 768px) {
+      .header-content {
+        flex-direction: column;
+        gap: 20px;
+      }
+
+      .billing-section {
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+
+      .invoice-body {
+        padding: 20px;
+      }
+
+      .invoice-header {
+        padding: 30px 20px 20px;
+      }
+
+      .invoice-title {
+        font-size: 28px;
+      }
+    }
+
+    @media print {
+      body {
+        background: white;
+        padding: 0;
+      }
+      
+      .invoice-container {
+        box-shadow: none;
+        border: none;
+      }
+    }
+  </style>
 </head>
-<div class="col-span-12 mt-8">
-<!-- component -->
-<link rel="stylesheet" href="https://demos.creative-tim.com/notus-js/assets/styles/tailwind.css">
-<link rel="stylesheet" href="https://demos.creative-tim.com/notus-js/assets/vendor/@fortawesome/fontawesome-free/css/all.min.css">
- 
-<section class=" py-1 ">
-    <div class="w-full max-w-5xl px-10 py-16 mx-auto bg-white rounded-lg  ">
-        <div class="flex flex-col md:flex-row items-center">
-            <div class="md:w-1/2 mb-8 md:mb-0">
-                <img src="https://images.pexels.com/photos/4495904/pexels-photo-4495904.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" alt="PDF Preview" class="w-full rounded-lg shadow-lg">
-            </div>
-            <div class="md:w-1/2 md:pl-10">
-                <h1 class="font-mono font-bold text-gray-700 text-2xl leading-tight border-b pb-4 mb-6">Download Your Exclusive Production PDF File </h1>
-                <p class="text-gray-700 text-lg mb-6">
-                     
-                </p>
-                <p class="text-gray-700 text-lg mb-6">
-                    Click the button below to  download Production  copy now.
-                </p>
-                <div class="flex space-x-2">
-                   <a href="{% url 'NewPurchasepdf' %}"   id="downloadPdfButton"  class="text-white font-normal py-2 px-4 rounded transition duration-300 ease-in-out focus:outline-none focus:shadow-outline bg-green-500 border border-green-500 hover:bg-green-500 hover:border-green bg-green-500 animate-bounce">Download PDF</a>
-                     
-                </div>
-            </div>
+<body>
+  <div class="invoice-container">
+    <!-- Header Section -->
+    <div class="invoice-header">
+      <div class="header-content">
+        <div class="logo-section">
+          <div class="logo">
+            <img src="{{ logo }}" alt="Logo" style="width: 45px; height: auto;">
+          </div>
+          <div class="company-info">
+            <h1>{{ company }}</h1>
+            <p>{{ Head_Office }}</p>
+          </div>
         </div>
+        
+        <div class="invoice-meta">
+          <div class="invoice-title">INVOICE</div>
+          <div class="meta-item">
+            <span class="meta-label">Invoice #</span>
+            <span class="meta-value">{{ invoice_number }}</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Date</span>
+            <span class="meta-value">{{ Date }}</span>
+          </div>
+        </div>
+      </div>
     </div>
 
-</section>
- 
+    <!-- Body Section -->
+    <div class="invoice-body">
+      <!-- Billing Information -->
+      <div class="billing-section">
+        <div class="bill-card">
+          <div class="card-title">Bill To</div>
+          <div class="card-content">
+            <strong>{{ Invoice.Client_Name }}</strong><br>
+            ID: {{ Invoice.Client_ID }}<br>
+            {{ Invoice.Client_ID.Billing_Address }}<br>
+            {{ Invoice.Client_ID.City }}, {{ Invoice.Client_ID.State }}<br>
+            {{ Invoice.Client_ID.Phone_Number }}
+          </div>
+        </div>
 
-<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-<script>
-function data() {
+        <div class="bill-card">
+          <div class="card-title">Payment Information</div>
+          <div class="card-content">
+            <strong>Method:</strong> {{ Invoice.Payment_Method }}<br>
+            <strong>Paid Amount:</strong> {{ Invoice.Paid_Amount }}<br>
+            <strong>Remaining:</strong> {{ Invoice.Remaining }}<br>
+            
+            {% if Invoice.Payment_Status %}
+              <span class="payment-status status-paid">✓ Paid</span>
+            {% else %}
+              <span class="payment-status status-pending">⏱ Pending</span>
+            {% endif %}
+          </div>
+        </div>
+      </div>
 
-return {
+      <!-- Items Table -->
+      <table class="items-table">
+        <thead class="table-header">
+          <tr>
+            <th>Bunker Name</th>
+            <th>Weight</th>
+            <th>Balles/Items</th>
+            <th>Rate</th>
+            <th>Subtotal</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="table-row">
+            <td><strong>{{ Invoice.Sale_Production_Name }}</strong></td>
+            <td>{{ Invoice.Weight }} {{ Invoice.Weight_Unit }}</td>
+            <td>{{ Invoice.Items_Or_Balles }}</td>
+            <td>{{ Invoice.Sale_Price }}</td>
+            <td><strong>{{ Invoice.Total_Amount }}</strong></td>
+          </tr>
+        </tbody>
+      </table>
 
-isSideMenuOpen: false,
-toggleSideMenu() {
-this.isSideMenuOpen = !this.isSideMenuOpen
-},
-closeSideMenu() {
-this.isSideMenuOpen = false
-},
-isNotificationsMenuOpen: false,
-toggleNotificationsMenu() {
-this.isNotificationsMenuOpen = !this.isNotificationsMenuOpen
-},
-closeNotificationsMenu() {
-this.isNotificationsMenuOpen = false
-},
-isProfileMenuOpen: false,
-toggleProfileMenu() {
-this.isProfileMenuOpen = !this.isProfileMenuOpen
-},
-closeProfileMenu() {
-this.isProfileMenuOpen = false
-},
-isPagesMenuOpen: false,
-togglePagesMenu() {
-this.isPagesMenuOpen = !this.isPagesMenuOpen
-},
+      <!-- Totals Section -->
+      <div class="totals-section">
+        <div class="total-row">
+          <span>Subtotal</span>
+          <span>{{ Invoice.Total_Amount }}</span>
+        </div>
+        <div class="total-row">
+          <span>Discount</span>
+          <span>{{ Invoice.Discount }}%</span>
+        </div>
+        <div class="total-row">
+          <span>GST</span>
+          <span>{{ Invoice.GST }}%</span>
+        </div>
+        <div class="total-row grand-total">
+          <span>Grand Total (Incl. Tax)</span>
+          <span class="total-amount">{{ Invoice.Final_Amount }}</span>
+        </div>
+      </div>
+    </div>
 
-}
-}
-</script>
- 
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        var downloadPdfButton = document.getElementById('downloadPdfButton');
-        var spinner = document.getElementById('spinner');
-
-        downloadPdfButton.addEventListener('click', function() {
-            // Show spinner
-            spinner.style.display = 'block';
-
-            // Simulate PDF download
-            setTimeout(function() {
-                // Hide spinner after download (simulated after 3 seconds)
-                spinner.style.display = 'none';
-            }, 3000); // Adjust this time according to your actual PDF download time
-        });
-    });
-</script>
-
-{% endblock  %}
+    <!-- Footer Section -->
+    <div class="footer">
+      <div class="footer-divider"></div>
+      <p>
+        <strong>{{ Head_Office }}</strong><br>
+        Phone: {{ phone }} • Email: {{ email }}<br><br>
+        Thank you for your business with <strong>{{ company }}</strong>!
+      </p>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,1826 @@
+{% extends 'dashboard.html' %}
+{% block title %}{{ request.user.username }} | Profile{% endblock title %}
+ 
+    
+{% block content %} 
+{% load static %}
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="{% static 'css/analytics.css' %}" rel="stylesheet" type="text/css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+<style>
+    .btn-primary {
+        background-color: #3b82f6;
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 0.5rem;
+        display: inline-flex;
+        align-items: center;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        font-weight: 500;
+    }
+    
+    .btn-primary:hover {
+        background-color: #2563eb;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    .btn-primary i {
+        margin-right: 0.5rem;
+    }
+    
+    .d-flex {
+        display: flex;
+    }
+    
+    .justify-content-between {
+        justify-content: space-between;
+    }
+    
+    .align-items-center {
+        align-items: center;
+    }
+    
+    .mb-3 {
+        margin-bottom: 1rem;
+    }
+    
+    /* Export Button Styles */
+    .export-btn {
+        background-color: #3b82f6;
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 0.5rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+    }
+    
+    .export-btn:hover {
+        background-color: #2563eb;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    .export-btn i {
+        font-size: 1rem;
+    }
+    
+    /* Toast Notification Styles */
+    .toast-container {
+        position: fixed;
+        top: 80px;
+        right: 20px;
+        z-index: 9999;
+    }
+    
+    .toast {
+        background-color: #4CAF50;
+        color: white;
+        padding: 16px;
+        border-radius: 4px;
+        margin-bottom: 10px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        min-width: 300px;
+        transform: translateX(120%);
+        transition: transform 0.3s ease-in-out;
+        position: relative;
+    }
+    
+    .toast.show {
+        transform: translateX(0);
+    }
+    
+    .toast-content {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .toast-icon {
+        font-size: 20px;
+    }
+    
+    .toast-close {
+        background: none;
+        border: none;
+        color: white;
+        cursor: pointer;
+        font-size: 20px;
+        padding: 0 5px;
+        margin-left: 10px;
+    }
+    
+    /* Add styles for attachment icon */
+    .attachment-icon {
+        cursor: pointer;
+        color: #3b82f6;
+        font-size: 1.2rem;
+        transition: color 0.3s ease;
+    }
+    
+    .attachment-icon:hover {
+        color: #2563eb;
+    }
+    
+    .hidden-file-input {
+        display: none;
+    }
+    
+    /* File upload progress styles */
+    .upload-progress {
+        display: none;
+        align-items: center;
+        gap: 10px;
+        margin-top: 10px;
+    }
+    
+    .progress-bar {
+        flex-grow: 1;
+        height: 4px;
+        background-color: #e5e7eb;
+        border-radius: 2px;
+    }
+    
+    .progress-bar-fill {
+        height: 100%;
+        background-color: #3b82f6;
+        border-radius: 2px;
+        width: 0%;
+        transition: width 0.3s ease;
+    }
+
+    /* Modern Chat UI Styles */
+    .chat-popup {
+        display: none;
+        position: fixed;
+        bottom: 100px;
+        right: 30px;
+        width: 400px;
+        background: #ffffff;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        z-index: 1000;
+        overflow: hidden;
+        animation: slideUp 0.3s ease-out;
+    }
+
+    @keyframes slideUp {
+        from { transform: translateY(100px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+
+    .chat-wrapper {
+        display: flex;
+        flex-direction: column;
+        height: 500px;
+    }
+
+    .chat-header {
+        background: #3b82f6;
+        color: white;
+        padding: 15px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-weight: 500;
+    }
+
+    .close-btn {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 20px;
+        cursor: pointer;
+        padding: 0 5px;
+        transition: opacity 0.2s;
+    }
+
+    .close-btn:hover {
+        opacity: 0.8;
+    }
+
+    .chat-container {
+        flex: 1;
+        padding: 20px;
+        overflow-y: auto;
+        background: #f8f9fa;
+        scrollbar-width: thin;
+        scrollbar-color: #cbd5e0 transparent;
+    }
+
+    .chat-container::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .chat-container::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    .chat-container::-webkit-scrollbar-thumb {
+        background-color: #cbd5e0;
+        border-radius: 3px;
+    }
+
+    .message-row {
+        display: flex;
+        margin: 8px 0;
+    }
+
+    .message-row.user {
+        justify-content: flex-end;
+    }
+
+    .message-row.ai {
+        justify-content: flex-start;
+    }
+
+    .chat-message {
+        max-width: 80%;
+        padding: 12px 16px;
+        border-radius: 20px;
+        font-size: 14px;
+        line-height: 1.5;
+        animation: fadeIn 0.3s ease-in;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .user-message {
+        background: #3b82f6;
+        color: white;
+        border-bottom-right-radius: 4px;
+    }
+
+    .ai-message {
+        background: #e9ecef;
+        color: #1a1a1a;
+        border-bottom-left-radius: 4px;
+    }
+
+    .input-area {
+        padding: 15px;
+        background: white;
+        border-top: 1px solid #e0e0e0;
+        display: flex;
+        gap: 10px;
+        align-items: center;
+    }
+
+    .input-area input {
+        flex: 1;
+        padding: 12px;
+        border: 1px solid #e0e0e0;
+        border-radius: 24px;
+        font-size: 14px;
+        transition: all 0.2s;
+    }
+
+    .input-area input:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+    }
+
+    .input-area button {
+        background: #3b82f6;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 14px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        transition: background 0.2s;
+    }
+
+    .input-area button:hover {
+        background: #2563eb;
+    }
+
+    .typing-indicator {
+        display: none;
+        padding: 12px 16px;
+        background: #e9ecef;
+        border-radius: 20px;
+        margin: 8px 0;
+        width: fit-content;
+    }
+
+    .typing-indicator span {
+        display: inline-block;
+        width: 6px;
+        height: 6px;
+        background: #666;
+        border-radius: 50%;
+        margin-right: 4px;
+        animation: bounce 1.3s linear infinite;
+    }
+
+    .typing-indicator span:nth-child(2) { animation-delay: 0.15s; }
+    .typing-indicator span:nth-child(3) { animation-delay: 0.3s; }
+    .typing-indicator{
+        margin-left: 16px;
+        display: none;
+    }
+    @keyframes bounce {
+        0%, 60%, 100% { transform: translateY(0); }
+        30% { transform: translateY(-4px); }
+    }
+
+    .message.with-image {
+        max-width: 60%;
+    }
+
+    .message-image {
+        max-width: 100%;
+        border-radius: 12px;
+        margin-top: 8px;
+    }
+
+    .attachment-btn {
+        background: none;
+        border: none;
+        color: #666;
+        cursor: pointer;
+        padding: 8px;
+        border-radius: 50%;
+        transition: all 0.2s;
+    }
+
+    .attachment-btn:hover {
+        background: #e9ecef;
+        color: #3b82f6;
+    }
+
+    #fileInput {
+        display: none;
+    }
+  .toast-container {
+        position: fixed;
+        top: 80px;
+        right: 20px;
+        z-index: 9999;
+    }
+    
+    .toast {
+        background-color: #ffffff;
+        color: rgb(0, 0, 0);
+        padding: 16px;
+        border-radius: 4px;
+        margin-bottom: 10px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        min-width: 300px;
+        transform: translateX(120%);
+        transition: transform 0.3s ease-in-out;
+        position: relative;
+    }
+    
+    .toast.show {
+        transform: translateX(0);
+    }
+    
+    .toast-content {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .toast-icon {
+        font-size: 20px;
+    }
+    
+    .toast-close {
+        background: none;
+        border: none;
+        color: white;
+        cursor: pointer;
+        font-size: 20px;
+        padding: 0 5px;
+        margin-left: 10px;
+    }
+    /* .loader-spinner {
+  border: 6px solid #e0e0e0;
+  border-top: 6px solid #3b82f6;
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  
+  box-shadow: 0 4px 20px rgba(59,130,246,0.15);
+} */
+@keyframes spin {
+  0% { transform: rotate(0deg);}
+  100% { transform: rotate(360deg);}
+}
+#loaderDots {
+  display: inline-block;
+  width: 2.5em;   /* enough for 4 dots */
+  text-align: left;
+}
+@media print {
+  #pdfcontent.export-btn,
+  .export-btn {
+    display: none !important;
+  }
+}
+@media print {
+ #paginationhide {
+    display: none !important;
+  }
+}
+</style>
+<!-- Add this loader overlay just before the closing </body> or at the end of your block content -->
+<!-- Loader Overlay (place near the end of your body or block content) -->
+<div id="modernLoader" style="
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    background: rgba(255, 255, 255, 0.7);
+    z-index: 10000;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+">
+  <div style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
+    <img src="https://res.cloudinary.com/db6xfyxz1/image/upload/v1747201566/WhatsApp_Image_2025-05-14_at_10.41.26_e42d3114-removebg-preview_zpm1ag.png"
+         alt="Intextify Logo"
+         class="logo"
+         style="width:100px; height:auto; display:block; margin:0 auto;" />
+<div id="loaderText"
+     style="margin-top: 24px; font-size: 22px; font-family: Arial, sans-serif; color:rgb(48, 47, 47); font-weight: 500; text-align: center; opacity: 1; transition: opacity 1s ease;">
+  <span id="loaderMessage">Please wait...</span>
+  <span id="loaderDots" style="display: inline-block; width: 2.5em; text-align: left;"></span>
+</div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const loader = document.getElementById('modernLoader');
+    const loaderText = document.getElementById('loaderText');
+    const loaderMessage = document.getElementById('loaderMessage');
+    const loaderDots = document.getElementById('loaderDots');
+    let dotsInterval = null;
+
+    function getLoaderMessage(btnText) {
+        if (/extract/i.test(btnText)) return "Please wait extracting Final Posts";
+        if (/generate/i.test(btnText)) return "Please wait generating Topics";
+        if (/significance/i.test(btnText)) return "Please wait finding Significance and Relevance of Tags";
+        if (/popularity|difficulty/i.test(btnText)) return "Please wait finding Popularity and Difficulty";
+        if (/complexity|trends/i.test(btnText)) return "Please wait finding Complexity and Trends";
+        if (/question categories/i.test(btnText)) return "Please wait finding Question Categories";
+        if (/evolution|revolution/i.test(btnText)) return "Please wait finding Evolution and Revolution of Topics";
+        return "Please wait " + btnText + "ing";
+    }
+
+function startDotsAnimation() {
+    let count = 0;
+    loaderDots.textContent = '';
+    if (dotsInterval) clearInterval(dotsInterval);
+    dotsInterval = setInterval(() => {
+        count = (count + 1) % 5; // 0,1,2,3,4
+        loaderDots.textContent = '.'.repeat(count);
+    }, 400);
+}
+
+    function stopDotsAnimation() {
+        if (dotsInterval) clearInterval(dotsInterval);
+        loaderDots.textContent = '';
+    }
+
+    document.querySelectorAll('form button[type="submit"]').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            const btnText = btn.innerText.trim();
+            loaderMessage.textContent = getLoaderMessage(btnText);
+            loaderDots.textContent = '';
+            loader.style.display = 'flex';
+            setTimeout(() => {
+                loader.style.opacity = 1;
+                loaderText.style.opacity = 1;
+            }, 50);
+            startDotsAnimation();
+        });
+    });
+
+    window.addEventListener('pageshow', function() {
+        loader.style.opacity = 0;
+        loaderText.style.opacity = 0;
+        setTimeout(() => {
+            loader.style.display = 'none';
+            stopDotsAnimation();
+        }, 500);
+    });
+});
+</script>
+    
+    <!-- Add this right after the navbar -->
+   
+    
+    <script>
+        function showToast(message) {
+            const toastContainer = document.getElementById('toastContainer');
+            if (!toastContainer) {
+                console.error('Toast container not found');
+                return;
+            }
+
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.innerHTML = `
+                <div class="toast-content">
+                    <i class="fas fa-check-circle toast-icon"></i>
+                    <span>${message}</span>
+                </div>
+                <button class="toast-close">&times;</button>
+            `;
+            
+            toastContainer.appendChild(toast);
+            
+            // Force a reflow to ensure the transition works
+            toast.offsetHeight;
+            
+            // Show toast
+            requestAnimationFrame(() => {
+                toast.classList.add('show');
+            });
+
+            // Add click event to close button
+            const closeButton = toast.querySelector('.toast-close');
+            closeButton.addEventListener('click', () => {
+                toast.classList.remove('show');
+                setTimeout(() => {
+                    toast.remove();
+                }, 300);
+            });
+
+            // Auto remove after 3 seconds
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => {
+                    toast.remove();
+                }, 300);
+            }, 3000);
+        }
+    
+        // Add click event listeners to all export buttons
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.export-btn').forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const fileName = this.getAttribute('data-filename') || 'file';
+                    showToast(`${fileName} downloaded successfully!`);
+                    
+                    const downloadUrl = this.getAttribute('href');
+                    if (downloadUrl) {
+                        const link = document.createElement('a');
+                        link.href = downloadUrl;
+                        link.setAttribute('download', '');
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                    }
+                });
+            });
+        });
+    </script> 
+
+<!-- Chat Popup -->
+
+<div id="chatForm" class="chat-popup" style="display: none;">
+    <div class="chat-wrapper">
+        <div class="chat-header">
+            <span>iBarak AI - Topic Modeling Assistant</span>
+            <button class="close-btn" onclick="toggleChatForm()">&times;</button>
+        </div>
+        <div class="chat-container" id="chatBox">
+            {% for message in chat_history %}
+                <div class="message-row {% if message.role == 'user' %}user{% else %}ai{% endif %}">
+                    <div class="chat-message {% if message.role == 'user' %}user-message{% else %}ai-message{% endif %}">
+                        {{ message.text|safe }}
+                        {% if message.image and message.image != '' %}
+                            <img src="{{ message.image }}" class="message-image" alt="Uploaded image">
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+            {% if not chat_history %}
+            <div class="message-row ai">
+                <div class="chat-message ai-message">
+                    👋 Hello! I'm iBarak AI, your topic modeling assistant. How can I help you today?
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        <div class="typing-indicator" >
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+
+        <div class="input-area">
+            <button type="button" class="attachment-btn" onclick="document.getElementById('fileInput').click()">
+                <i class="fas fa-paperclip"></i>
+            </button>
+            <input type="file" id="fileInput" style="display: none;" accept="image/*" onchange="handleFileSelect(this)">
+            <input type="text" id="userInput" placeholder="Ask about topic modeling..." onkeydown="handleKey(event)">
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+</div>
+
+
+<!-- Chat Button -->
+ {% if charts %}
+<button id="chatbotButton" class="btn download-btn mb-2" style="position: fixed; bottom: 90px; right: 30px; z-index: 999;" onclick="toggleChatForm()">
+    <i class="fas fa-comment-dots"></i>
+</button>
+
+<button id="downloadReport" class="btn download-btn" onclick="downloadPDF()">
+    <i class="fas fa-download"></i> 
+</button>
+{% endif %}
+<script>
+function downloadPDF() {
+    // Hide export buttons before export
+    document.querySelectorAll('#pdfcontent .export-btn').forEach(btn => btn.style.display = 'none');
+    // Hide all elements with id="paginationhide"
+    document.querySelectorAll('#pdfcontent #paginationhide').forEach(el => el.style.display = 'none');
+
+    const element = document.getElementById('pdfcontent');
+    const opt = {
+        margin: 0.5,
+        filename: 'page.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: {
+            scale: 2,
+            scrollY: 0,
+            scrollX: 0,
+            useCORS: true
+        },
+        jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+    };
+
+    html2pdf().set(opt).from(element).save().then(() => {
+        // Show export buttons again after export
+        document.querySelectorAll('#pdfcontent .export-btn').forEach(btn => btn.style.display = '');
+        // Show pagination controls again after export
+        document.querySelectorAll('#pdfcontent #paginationhide').forEach(el => el.style.display = '');
+    });
+}
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<div class="container-fluid p-4" style="margin-top: 60px">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0 text-black">Analysis Report</h2>
+        <!-- <div class="d-flex align-items-center gap-3">
+            <label for="fileInput" class="attachment-icon" title="Upload Files">
+                <i class="fas fa-paperclip"></i>
+            </label>
+            <input type="file" id="fileInput" class="hidden-file-input" multiple>
+        </div> -->
+    </div>
+    
+    <div class="upload-progress" id="uploadProgress">
+        <div class="progress-bar">
+            <div class="progress-bar-fill" id="progressBarFill"></div>
+        </div>
+        <span id="uploadStatus"></span>
+    </div>
+
+    <!-- Metrics Section -->
+    <div id="pdfcontent">
+        {% if perplexity %}
+<div class="row text-center mb-4">
+        <div class="col-md-4 mb-4">
+            <div class="metric-card topic-popularity">
+                <h3 id="topic-popularity">{{coherence_score}}</h3>  
+                <p>Coherence Score</p>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <div class="metric-card complexity-score">
+                <h3 id="complexity-score">{{perplexity}}</h3>
+                <p>Perplexity Score</p>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="metric-card total-topics">
+                <h3 id="total-topics">{{num_topics}}</h3> 
+                <p>Total Topics Analyzed</p>
+            </div>
+        </div>
+    </div>
+ {% endif %}
+    
+     <!-- <div class="toast-container" id="toastContainer"></div>  -->
+     <!-- {% if messages %}
+    {% for message in messages %}
+        {{ message }}<br>
+    {% endfor %}
+{% endif %} -->
+{% if messages %}
+<div id="django-toast-container" style="position: fixed; top: 80px; right: 20px; z-index: 9999;"></div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const toastContainer = document.getElementById('django-toast-container');
+         {% for message in messages %}
+            // Create toast element
+            const toast = document.createElement('div');
+            toast.className = 'toast show';
+            toast.style.background = '#4CAF50';
+            toast.style.color = 'white';
+            toast.style.padding = '16px';
+            toast.style.borderRadius = '4px';
+            toast.style.marginBottom = '10px';
+            toast.style.boxShadow = '0 2px 5px rgba(0,0,0,0.2)';
+            toast.style.display = 'flex';
+            toast.style.alignItems = 'center';
+            toast.style.justifyContent = 'space-between';
+            toast.style.minWidth = '300px';
+            toast.style.transition = 'transform 0.3s ease-in-out';
+            toast.innerHTML = `
+                <span style="display: flex; align-items: center;">
+                    <i class="fas fa-check-circle" style="margin-right: 8px;"></i>
+                    {{ message|escapejs }}
+                </span>
+                <button style="background: none; border: none; color: white; font-size: 20px; cursor: pointer; margin-left: 10px;" onclick="this.parentElement.remove()">&times;</button>
+            `;
+            toastContainer.appendChild(toast);
+
+            // Auto-remove after 3 seconds
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => {
+                    toast.remove();
+                }, 300);
+            }, 3000);
+        {% endfor %}
+    });
+</script>
+{% endif %}
+
+    <div class="alert alert-info shadow-sm rounded-4 mb-5 mt-5">
+    <h5 class="fw-semibold">User Guide</h5>
+    <ul class="mb-0 ps-3">
+        <li><strong>Tag Extraction:</strong> Tags are first extracted from user-selected posts. We identify all tags that match your interest (e.g., <code>&lt;api&gt;</code>, <code>&lt;rest&gt;</code>) from the entire dataset.</li>
+        <li><strong>Finding of Unique Tags:</strong> We then find all unique tags from the extracted posts dataset.</li>
+    </ul>
+    
+  </div>   
+    <div class="row g-0">
+        <div class="table-responsive">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h4 class="text-center table-title">Unique Tags</h4>
+                <a href="{{unique_tags_for_export}}" class="export-btn" data-filename="Unique Tags">
+                    <i class="fas fa-download"></i> Export
+                </a>
+            </div>
+            <table class="w-full border-collapse border border-gray-300 custom-table">
+                <thead class="bg-gray-200">
+                    <tr>
+                        <th class="border border-gray-300 px-4 py-2 text-left">Tags</th>
+                        <th class="border border-gray-300 px-4 py-2 text-left">Tags</th>
+                        <th class="border border-gray-300 px-4 py-2 text-left">Tags</th>
+                        <th class="border border-gray-300 px-4 py-2 text-left">Tags</th>
+                    </tr>
+                </thead>
+                    <tbody>
+                        {% for row in data_page %}
+                        <tr class="border-b border-gray-300 hover:bg-gray-100 transition">
+                            {% for value in row.values %}
+                                <td class="py-3 px-6">{{ value }}</td>
+                                
+                            {% endfor %}
+                        </tr>
+                        {% endfor %}  
+                         
+                    </tbody>
+            </table>
+                </div>
+
+        
+                <!-- Pagination Controls -->
+                <div class="flex justify-center mt-4" id="paginationhide">
+                <nav class="flex">
+                    <ul class="pagination">
+                        {% if data_page.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page=1">First</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ data_page.previous_page_number }}">Previous</a>
+                            </li>
+                        {% endif %}
+        
+                        <li class="page-item active">
+                            <span class="page-link">{{ data_page.number }} Page of {{ data_page.paginator.num_pages }}</span>
+                        </li>
+        
+                        {% if data_page.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ data_page.next_page_number }}">Next</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ data_page.paginator.num_pages }}">Last</a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+                </div>
+    <div class="alert alert-info shadow-sm rounded-4 mb-5 mt-5">
+    <h5 class="fw-semibold">User Guide</h5>
+    <ul class="mb-0 ps-3">
+        <li><strong>Significance (P/D):</strong> Measures the importance of a tag within your dataset relative to the global dataset. Higher values mean the tag is more distinctive for your context.</li>
+
+        <li><strong>Relevance (P/Total):</strong> Measures how frequently a tag appears in your dataset. Higher values mean the tag is broadly relevant in your scope.</li>
+    
+        <li><strong>Final Tags:</strong> Tags that pass a significance & relevance threshold (e.g., ≥ 0.3 & ≥ 0.001) are selected as final for focused analysis.</li>
+    </ul>
+    {% comment %} {% if page_obj_for_final_tags_df and page_obj_for_final_tags_df.object_list %}
+    {% else %} {% endcomment %}
+    <form method="POST" action="{% url 'significance_and_relevence_of_tags_view' %}" class="flex justify-center items-center mt-5">
+                            {% csrf_token %}
+                            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded shadow-md transition duration-300 ease-in-out">
+                                Get Significance and Relevance of Tags
+                            </button>
+                    </form>
+                    {% comment %} {% endif %} {% endcomment %}
+  </div>
+            
+
+    </div>
+<!-- row 1 end -->
+<!-- row2 -->
+        <div class="row g-0" id="significance_and_relevance_of_tags">
+    {% if page_obj_for_final_tags_df and page_obj_for_final_tags_df.object_list %}
+     <!-- Charts -->
+     <div class="col-md-12 chart-container mt-5">
+        {{ significance_chart|safe }}
+    </div>
+    <div class="col-md-12 chart-container mt-5">
+        {{ relevance_chart|safe }}
+    </div>
+    <div class="table-responsive">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h4 class="text-center table-title">Significance & Relevance</h4>
+            <div class="d-flex gap-2">
+                <a href="{{signi_and_rel_of_all_tags_for_export}}" class="export-btn" data-filename="Significance & Relevance">
+                    <i class="fas fa-download"></i> Export Significance & Relevance
+                </a>
+                <a href="{{final_tags_for_export}}" class="export-btn" data-filename="Final Tags">
+                    <i class="fas fa-download"></i> Export Final Tags
+                </a>
+            </div>
+        </div>
+        <table class="w-full border-collapse border border-gray-300 custom-table">
+            <thead class="bg-gray-200">
+                <tr>
+                    <th class="border border-gray-300 px-4 py-2 text-left">Tags</th>
+                    <th class="border border-gray-300 px-4 py-2 text-left">Initial Tags Count (D)</th>
+                    <th class="border border-gray-300 px-4 py-2 text-left">Final Tags Count (P)</th>
+                    <th class="border border-gray-300 px-4 py-2 text-left">Significance</th>
+                    <th class="border border-gray-300 px-4 py-2 text-left">Relevance</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in page_obj_for_final_tags_df %}
+                <tr class="border-b border-gray-300 hover:bg-gray-100 transition">
+                    <td class="py-3 px-6">{{ row.unique_tags }}</td>
+                    <td class="py-3 px-6">{{ row.D }}</td>
+                    <td class="py-3 px-6">{{ row.P }}</td>
+                    <td class="py-3 px-6">{{ row.Significance }}</td>
+                    <td class="py-3 px-6">{{ row.Relevance }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination Controls -->
+    <div class="flex justify-center mt-4" id="paginationhide">
+        <nav class="flex">
+            <ul class="pagination">
+                {% if page_obj_for_final_tags_df.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page_for_final_tags=1">First</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page_for_final_tags={{ page_obj_for_final_tags_df.previous_page_number }}">Previous</a>
+                </li>
+                {% endif %}
+
+                <li class="page-item active">
+                    <span class="page-link">Page {{ page_obj_for_final_tags_df.number }} of {{ page_obj_for_final_tags_df.paginator.num_pages }}</span>
+                </li>
+
+                {% if page_obj_for_final_tags_df.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page_for_final_tags={{ page_obj_for_final_tags_df.next_page_number }}">Next</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page_for_final_tags={{ page_obj_for_final_tags_df.paginator.num_pages }}">Last</a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+
+   
+   <div class="alert alert-info shadow-sm rounded-4 mb-5 mt-5">
+    <h5 class="fw-semibold">User Guide</h5>
+    <ul class="mb-0 ps-3">
+        <li><strong>Post Re-extraction:</strong> After filtering, only posts that contain final tags are used to generate more accurate and relevant insights.</li>
+    </ul>
+
+         <form method="POST" action="{% url 'extract_final_posts_for_lda' %}" class="flex justify-center items-center mt-5">
+                            {% csrf_token %}
+                            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded shadow-md transition duration-300 ease-in-out" >
+                                Extract Final Posts
+                            </button>
+                    </form>
+          
+  </div>  
+    {% endif %}
+</div>
+  <!-- row2 end -->
+      
+
+    
+    <!-- Row 3:  -->
+ 
+<!--     
+    <div class="col-md-12 chart-container">
+                    <div>     
+                        {{unique_post_chart|safe}}
+                    </div>
+    </div> -->
+<!-- row3 end -->
+ <!-- row4 -->
+ <div class="row g-0" id="final_post">
+   {% if page_obj_for_final_tags_df and page_obj_for_final_tags_df.object_list %}
+    <div class="col-md-12">
+        <h4 class="table-title text-center mb-4">No of Topics to Generate</h4>
+        <div class="alert alert-info shadow-sm rounded-4 mb-5 mt-5">
+            <h5 class="fw-semibold">User Guide</h5>
+            <ul class="mb-0 ps-3">
+                <li><strong>Topic Modeling (LDA):</strong> Groups posts into meaningful themes. Each topic is a cluster of keywords that represent a common discussion area.</li>
+               
+            </ul>
+            {% comment %} {% if page_obj_for_lda and page_obj_for_lda.object_list %}
+            {% else %} {% endcomment %}
+        <form method="POST" action="{% url 'generate_topics' %}" class="mt-3 mb-5">
+            {% csrf_token %}
+            
+            <div class="mb-3 d-flex justify-content-center">
+                <input 
+                    type="text" 
+                    name="topics" 
+                    class="form-control w-50" 
+                    placeholder="Must be a number" 
+                    required>
+            </div>
+
+            <div class="d-flex justify-content-center">
+                <button 
+                    type="submit" 
+                    class="btn btn-primary px-5">
+                    Generate Topics
+                </button>
+            </div>
+        </form>
+        {% comment %} {% endif %} {% endcomment %}
+        </div>
+        </div>
+        {% endif %}
+    </div>
+<!-- 
+ row4 end -->
+    
+    <!-- row5 -->
+   
+                    
+                <div class="row g-0" id="lda_topics">
+                  {% if page_obj_for_lda and page_obj_for_lda.object_list %}
+                  <div class="alert alert-info shadow-sm rounded-4 mb-5 mt-5">
+                    <h5 class="fw-semibold text-lg mb-3">User Guide: Topic Visualization with LDAvis</h5>
+                    <ul class="mb-0 ps-3 list-disc text-sm space-y-2">
+                        <li>View your <a href="{{ ldavis }}" target="_blank" class="text-primary fw-semibold text-decoration-underline">LDAvis Report</a>.</li>
+                      <li><strong>What is LDAvis?</strong>  
+                        It's an interactive visual tool for understanding the topics generated by LDA (Latent Dirichlet Allocation). Each bubble represents a topic.
+                      </li>
+                  
+                      <li><strong>Bubble Position:</strong>  
+                        The center and position of each bubble on the left panel shows the inter-topic distance — how distinct or similar topics are from one another. Overlapping bubbles mean related topics.
+                      </li>
+                  
+                      <li><strong>Bubble Size:</strong>  
+                        The size of a bubble indicates the overall prevalence of the topic across your document set (larger = more common).
+                      </li>
+                  
+                      <li><strong>Right Panel (Bar Chart):</strong>  
+                        When you click a topic on the left, the right panel shows the top terms that define that topic.  
+                        - <span class="text-blue-700 font-medium">Red bars</span> = term frequency within the topic.  
+                        - <span class="text-gray-700 font-medium">Gray bars</span> = frequency across all topics (relevance comparison).
+                      </li>
+                  
+                      <li><strong>Lambda (λ) Slider:</strong>  
+                        Adjusting λ lets you change how specific vs. general the displayed terms are:  
+                        - λ → 1.0: Shows the most frequent terms in the topic  
+                        - λ → 0.0: Shows more exclusive terms (more useful for topic interpretation)
+                      </li>
+                  
+                      <li><strong>Hover Tips:</strong>  
+                        Hovering over bars or bubbles shows tooltips for deeper understanding — including term probabilities and relevance.
+                      </li>
+                  
+                      <li><strong>Why Use This?</strong>  
+                        To visually explore how well your LDA model groups topics and which keywords best represent each one. It helps validate the quality and coherence of your model.
+                      </li>
+                      
+                    </ul>
+                  </div>
+                  
+                    <div class="table-responsive">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h4 class="text-center table-title">Extracted Topics</h4>
+                            <a href="{{lda_topic_for_export}}" class="export-btn" data-filename="LDA Topics">
+                                <i class="fas fa-download"></i> Export
+                            </a>
+                        </div>
+                    <table class="min-w-full bg-white border border-gray-300 rounded-lg shadow custom-table">
+                            <thead>
+                                <tr>
+                                    <th class="py-3 px-6 text-left">Topic Number</th>
+                                    <th class="py-3 px-6 text-left">Words</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-gray-600 text-sm font-light">
+                                 {% for topic_number, topic_words in page_obj_for_lda %}
+                                    <tr class="border-b border-gray-300 hover:bg-gray-100 transition">
+                                        <td class="py-3 px-6">{{ topic_number }}</td>
+                                        <td class="py-3 px-6">{{ topic_words }}</td>
+                                    </tr>
+                                {% endfor %}  
+
+                                 
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                   
+                    <!-- Pagination -->
+                   
+                    <div class="flex justify-center mt-4" id="paginationhide">
+                        <nav class="flex">
+                            <ul class="pagination">
+                                {% if page_obj.has_previous %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page_for_topics=1">First</a>
+                                    </li>
+                                    <li class="page-item">
+                             <a class="page-link" href="?page_for_topics={{ page_obj.previous_page_number }}">Previous</a>
+                                    </li>
+                                {% endif %}
+                
+                                <li class="page-item active">
+                                    <span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+                                </li>
+                
+                                {% if page_obj.has_next %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page_for_topics{{ page_obj.next_page_number }}">Next</a>
+                                    </li>
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page_for_topics{{ page_obj.paginator.num_pages }}">Last</a>
+                                    </li>
+                                {% endif %}
+                            </ul>
+                        </nav>
+                        </div>
+
+    <div class="alert alert-info shadow-sm rounded-4 mb-5 mt-5">
+    <h5 class="fw-semibold">User Guide</h5>
+    <ul class="mb-0 ps-3">
+       
+        <li><strong>Popularity and Difficulty of Topics</strong>  
+            <li><strong>Popularity:</strong> Based on normalized sum of views, favorites, and scores across posts within a topic. Indicates what users are most interested in.</li>
+            <li><strong>Difficulty:</strong> Based on unanswered question ratio and median time to get an answer. Higher difficulty means the topic is harder for users to address.</li>
+    </ul>
+    {% if page_obj_for_papularity and page_obj_for_papularity.object_list %}
+    {% else %}
+    <form method="POST" action="{% url 'papularity_and_difficulty_of_topics' %}" class="flex justify-center items-center mt-5">
+                            {% csrf_token %}
+                            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded shadow-md transition duration-300 ease-in-out">
+                                Get Popularity and Difficulty of Topics
+                            </button>
+                    </form>
+                    {% endif %}
+  </div>
+{% endif %}
+    </div>
+                    
+<!-- row 5 end-->
+<!-- row 6 -->
+           
+          
+
+ 
+      <div  class="row g-0" id="papularity_and_difficulty_of_topics">
+        {% if page_obj_for_papularity and page_obj_for_papularity.object_list %}
+        <div class="table-responsive">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h4 class="text-center table-title">Popularity</h4>
+                <a href="{{papularity_of_topics_for_export}}" class="export-btn" data-filename="Popularity Data">
+                    <i class="fas fa-download"></i> Export
+                </a>
+            </div>
+                    <table class="min-w-full bg-white border border-gray-300 rounded-lg shadow custom-table">
+                        <thead class="bg-gray-200">
+                            <tr>
+                                <th class="border border-gray-300 px-4 py-2 text-left">Generated Topic</th>
+                                <th class="border border-gray-300 px-4 py-2 text-left">View Count</th>
+                                <th class="border border-gray-300 px-4 py-2 text-left">Favorite Count</th>
+                                <th class="border border-gray-300 px-4 py-2 text-left">Score</th>
+                                 <th class="border border-gray-300 px-4 py-2 text-left">Avg. View Count</th>
+                                <th class="border border-gray-300 px-4 py-2 text-left">Avg Favorite Count</th>
+                                <th class="border border-gray-300 px-4 py-2 text-left">Avg Score</th>  
+                                <th class="border border-gray-300 px-4 py-2 text-left">Papularity</th>
+                                
+                                 
+                                
+                            </tr>
+                        </thead>
+                        <tbody>
+                             {% for row in page_obj_for_papularity %}
+                             
+                            <tr class="border-b border-gray-300 hover:bg-gray-100 transition">
+                                <td class="py-3 px-6">{{ row.Topic }}</td>
+                                <td class="py-3 px-6">{{ row.ViewCount }}</td>
+                                <td class="py-3 px-6">{{ row.FavoriteCount }}</td>
+                                <td class="py-3 px-6">{{ row.Score }}</td>
+                               <td class="py-3 px-6">{{ row.ViewN }}</td>
+                                <td class="py-3 px-6">{{ row.FavoriteN }}</td>
+                                <td class="py-3 px-6">{{ row.ScoreN }}</td>  
+                                <td class="py-3 px-6">{{ row.FusedP }}</td>
+                            </tr>
+                            {% endfor %}  
+
+                             
+                        </tbody>
+                    </table>
+                </div>
+            
+                <div class="flex justify-center mt-4" id="paginationhide">
+                    <nav class="flex">
+                        <ul class="pagination">
+                            {% if page_obj_for_papularity.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page_for_papularity=1">First</a>
+                                </li>
+                                <li class="page-item">
+                         <a class="page-link" href="?page_for_papularity={{ page_obj_for_papularity.previous_page_number }}">Previous</a>
+                                </li>
+                            {% endif %}
+            
+                            <li class="page-item active">
+                                <span class="page-link"> Page {{ page_obj_for_papularity.number }} of {{ page_obj_for_papularity.paginator.num_pages }}</span>
+                            </li>
+            
+                            {% if page_obj_for_papularity.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page_for_papularity={{ page_obj_for_papularity.next_page_number }}">Next</a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page_for_papularity={{ page_obj_for_papularity.paginator.num_pages }}">Last</a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                    </div>
+    
+          <div class="col-md-12">
+           
+                {{bar_chart_html|safe}}
+          
+        </div>
+             <div class="col-md-12" >
+                    {{papularity_chart|safe}}
+               </div>
+               {% endif %}
+    </div> 
+ 
+    <!-- Row 6 end  -->
+     <!-- row 7 -->
+    <div class="row g-0">
+        {% if page_obj_for_difficulty and page_obj_for_difficulty.object_list %}
+        <div  class="col-md-12" >
+      <div class="table-responsive">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h4 class="text-center table-title">Fused Difficulty</h4>
+            <a href="{{difficulty_of_topics_for_export}}" class="export-btn" data-filename="Difficulty Data">
+                <i class="fas fa-download"></i> Export
+            </a>
+        </div>
+                    <table class="min-w-full bg-white border border-gray-300 rounded-lg shadow custom-table">
+                            <thead class="bg-gray-200">
+                                <tr>
+                                    <th class="border border-gray-300 px-4 py-2 text-left">Generated Topic</th>
+                                    <th class="border border-gray-300 px-4 py-2 text-left">Total Questions</th>
+                                    <th class="border border-gray-300 px-4 py-2 text-left">Unanswered Questions</th>
+                                    <th class="border border-gray-300 px-4 py-2 text-left">% Q Without Accepted Answer</th>
+                                    <th class="border border-gray-300 px-4 py-2 text-left">Median Hrs to Accepted Answer</th>
+                                    <th class="border border-gray-300 px-4 py-2 text-left">Fused Difficulty</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for row in page_obj_for_difficulty %}
+                                <tr class="border-b border-gray-300 hover:bg-gray-100 transition">
+                                    <td class="py-3 px-6">{{ row.GeneratedTopic }}</td>
+                                    <td class="py-3 px-6">{{ row.TotalQuestions }}</td>
+                                    <td class="py-3 px-6">{{ row.UnansweredQuestions }}</td>
+                                    <td class="py-3 px-6">{{ row.PctQWoAcceptedAnswerNorm }}</td>
+                                    <td class="py-3 px-6">{{ row.MedHrsToGetAccAnsNorm }}</td>
+                                    <td class="py-3 px-6">{{ row.FusedDifficulty }}</td>
+                                </tr>
+                                {% endfor %}  
+                                
+                                 
+                            </tbody>
+                        </table>
+                    </div>
+                
+                    <!-- Pagination Controls -->
+                    <div class="flex justify-center mt-4" id="paginationhide">
+                        <nav class="flex">
+                            <ul class="pagination">
+                                {% if page_obj_for_difficulty.has_previous %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page_for_difficulty=1">First</a>
+                                    </li>
+                                    <li class="page-item">
+                             <a class="page-link" href="?page_for_difficulty={{ page_obj_for_difficulty.previous_page_number }}">Previous</a>
+                                    </li>
+                                {% endif %}
+                
+                                <li class="page-item active">
+                                    <span class="page-link"> Page {{ page_obj_for_difficulty.number }} of {{ page_obj_for_difficulty.paginator.num_pages }}</span>
+                                </li>
+                
+                                {% if page_obj_for_difficulty.has_next %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page_for_difficulty={{ page_obj_for_difficulty.next_page_number }}">Next</a>
+                                    </li>
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page_for_difficulty={{ page_obj_for_difficulty.paginator.num_pages }}">Last</a>
+                                    </li>
+                                {% endif %}
+                            </ul>
+                        </nav>
+                        </div>
+
+                </div>
+                   <div class="col-md-12 chart-container">
+                <div>
+                   {{difficulty_chart|safe}}<br>
+                   {{line_chart_html|safe}}
+                </div>
+            </div>
+              <div class="alert alert-info shadow-sm rounded-4 mb-5 mt-5">
+    <h5 class="fw-semibold">Complexity and Trends of Topics </h5>
+    <ul class="mb-0 ps-3">
+        <li><strong>Complexity:</strong> Combines difficulty metrics into a single score, helping prioritize topics that are both hard and important.</li>
+
+        <li><strong>Trends Over Time:</strong> Shows the rise and fall of topic usage monthly. Useful for understanding evolving interest.</li>
+
+    </ul>
+    {% if page_obj_for_complexity and page_obj_for_complexity.object_list %}
+    {% else %}
+   <form method="GET" action="{% url 'topics_complexity_and_trends' %}" class="flex justify-center items-center mt-5">
+        {% csrf_token %}
+       
+        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded shadow-md transition duration-300 ease-in-out">
+                                Get Complexity and Trends of Topics
+                            </button>
+    </form>
+    {% endif %}
+  </div>
+        {% endif %}
+            </div>  
+
+
+
+  
+             <!-- row 7 end   -->
+
+             <!-- row 8 -->
+             <div class="row g-0" id="complexity and trends">
+        {% if page_obj_for_complexity and page_obj_for_complexity.object_list %}
+        <div  class="col-md-12" >
+      <div class="table-responsive">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h4 class="text-center table-title">Complexity</h4>
+                <a href="{{complexity_of_topics_for_export}}" class="export-btn" data-filename="Complexity Data">
+                    <i class="fas fa-download"></i> Export
+                </a>
+            </div>
+                    <table class="min-w-full bg-white border border-gray-300 rounded-lg shadow custom-table">
+                        <thead class="bg-gray-200">
+                            <tr>
+                                <th class="border border-gray-300 px-4 py-2 text-left">Generated Topic</th>
+                                <th class="border border-gray-300 px-4 py-2 text-left">PctQWoAcceptedAnswerNi</th>
+                                <th class="border border-gray-300 px-4 py-2 text-left">MedHrsToGetAccAnsNi</th>
+                                <th class="border border-gray-300 px-4 py-2 text-left">Complexity</th>
+ 
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in page_obj_for_complexity %}
+                            <tr class="border-b border-gray-300 hover:bg-gray-100 transition">
+                                <td class="py-3 px-6">{{ row.GeneratedTopic }}</td>
+                                <td class="py-3 px-6">{{ row.PctQWoAcceptedAnswerNi }}</td>
+                                <td class="py-3 px-6">{{ row.MedHrsToGetAccAnsNi }}</td>
+                                <td class="py-3 px-6">{{ row.Complexity }}</td>
+                                
+                            </tr>
+                            {% endfor %}  
+                                
+                                 
+                            </tbody>
+                        </table>
+                    </div>
+                
+                    <!-- Pagination Controls -->
+                    <div class="flex justify-center mt-4" id="paginationhide">
+                        <nav class="flex">
+                            <ul class="pagination">
+                                {% if page_obj_for_complexity.has_previous %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page_for_complexity=1">First</a>
+                                    </li>
+                                    <li class="page-item">
+                             <a class="page-link" href="?page_for_complexity={{ page_obj_for_complexity.previous_page_number }}">Previous</a>
+                                    </li>
+                                {% endif %}
+                
+                                <li class="page-item active">
+                                    <span class="page-link"> Page {{ page_obj_for_complexity.number }} of {{ page_obj_for_complexity.paginator.num_pages }}</span>
+                                </li>
+                
+                                {% if page_obj_for_complexity.has_next %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page_for_complexity={{ page_obj_for_complexity.next_page_number }}">Next</a>
+                                    </li>
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page_for_complexity={{ page_obj_for_complexity.paginator.num_pages }}">Last</a>
+                                    </li>
+                                {% endif %}
+                            </ul>
+                        </nav>
+                        </div>
+
+                </div>
+             
+            <div  class="col-md-12 chart-container">
+                <div  >
+                     {{topic_trends_chart_html|safe}}
+                    
+                </div>
+            </div>
+             <div class="alert alert-info shadow-sm rounded-4 mb-5 mt-5">
+    <h5 class="fw-semibold">User Guide</h5>
+    <ul class="mb-0 ps-3">
+        <li>
+            <strong>What-type Questions:</strong>
+            These are factual or descriptive questions aimed at understanding the basic definition or explanation of a concept or technology.<br>
+            <em>Example:</em> "What is REST API?"<br>
+            <strong>Insight:</strong> High volume indicates demand for foundational knowledge, common in newer or complex domains.
+          </li>
+        
+          <li>
+            <strong>How-type Questions:</strong>
+            These questions ask about implementation steps, configurations, or practical usage of tools and technologies.<br>
+            <em>Example:</em> "How to send data over MQTT?"<br>
+            <strong>Insight:</strong> Reflects hands-on learning needs and technical challenge in applying the concept.
+          </li>
+        
+          <li>
+            <strong>Why-type Questions:</strong>
+            These involve reasoning, justification, or conceptual clarity about design choices or technology preferences.<br>
+            <em>Example:</em> "Why is REST preferred over SOAP?"<br>
+            <strong>Insight:</strong> Indicates users seeking deeper understanding; often appears in mature or evaluative discussions.
+          </li>
+        
+          <li>
+            <strong>Other-type Questions:</strong>
+            Covers all remaining types such as tool recommendations, vague queries, error troubleshooting, or mixed-context issues.<br>
+            <em>Example:</em> "Facing error 404 in Flask app"<br>
+            <strong>Insight:</strong> Captures practical or non-structured challenges, often indicating a need for better support or clarification.
+          </li>
+    </ul>
+    {% if page_obj_for_questions and page_obj_for_questions.object_list %}
+    {% else %}
+    <form method="GET" action="/analyze_question_categories/" class="flex justify-center items-center mt-5">
+                            {% csrf_token %}
+                            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded shadow-md transition duration-300 ease-in-out">
+                                Get Question Categories
+                            </button>
+                    </form>
+                    {% endif %}
+  </div>
+            {% endif %}
+    </div> 
+
+
+
+   
+    <!-- Row 8 end -->
+  <!-- row 9 -->
+
+        <div class="row g-0" id="questions">
+        {% if page_obj_for_questions and page_obj_for_questions.object_list %}
+            <div class="col-md-12">
+                <div class="table-responsive">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h4 class="text-center table-title">Question Categories</h4>
+                        <a href="{{question_analysis_with_percentages_for_export}}" class="export-btn" data-filename="Topic Data">
+                            <i class="fas fa-download"></i> Export
+                        </a>
+                    </div>
+                    <table class="w-full border-collapse border border-gray-300 custom-table">
+                        <thead class="bg-gray-200">
+                            <tr>
+                    <th class="border border-gray-300 px-4 py-2">Generated Topic</th>
+                    <th class="border border-gray-300 px-4 py-2">How</th>
+                    <th class="border border-gray-300 px-4 py-2">Others</th>
+                    <th class="border border-gray-300 px-4 py-2">What</th>
+                    <th class="border border-gray-300 px-4 py-2">Why</th>
+                    <th class="border border-gray-300 px-4 py-2">How %</th>
+                    <th class="border border-gray-300 px-4 py-2">Others %</th>
+                    <th class="border border-gray-300 px-4 py-2">What %</th>
+                    <th class="border border-gray-300 px-4 py-2">Why %</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in page_obj_for_questions %}
+                            <tr class="border-b border-gray-300 hover:bg-gray-100 transition">
+                                <tr class="border-b border-gray-300 hover:bg-gray-100 transition">
+                                    <td class="py-3 px-6">{{ row.GeneratedTopic}}</td>
+                                    <td class="py-3 px-6">{{ row.How }}</td>
+                                    <td class="py-3 px-6">{{ row.Others }}</td>
+                                    <td class="py-3 px-6">{{ row.What }}</td>
+                                    <td class="py-3 px-6">{{ row.Why }}</td>
+                                    <td class="py-3 px-6">{{ row.How_Percentage }}</td>
+                                    <td class="py-3 px-6">{{ row.Others_Percentage }}</td>
+                                    <td class="py-3 px-6">{{ row.What_Percentage }}</td>
+                                    <td class="py-3 px-6">{{ row.Why_Percentage }}</td>
+                                </tr>
+                            </tr>
+                            {% endfor %} 
+
+                             
+                        </tbody>
+                    </table>
+                </div>
+                    <!-- Pagination Controls -->
+                    <div class="flex justify-center mt-4" id="paginationhide">
+                        <nav class="flex">
+                            <ul class="pagination">
+                                {% if page_obj_for_questions.has_previous %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page_question_category=1">First</a>
+                                    </li>
+                                    <li class="page-item">
+                             <a class="page-link" href="page_question_category={{ page_obj_for_questions.previous_page_number }}">Previous</a>
+                                    </li>
+                                {% endif %}
+                
+                                <li class="page-item active">
+                                    <span class="page-link"> Page {{ page_obj_for_questions.number }} of {{ page_obj_for_questions.paginator.num_pages }}</span>
+                                </li>
+                
+                                {% if page_obj_for_questions.has_next %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="page_question_category={{ page_obj_for_questions.next_page_number }}">Next</a>
+                                    </li>
+                                    <li class="page-item">
+                                        <a class="page-link" href="page_question_category={{ page_obj_for_questions.paginator.num_pages }}">Last</a>
+                                    </li>
+                                {% endif %}
+                            </ul>
+                        </nav>
+                        </div>           
+            </div>
+            
+        <div class="col-md-12 chart-container">
+        
+            {{question_persentage_chart|safe}}
+        
+    </div>
+       <div class="alert alert-info shadow-sm rounded-4 mb-5 mt-5">
+    <h5 class="fw-semibold">User Guide</h5>
+    <ul class="mb-0 ps-3">
+        <li><strong>Relative Impact:</strong> Shows a topic's share compared to others — reveals proportionate importance.</li>
+
+        <li><strong>Absolute Impact:</strong> Indicates the real volume of activity for each topic, regardless of others.</li>
+    
+        <li><strong>Volatility:</strong> Measures fluctuations in a topic's activity — higher means more unstable interest.</li>
+    
+        <li><strong>Change Impact:</strong> Tracks how topics increase or decrease over time. Useful for spotting emerging or fading themes.</li>       
+
+    </ul>
+     {% if charts %}
+    {% else %}
+    <form method="GET" action="/evolution_and_revolution_of_topics/" class="flex justify-center items-center mt-5">
+                            {% csrf_token %}
+                            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded shadow-md transition duration-300 ease-in-out">
+                                Get Evolution and Revolution of Topics
+                            </button>
+    </form>
+    {% endif %}
+  </div>
+
+    {% endif %}
+
+    </div>
+
+
+
+
+
+<div class="row g-0" id="evolution and revolution">
+    {% if charts %}
+        {% for chart in charts %}
+        <div class="chart-container">
+            {{ chart|safe }}
+        </div>
+    {% endfor %}
+    {% endif %}
+     </div>
+    </div>
+    
+            
+     {% if charts %}
+     <div class="container mx-auto px-4 py-6">
+         <div class="bg-white shadow-lg rounded-2xl p-8">
+             <h2 class="text-3xl font-bold mb-6 text-center text-gray-800">Rate Your Analysis</h2>
+             
+             <form method="POST" action="/submit_rating/{{ data.id }}/" class="space-y-6">
+                 {% csrf_token %}
+     
+                 <!-- Rating Stars -->
+                 <div>
+                     <label class="block text-lg font-medium text-gray-700 mb-2">Your Rating:</label>
+                     <div class="flex flex-row-reverse justify-center gap-2 text-3xl">
+                         {% for i in "54321" %}
+                         <input type="radio" id="star{{ i }}" name="rating" value="{{ i }}" 
+                                class="hidden peer" 
+                                {% if data.rating.rating == i|add:"0" %}checked{% endif %}
+                                {% if data.rating.rating %}disabled{% endif %}>
+                         <label for="star{{ i }}" 
+                                class="{% if data.rating.rating %}cursor-default{% else %}cursor-pointer{% endif %} text-gray-400 peer-checked:text-yellow-400 transition duration-200 {% if data.rating.rating and data.rating.rating == i|add:'0' %}text-yellow-400{% endif %}">★</label>
+                         {% endfor %}
+                     </div>
+                 </div>
+     
+                 <!-- Comment Box -->
+                 <div>
+                     <label for="comment" class="block text-lg font-medium text-gray-700 mb-2">Your Comments (Optional):</label>
+                     <textarea id="comment" name="comment" rows="4"
+                               class="w-full rounded-xl border border-gray-300 p-4 text-gray-700 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:outline-none {% if data.rating.comment %}bg-gray-100 cursor-not-allowed{% endif %}"
+                               placeholder="Share your thoughts about this analysis..."
+                               {% if data.rating.comment %}disabled{% endif %}>{{ data.rating.comment }}</textarea>
+                 </div>
+     
+                 <!-- Submit Button -->
+                 {% if data.rating.rating %}
+                 <div class="text-center">
+                     <p class="text-gray-600 italic">You have already submitted your rating and comment.</p>
+                 </div>
+                 {% else %}
+                 <div class="text-center">
+                     <button type="submit"
+                             class="bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700 transition duration-300 shadow-md">
+                         Submit Rating
+                     </button>
+                 </div>
+                 {% endif %}
+             </form>
+         </div>
+     </div>
+     {% endif %}
+     
+<!-- Rating Form Section -->
+
+       
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    function cleanText(text) {
+        // First decode escaped Unicode characters
+        let decodedText = text
+            .replace(/\\u([0-9a-fA-F]{4})/g, (match, p1) => 
+                String.fromCharCode(parseInt(p1, 16)))
+            .replace(/\\"/g, '"')
+            .replace(/\\'/g, "'")
+            .replace(/\\n/g, '\n')
+            .replace(/\\t/g, '\t')
+            .replace(/\\r/g, '\r')
+            .replace(/\\\\/g, '\\');
+
+        return decodedText
+            .replace(/\*\*/g, '')
+            .replace(/\*/g, '')
+            .replace(/\n{3,}/g, '\n\n')
+            .trim();
+    }
+
+    function formatMessage(text) {
+        let cleanedText = cleanText(text);
+        let paragraphs = cleanedText.split(/\n\n/);
+        
+        let formattedParagraphs = paragraphs.map(paragraph => {
+            if (paragraph.trim().endsWith(':')) {
+                return `<h3>${paragraph.trim()}</h3>`;
+            }
+            
+            if (/^\d+\.\s/.test(paragraph)) {
+                let items = paragraph.split(/\n/);
+                return `<ol class="numbered-list">${items.map(item => 
+                    `<li>${item.replace(/^\d+\.\s/, '')}</li>`
+                ).join('')}</ol>`;
+            }
+            
+            if (/^\s*\*\s/.test(paragraph) || /^\s{3}/.test(paragraph)) {
+                let items = paragraph.split(/\n/);
+                return `<ul class="bullet-list">${items.map(item => {
+                    if (/^\s{4}\*\s/.test(item) || /^\s{6}/.test(item)) {
+                        return `<li class="nested-item">${item.replace(/^\s{4}\*\s|^\s{6}/, '')}</li>`;
+                    }
+                    return `<li>${item.replace(/^\s*\*\s|^\s{3}/, '')}</li>`;
+                }).join('')}</ul>`;
+            }
+            
+            return `<p>${paragraph.replace(/\n/g, '<br>')}</p>`;
+        });
+        
+        return formattedParagraphs.join('');
+    }
+
+    function showTypingIndicator() {
+        document.querySelector('.typing-indicator').style.display = 'block';
+        const chatBox = document.getElementById('chatBox');
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function hideTypingIndicator() {
+        document.querySelector('.typing-indicator').style.display = 'none';
+    }
+
+    function addMessage(role, text, imageUrl = null) {
+        const messageClass = role === 'user' ? 'user-message' : 'ai-message';
+        const formattedText = formatMessage(text);
+        
+        const messageHtml = `
+            <div class="message-row ${role}">
+                <div class="chat-message ${messageClass}">
+                    ${formattedText}
+                    ${imageUrl ? `<img src="${imageUrl}" class="message-image" alt="Uploaded image">` : ''}
+                </div>
+            </div>
+        `;
+        
+        const chatBox = document.getElementById('chatBox');
+        chatBox.insertAdjacentHTML('beforeend', messageHtml);
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+
+    function handleKey(event) {
+        if (event.key === "Enter" && !event.shiftKey) {
+            event.preventDefault();
+            sendMessage();
+        }
+    }
+
+    function handleFileSelect(input) {
+        if (input.files && input.files[0]) {
+            const fileName = input.files[0].name;
+            const attachmentBtn = input.previousElementSibling;
+            attachmentBtn.querySelector('i').className = 'fas fa-check';
+            attachmentBtn.style.color = '#3b82f6';
+            
+            setTimeout(() => {
+                attachmentBtn.querySelector('i').className = 'fas fa-paperclip';
+                attachmentBtn.style.color = '#666';
+            }, 2000);
+        }
+    }
+
+    function toggleChatForm() {
+        const form = document.getElementById("chatForm");
+        if (form.style.display === "none" || !form.style.display) {
+            form.style.display = "block";
+            document.getElementById("chatBox").scrollTop = document.getElementById("chatBox").scrollHeight;
+        } else {
+            form.style.display = "none";
+        }
+    }
+
+function sendMessage() {
+    const input = document.getElementById("userInput");
+    const message = input.value.trim();
+    const fileInput = document.getElementById("fileInput");
+    if (!message && !fileInput.files.length) return;
+
+    const formData = new FormData();
+    formData.append('text_input', message);
+    if (fileInput.files.length > 0) {
+        formData.append('image', fileInput.files[0]);
+    }
+    formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+
+    addMessage('user', message, fileInput.files.length > 0 ? URL.createObjectURL(fileInput.files[0]) : null);
+    
+    input.value = "";
+    fileInput.value = "";
+    
+    showTypingIndicator();
+
+    fetch('{% url "chatbot" %}', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        hideTypingIndicator();
+        if (data.response) {
+            addMessage('ai', data.response);
+        }
+    })
+    .catch(error => {
+        hideTypingIndicator();
+        addMessage('ai', "Sorry, I couldn't process your request.");
+        console.error("Error:", error);
+    });
+}
+
+    // Initialize chat when document is ready
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add click handler for chat button
+    // document.getElementById('chatbotButton').addEventListener('click', toggleChatForm);
+        
+        // Format any existing messages
+        document.querySelectorAll('.message-content').forEach(function(element) {
+            const originalText = element.dataset.originalText;
+            if (originalText) {
+                element.innerHTML = formatMessage(originalText);
+            }
+        });
+
+        // Add CSRF token to all fetch requests
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        document.addEventListener('fetch', function(event) {
+            if (event.request.method !== 'GET') {
+                event.request.headers.append('X-CSRFToken', csrfToken);
+            }
+        });
+    });
+</script>
+<script>
+      document.addEventListener("DOMContentLoaded", function() {
+          const params = new URLSearchParams(window.location.search);
+          const scrollTo = params.get("scroll_to");
+          if (scrollTo) {
+              const target = document.getElementById(scrollTo);
+              if (target) {
+                  target.scrollIntoView({ behavior: "smooth" });
+              }
+          }
+      });
+</script>
+{% endblock %}
+

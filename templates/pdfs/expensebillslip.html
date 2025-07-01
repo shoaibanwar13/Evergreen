@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Expense Slip</title>
+  <style>
+    body {
+      font-family: 'Open Sans', sans-serif;
+      color: #333;
+      padding: 40px;
+    }
+    .slip-box {
+      max-width: 700px;
+      margin: auto;
+      background: white;
+      border: 2px solid #e9c46a;
+      border-radius: 8px;
+      padding: 30px 40px;
+      box-shadow: 0 0 20px rgba(45,80,22,0.1);
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid #2d5016;
+      padding-bottom: 10px;
+      margin-bottom: 20px;
+    }
+    .logo {
+      height: 60px;
+    }
+    .company-info {
+      text-align: right;
+      font-size: 12px;
+    }
+    .company-name {
+      font-weight: bold;
+      color: #2d5016;
+      font-size: 18px;
+    }
+    h2 {
+      text-align: center;
+      color: #2d5016;
+      margin-bottom: 20px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+      font-size: 12px;
+    }
+    td {
+      padding: 8px 5px;
+      vertical-align: top;
+    }
+    .details-table td {
+      border: 1px solid #ddd;
+    }
+    .details-table tr.heading td {
+      background: #2d5016;
+      color: #fff;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+    .amount {
+      text-align: right;
+      font-weight: bold;
+      color: #2d5016;
+    }
+    .footer-info {
+      border-top: 1px solid #ccc;
+      font-size: 11px;
+      color: #777;
+      text-align: center;
+      padding-top: 8px;
+      margin-top: 30px;
+    }
+    .signatures {
+      margin-top: 50px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+    }
+    .signature-block {
+      width: 45%;
+      text-align: center;
+      position: relative;
+    }
+    .signature-label {
+      font-weight: bold;
+      margin-bottom: 40px;
+    }
+    .signature-line {
+      border-top: 1px solid #333;
+      margin-top: 50px;
+      height: 20px;
+      position: relative;
+    }
+    .sign-name {
+      position: absolute;
+      top: -20px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-weight: bold;
+      color: #2d5016;
+    }
+    .stamp {
+      position: absolute;
+      top: -70px; /* adjust stamp position */
+      left: 50%;
+      transform: translateX(-50%) rotate(-15deg);
+      width: 80px;
+      opacity: 0.25;
+    }
+  </style>
+</head>
+<body>
+  <div class="slip-box">
+    <!-- Header -->
+    <div class="header">
+      <img src="{{ company_logo_path }}" alt="Company Logo" class="logo">
+      <div class="company-info">
+        <div class="company-name">{{ company_name }}</div>
+        <div>{{ head_Office }}</div>
+        <div>Phone: {{ phone_number }}</div>
+        <div>Email: {{ company_email }}</div>
+      </div>
+    </div>
+
+    <h2>Expense Slip</h2>
+
+    <!-- General Info -->
+    <table>
+      <tr>
+        <td><strong>Slip No:</strong> #{{ expense.id }}</td>
+        <td class="amount"><strong>Date:</strong> {{ expense.date }}</td>
+      </tr>
+      <tr>
+        <td colspan="2"><strong>Payment Method:</strong> {{ expense.payment_method }}</td>
+      </tr>
+      <tr>
+        <td colspan="2">
+          <strong>Status:</strong>
+          {% if expense.Payment_Status == "PAID" %}
+            <span class="status-approved">PAID</span>
+          {% else %}
+            <span class="status-pending">CREDIT</span>
+          {% endif %}
+        </td>
+      </tr>
+    </table>
+
+    <!-- Details Table -->
+    <table class="details-table">
+      <tr class="heading">
+        <td>Production Name</td>
+        <td>Category</td>
+        <td>Paid</td>
+        <td>Remaining</td>
+        <td class="amount">Total</td>
+      </tr>
+      <tr>
+        <td>{{ expense.Production_Name }}</td>
+        <td>{{ expense.category }}</td>
+        <td>{{ expense.Paid_Amount }}</td>
+        <td>{{ expense.Remaining_Amount }}</td>
+        <td class="amount">{{ expense.amount }}</td>
+      </tr>
+    </table>
+
+    <!-- Subtotal/Grand Total -->
+    <table>
+      <tr>
+        <td><strong>Subtotal:</strong></td>
+        <td class="amount">{{ expense.amount }}</td>
+      </tr>
+      <tr>
+        <td><strong>Grand Total:</strong></td>
+        <td class="amount">{{ expense.amount }}</td>
+      </tr>
+    </table>
+
+    <!-- Description and Notes -->
+    {% if expense.description %}
+    <p><strong>Description:</strong> {{ expense.description }}</p>
+    {% endif %}
+
+    {% if expense.notes %}
+    <p><strong>Notes:</strong> {{ expense.notes }}</p>
+    {% endif %}
+
+    <!-- Signatures -->
+    <div class="signatures">
+      <!-- Prepared By block -->
+      <div class="signature-block">
+        <div class="signature-label">Prepared By</div>
+        <div class="signature-line">
+          <div class="sign-name">{{ prepared_by }}</div>
+        </div>
+      </div>
+
+      <!-- Approved By block with stamp -->
+      <div class="signature-block">
+        <div class="signature-label">Approved By</div>
+        <div class="signature-line">
+          <img src="{{ company_logo_path }}" alt="Stamp" class="stamp">
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer-info">
+      This slip is system-generated on {{ expense.date }}. Thank you.
+    </div>
+  </div>
+</body>
+</html>

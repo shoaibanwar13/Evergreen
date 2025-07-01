@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Client Sale Report</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+      color: #333;
+      font-size: 12px;
+      margin: 40px;
+    }
+
+    /* Watermark */
+    body::before {
+      content: "CONFIDENTIAL REPORT";
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) rotate(-30deg);
+      font-size: 70px;
+      color: rgba(45, 80, 22, 0.05);
+      font-weight: bold;
+      z-index: -1;
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 3px solid #2d5016;
+      padding-bottom: 20px;
+      margin-bottom: 40px;
+    }
+
+    .logo {
+      max-height: 80px;
+    }
+
+    .company-info {
+      text-align: right;
+    }
+
+    .company-name {
+      font-size: 24px;
+      color: #2d5016;
+      font-weight: bold;
+      text-transform: uppercase;
+      margin: 0;
+    }
+
+    .company-contact {
+      font-size: 11px;
+      color: #555;
+      margin-top: 5px;
+      line-height: 1.4;
+    }
+
+    /* Title */
+    .report-title {
+      text-align: center;
+      font-size: 20px;
+      color: #2d5016;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 30px;
+    }
+
+    /* Summary Cards */
+    .summary {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 30px;
+    }
+
+    .card {
+      flex: 1;
+      background: #f4f9f4;
+      border-left: 5px solid #2d5016;
+      padding: 15px 20px;
+      margin: 0 10px;
+      border-radius: 4px;
+    }
+
+    .card h4 {
+      margin: 0 0 5px;
+      color: #2d5016;
+      font-size: 14px;
+    }
+
+    .card p {
+      margin: 0;
+      font-size: 16px;
+      font-weight: bold;
+    }
+
+    /* Table */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 11px;
+      margin-bottom: 40px;
+    }
+
+    thead {
+      background: #2d5016;
+      color: #fff;
+    }
+
+    th, td {
+      padding: 10px 6px;
+      border: 1px solid #ddd;
+      text-align: center;
+    }
+
+    tbody tr:nth-child(even) {
+      background: #f9f9f9;
+    }
+
+    tbody tr:hover {
+      background: #eef7ee;
+    }
+
+    /* Signatures */
+    .signatures {
+      margin-top: 50px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+    }
+
+    .signature-block {
+      width: 30%;
+      text-align: center;
+      position: relative;
+    }
+
+    .signature-label {
+      font-weight: bold;
+      margin-top: 10px;
+      text-transform: uppercase;
+      font-size: 11px;
+      color: #555;
+    }
+
+    .signature-line {
+      border-top: 1px solid #333;
+      margin-top: 80px;
+      height: 20px;
+      position: relative;
+    }
+
+    .sign-name {
+      position: absolute;
+      top: 0px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-weight: bold;
+      color: #2d5016;
+    }
+
+    .stamp {
+      position: absolute;
+      top: -20px; /* adjust stamp position */
+      left: 50%;
+      transform: translateX(-50%) rotate(-15deg);
+      width: 80px;
+      opacity: 1;
+    }
+
+    /* Footer */
+    .footer {
+      margin-top: 50px;
+      text-align: center;
+      font-size: 10px;
+      color: #777;
+      border-top: 1px solid #2d5016;
+      padding-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <div class="header">
+    {% if company_logo_path %}
+      <img src="{{ company_logo_path }}" alt="Logo" class="logo">
+    {% endif %}
+    <div class="company-info">
+      <p class="company-name">{{ company_name }}</p>
+      <p class="company-contact">
+        {{ head_Office }}<br>
+        Phone: {{ phone_number }}<br>
+        Email: {{ email }}
+      </p>
+    </div>
+  </div>
+
+  <!-- Report Title -->
+  <h2 class="report-title">Sale Report</h2>
+
+  <!-- Summary -->
+  <div class="summary">
+    <div class="card">
+      <h4>Total Purchase</h4>
+      <p>{{ Total_Purchase_Amount }}</p>
+    </div>
+    <div class="card">
+      <h4>Total Paid</h4>
+      <p>{{ Total_Paid_Amount }}</p>
+    </div>
+    <div class="card">
+      <h4>Total Pending</h4>
+      <p>{{ Total_Pending_Amount }}</p>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <table>
+    <thead>
+      <tr>
+        <th>Client</th>
+        <th>Items/Balles</th>
+        <th>Weight</th>
+        <th>Sale Price</th>
+        <th>Total Amount</th>
+        <th>Discount</th>
+        <th>Final Amount</th>
+        <th>Paid Amount</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for sale in sales %}
+      <tr>
+        <td>{{ sale.Client_Name }}</td>
+        <td>{{ sale.Items_Or_Balles }}</td>
+        <td>{{ sale.Weight }}</td>
+        <td>{{ sale.Sale_Price }}</td>
+        <td>{{ sale.Total_Amount }}</td>
+        <td>{{ sale.Discount }}</td>
+        <td>{{ sale.Final_Amount }}</td>
+        <td>{{ sale.Paid_Amount }}</td>
+        <td>{{ sale.Payment_Status|yesno:"Paid,Pending" }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <!-- Signatures -->
+  <div class="signatures">
+    <!-- Authorized By -->
+    <div class="signature-block">
+      <div class="signature-line"></div>
+      <div class="sign-name">{{prepared_by}}</div>
+      <div class="signature-label">Authorized By</div>
+    </div>
+
+    <!-- Verified By with Stamp -->
+    <div class="signature-block">
+      <img src="{{ company_logo_path }}" alt="Stamp" class="stamp">
+      <div class="signature-line"></div>
+      <div class="signature-label">Verified By</div>
+    </div>
+
+    <!-- Approved By with Stamp -->
+    <div class="signature-block">
+      <img src="{{ company_logo_path }}" alt="Stamp" class="stamp">
+      <div class="signature-line"></div>
+      <div class="signature-label">Approved By</div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    Generated by SoftApex Technologies • {{ Date }}
+  </div>
+</body>
+</html>

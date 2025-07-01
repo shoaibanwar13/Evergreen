@@ -4,6 +4,7 @@ from django.http import JsonResponse
 from decimal import Decimal, InvalidOperation
 from datetime import datetime
 from django.db.models import F
+from weasyprint import HTML
 from django.contrib.auth.decorators import login_required
 import os
 from django.core.paginator import Paginator
@@ -40,6 +41,11 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
 from django.views.decorators.csrf import csrf_exempt  # If needed for testing
 from django.views.decorators.http import require_POST
+import weasyprint
+from django.http import HttpResponse
+from django.template.loader import render_to_string
+from django.conf import settings
+from django.db.models import Sum, F, ExpressionWrapper
 def index(request):
     compydetail=CompanyDetail.objects.all()
     plans = SubscriptionPlan.objects.all()
@@ -97,7 +103,7 @@ def calculate_monthly_received(request,year, month):
     return total_purchase or 0
 @login_required
 def Vendor(request):
-    from django.db.models import Sum, F, ExpressionWrapper
+   
     current_year = datetime.now().year
     recent_sales = Sale.objects.filter(user=request.user).order_by('-date')[:10]
     january_total = february_total = march_total = april_total = may_total = june_total = 0
@@ -396,176 +402,63 @@ def check_product_name(request):
 def NewPurchasepdf(request):
     if not request.user.is_authenticated:
         return HttpResponse("You need to log in to view this page.", status=401)
-    compydetail=CompanyDetail.objects.filter(user=request.user).first()
-    purchase=DailyProduction.objects.filter(user=request.user).last()
-    comN=request.user.b
-    Email=compydetail.email
-    address=compydetail.Head_Office
-    phone=compydetail.phone
+
      
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = 'attachment; filename="productionInvoice.pdf"'
+    purchase = DailyProduction.objects.filter(user=request.user).last()
 
-    # Create a PDF document
-    pdf = SimpleDocTemplate(response, pagesize=letter)
+    if not purchase:
+        return HttpResponse("No production record found.", status=404)
 
-    # Define data for the invoice
-    company_logo_path = compydetail.logo # Replace with actual path
-    company_name = comN
-    company_email = Email
-    Head_Office = address
-    Phone = phone
-     
-    Date= datetime.now().strftime("%d/%m/%Y")
-    ProductionCity = purchase.City
-    ProductionPlace= purchase.Production_Place
-    
-    items = [
-        ["Puroduction","Items/Balles","Team" ,"Expense", "Date"],
-        [purchase.Puroduction_Product_Name,purchase.Total_Production_Item,purchase.Production_Team_Name,  purchase.Total_Expense_Amount,purchase.date]
-    ]
+    html_string = render_to_string('pdfs/production_proof_slip.html', {
+        'company_name': request.user.company_name,
+        'email': request.user.email,
+        'head_office': request.user.business_address,
+        'phone_number': request.user.phone_number,
+        'prepared_by':request.user.first_name,
+        'company_logo_path': request.build_absolute_uri(request.user.business_logo.url) if request.user.business_logo else '',
+        'Date': datetime.now().strftime("%d/%m/%Y"),
+        'ProductionCity': purchase.City,
+        'ProductionPlace': purchase.Production_Place,
+        'purchase': purchase,
+    })
 
-    # Define styles
-    styles = getSampleStyleSheet()
-    title_style = styles['Title']
-    heading_style = styles['Heading1']
-    paragraph_style = styles['Normal']
+    pdf_file = HTML(string=html_string, base_url=request.build_absolute_uri()).write_pdf()
 
-    # Define table style
-    table_style = TableStyle([('BACKGROUND', (0, 0), (-1, 0), colors.gray),
-                              ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-                              ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-                              ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-                              ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-                              ('BACKGROUND', (0, 1), (-1, -1), colors.white),
-                              ('GRID', (0, 0), (-1, -1), 1, colors.black)])
-
-    # Create invoice content
-    content = []
-
-    # Company details and logo
-    company_logo = Image(company_logo_path, width=100, height=100)
-    content.append(company_logo)
-    content.append(Paragraph(company_name, title_style))
-    content.append(Paragraph("{}".format(Head_Office), paragraph_style))
-    content.append(Paragraph(" {}".format(Phone), paragraph_style))
-    content.append(Paragraph("{}".format(company_email), paragraph_style))
-     
-
-    # Client details
-    content.append(Paragraph("____________________________________________", heading_style))
-    content.append(Paragraph("Daily Production Record ", heading_style))
-    content.append(Paragraph("Created Date: {}".format(Date), paragraph_style))
-    content.append(Paragraph("Production City: {}".format(ProductionCity), paragraph_style))
-    content.append(Paragraph("Production Place: {}".format(ProductionPlace), paragraph_style))
-    content.append(Paragraph("", heading_style))
-
-    # Invoice items table
-    items_table = Table(items, colWidths=[200, 80, 80, 80])
-    items_table.setStyle(table_style)
-    content.append(items_table)
-
-    # Build the PDF document
-    pdf.build(content)
+    response = HttpResponse(pdf_file, content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="production_proof_slip.pdf"'
     return response
-# Create your views here.
+ 
 @login_required
 def TotalVendorPurchase(request):
-    compydetail=CompanyDetail.objects.all()
-    purchase=DailyProduction.objects.filter(user=request.user)
-    Total_Point_Production=DailyProduction.objects.filter(user=request.user).count()
-    Expense_Amount=Decimal(0.00)
-    Grand_Total=Decimal(0.00)
+     
+    purchase = DailyProduction.objects.filter(user=request.user)
+    Total_Point_Production = purchase.count()
+    Expense_Amount = Decimal(0.00)
     for purchases in purchase:
-        Expense_Amount+=purchases.Total_Expense_Amount
-    Grand_Total=Expense_Amount
-    print(Grand_Total)
+        Expense_Amount += purchases.Total_Expense_Amount
 
-        
-    comN=[]
-    Email=[]
-    address=[]
-    phone=[]
-    for com in compydetail:
-        name=com.name
-        comN.append(name)
-        email=com.email
-        Email.append(email)
-        office=com.Head_Office
-        address.append(office)
-        Phone=com.phone
-        phone.append(Phone)
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = 'attachment; filename="ProductionBill.pdf"'
+    Grand_Total = Expense_Amount
+    Date = datetime.now().strftime("%d/%m/%Y")
 
-    # Create a PDF document
-    pdf = SimpleDocTemplate(response, pagesize=letter)
+    context = {
+        'company_name': request.user.company_name,
+        'email': request.user.email,
+        'head_office': request.user.business_address,
+        'phone_number': request.user.phone_number,
+        'prepared_by':request.user.first_name,
+        'company_logo_path': request.build_absolute_uri(request.user.business_logo.url) if request.user.business_logo else '',
+        "Date": Date,
+        "Total_Amount": Grand_Total,
+        "vendor_total_Production": Total_Point_Production,
+        "purchase_list": purchase,
+        "user": request.user
+    }
 
-    # Define data for the invoice
-    company_logo_path = "media/Company Logo/logo1.png"  # Replace with actual path
-    company_name = comN[0]
-    company_email = Email[0]
-     
-    Head_Office = address[0]
-    Phone = phone[0]
-     
-    Date= datetime.now().strftime("%d/%m/%Y")
-    Total_Amount= Grand_Total
-    vendor_total_Production=Total_Point_Production
-    
-    
-    products = [
-         ["Puroduction","Items/Balles","Team" ,"Expense", "Production Date"],
-    ]
-    for purchase in purchase:
-        products.append([
-             
-           purchase.Puroduction_Product_Name,purchase.Total_Production_Item,purchase.Production_Team_Name,  purchase.Total_Expense_Amount,purchase.date
-        ])
+    html_string = render_to_string('pdfs/vendor_purchase_report.html', context)
+    pdf_file = HTML(string=html_string, base_url=request.build_absolute_uri()).write_pdf()
 
-    # Define styles
-    styles = getSampleStyleSheet()
-    title_style = styles['Title']
-    heading_style = styles['Heading1']
-    paragraph_style = styles['Normal']
-
-    # Define table style
-    table_style = TableStyle([('BACKGROUND', (0, 0), (-1, 0), colors.gray),
-                              ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-                              ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-                              ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-                              ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-                              ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
-                              ('GRID', (0, 0), (-1, -1), 1, colors.black)])
-
-    # Create invoice content
-    content = []
-
-    # Company details and logo
-    company_logo = Image(company_logo_path, width=100, height=100)
-    content.append(company_logo)
-    content.append(Paragraph(company_name, title_style))
-    content.append(Paragraph("Email: {}".format(company_email), paragraph_style))
-    content.append(Paragraph("Head Office: {}".format(Head_Office), paragraph_style))
-    content.append(Paragraph("Contact No.: {}".format(Phone), paragraph_style))
-     
-
-    # Client details
-    content.append(Paragraph("____________________________________________", heading_style))
-    content.append(Paragraph("Complete Purchase Report Of {}".format(request.user), heading_style))
-    content.append(Paragraph("Created Date: {}".format(Date), paragraph_style))
-    content.append(Paragraph("Total Expense:  {}".format(Total_Amount), paragraph_style)) 
-    content.append(Paragraph("Total Vendor Production:  {}".format(vendor_total_Production), paragraph_style))
-     
-    content.append(Paragraph("", heading_style))
-
-    # Invoice items table
-    items_table = Table(products, colWidths=[200, 80, 80, 80])
-    items_table.setStyle(table_style)
-    content.append(items_table)
-
-    # Build the PDF document
-    pdf.build(content)
+    response = HttpResponse(pdf_file, content_type='application/pdf')
+    response['Content-Disposition'] = 'filename="VendorProductionReport.pdf"'
     return response
 @login_required
 def purchase_export_to_excel(request):
@@ -608,119 +501,48 @@ def Purchase_Filter(request):
     return render(request,'PurchaseFilter.html',{'results':results,'query':query})
 @login_required
 def VendorPurchaseSearch(request):
-    query=request.GET.get("query")
-    query2=request.GET.get("query2")
-    fromdate=request.GET.get("fromdate")
-    todate=request.GET.get('todate')
-    purchase=DailyProduction.objects.filter(user=request.user )
+    query = request.GET.get("query")
+    query2 = request.GET.get("query2")
+    fromdate = request.GET.get("fromdate")
+    todate = request.GET.get("todate")
+
+    purchase = DailyProduction.objects.filter(user=request.user)
     if query:
-        purchase =  purchase.filter(Puroduction_Product_Name__icontains=query)
+        purchase = purchase.filter(Puroduction_Product_Name__icontains=query)
     if query2:
         purchase = purchase.filter(Production_Place__icontains=query2)
     if fromdate and todate:
-        purchase = purchase.filter(date__lte=todate, date__gte=fromdate) 
-       
-    compydetail=CompanyDetail.objects.all()
-    
-     
-    Expense_Amount=Decimal(0.00)
-    Grand_Total=Decimal(0.00)
+        purchase = purchase.filter(date__lte=todate, date__gte=fromdate)
+
+  
+
+    Expense_Amount = Decimal(0.00)
     for purchases in purchase:
-        Expense_Amount+=purchases.Total_Expense_Amount
-    Grand_Total=Expense_Amount
-    print(Grand_Total)
+        Expense_Amount += purchases.Total_Expense_Amount
 
-        
-    comN=[]
-    Email=[]
-    address=[]
-    phone=[]
-    for com in compydetail:
-        name=com.name
-        comN.append(name)
-        email=com.email
-        Email.append(email)
-        office=com.Head_Office
-        address.append(office)
-        Phone=com.phone
-        phone.append(Phone)
+    Grand_Total = Expense_Amount
 
+    context = {
+        'company_name': request.user.company_name,
+        'email': request.user.email,
+        'head_office': request.user.business_address,
+        'phone_number': request.user.phone_number,
+        'prepared_by':request.user.first_name,
+        'company_logo_path': request.build_absolute_uri(request.user.business_logo.url) if request.user.business_logo else '',
+        "Date": datetime.now().strftime("%d/%m/%Y"),
+        "Total_Amount": Grand_Total,
+        "purchase_list": purchase,
+        'vendor_total_Production': purchase.count(),
+        "user": request.user
+    }
 
+    html_string = render_to_string('pdfs/vendor_purchase_report.html', context)
+    pdf_file = HTML(string=html_string, base_url=request.build_absolute_uri()).write_pdf()
 
-
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = 'attachment;filename="DailyProductionReport.pdf"'
-
-    # Create a PDF document
-    pdf = SimpleDocTemplate(response, pagesize=letter)
-
-    # Define data for the invoice
-    company_logo_path = "media/Company Logo/logo1.png"  # Replace with actual path
-    company_name = comN[0]
-    company_email = Email[0]
-     
-    Head_Office = address[0]
-    Phone = phone[0]
-     
-    Date= datetime.now().strftime("%d/%m/%Y")
-    Total_Amount= Grand_Total
-     
-    
-    
-    products = [
-         ["Puroduction","Items/Balles","Team" ,"Expense", "Date"],
-    ]
-    for purchase in purchase:
-        products.append([
-             
-           purchase.Puroduction_Product_Name,purchase.Total_Production_Item,purchase.Production_Team_Name,  purchase.Total_Expense_Amount,purchase.date
-        ])
-
-    # Define styles
-    styles = getSampleStyleSheet()
-    title_style = styles['Title']
-    heading_style = styles['Heading1']
-    paragraph_style = styles['Normal']
-
-    # Define table style
-    table_style = TableStyle([('BACKGROUND', (0, 0), (-1, 0), colors.gray),
-                              ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-                              ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-                              ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-                              ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-                              ('BACKGROUND', (0, 1), (-1, -1), colors.white),
-                              ('GRID', (0, 0), (-1, -1), 1, colors.black)])
-
-    # Create invoice content
-    content = []
-
-    # Company details and logo
-    company_logo = Image(company_logo_path, width=100, height=100)
-    content.append(company_logo)
-    content.append(Paragraph(company_name, title_style))
-    content.append(Paragraph("{}".format(Head_Office), paragraph_style))
-    content.append(Paragraph("{}".format(Phone), paragraph_style))
-    content.append(Paragraph("{}".format(company_email), paragraph_style))
-     
-
-    # Client details
-    content.append(Paragraph("____________________________________________", heading_style))
-    content.append(Paragraph(" Daily Production Report Of {}".format(request.user), heading_style))
-    content.append(Paragraph("Created Date: {}".format(Date), paragraph_style))
-    content.append(Paragraph("Total Expense:  {}".format(Total_Amount), paragraph_style)) 
-    
-    
-     
-    content.append(Paragraph("", heading_style))
-
-    # Invoice items table
-    items_table = Table(products, colWidths=[200, 80, 80, 80])
-    items_table.setStyle(table_style)
-    content.append(items_table)
-
-    # Build the PDF document
-    pdf.build(content)
+    response = HttpResponse(pdf_file, content_type='application/pdf')
+    response['Content-Disposition'] = 'filename="DailyProductionReport.pdf"'
     return response
+
 @login_required
 def ManufactureMaterialPurchase(request):
     query = request.GET.get('query')
@@ -769,134 +591,52 @@ def ManufactureMaterrial_export_to_excel(request):
         df.to_excel(writer, index=False, sheet_name='Sheet1')
 
     return response
-
 @login_required
 def ManufacturePuchasePDF(request):
     query = request.GET.get("query")
     query2 = request.GET.get("query2")
     fromdate = request.GET.get("fromdate")
     todate = request.GET.get("todate")
-    
-    # Filter results based on queries
+
     results = Manufacturing.objects.filter(user=request.user)
     if query:
         results = results.filter(Manufacturing_Product_Name__icontains=query)
     if query2:
         results = results.filter(Place_Of_Supply__icontains=query2)
     if fromdate and todate:
-        results = results.filter(date__lte=todate, date__gte=fromdate)
+        results = results.filter(date__gte=fromdate, date__lte=todate)
+
     
-    compydetail = CompanyDetail.objects.filter(user=request.user).first()
-    if compydetail:
-        company_logo_path = compydetail.logo
-    else:
-        company_logo_path = None
 
-    # Calculate totals
-    Expense_Amount = Decimal(0.00)
-    Total_Purchase = Decimal(0.00)
-    Total_Sale = Decimal(0.00)
-
-    for purchase in results:
-        Expense_Amount += purchase.Manufacturing_Expense
-        Total_Purchase += purchase.Total_Purchase_Price
-        Total_Sale += purchase.Total_Sale_Amount
+    Expense_Amount = sum([item.Manufacturing_Expense for item in results])
+    Total_Purchase = sum([item.Total_Purchase_Price for item in results])
+    Total_Sale = sum([item.Total_Sale_Amount for item in results])
 
     Grand_Total_Expense = Expense_Amount
     Grand_Total_Purchase = Total_Purchase
     Grand_Total_Sale = Total_Sale
     Grand_Total_Profit_and_Lose = Grand_Total_Sale - Grand_Total_Purchase - Grand_Total_Expense
 
-    # Get company details
-    company_info = compydetail
-    company_logo_path = company_info.logo  # Replace with actual logo path
-    
-    response = HttpResponse(content_type='application/pdf')
+    html_string = render_to_string('pdfs/manufacture_purchase_report.html', {
+        'results': results,
+        'company_name': request.user.company_name,
+        'email': request.user.email,
+        'head_office': request.user.business_address,
+        'phone_number': request.user.phone_number,
+        'prepared_by':request.user.first_name,
+        'company_logo_path': request.build_absolute_uri(request.user.business_logo.url) if request.user.business_logo else '',
+        'user': request.user,
+        'date': datetime.now().strftime('%d/%m/%Y'),
+        'Grand_Total_Expense': "%.2f" % Grand_Total_Expense,
+        'Grand_Total_Purchase': "%.2f" % Grand_Total_Purchase,
+        'Grand_Total_Sale': "%.2f" % Grand_Total_Sale,
+        'Grand_Total_Profit_and_Lose': "%.2f" % Grand_Total_Profit_and_Lose
+    })
+
+    pdf_file = HTML(string=html_string, base_url=request.build_absolute_uri()).write_pdf()
+
+    response = HttpResponse(pdf_file, content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename="ManufacturePurchaseReport.pdf"'
-
-    # Create a PDF document
-    pdf = SimpleDocTemplate(response, pagesize=landscape(letter))
-
-    # Styles
-    styles = getSampleStyleSheet()
-    title_style = styles['Title']
-    heading_style = styles['Heading1']
-    paragraph_style = styles['Normal']
-    footer_style = ParagraphStyle('footer', fontSize=10, alignment=1, textColor=colors.black)
-
-    # Data for the table
-    products = [
-        ["Bunkar",  "Balles", "Weight", "Total Weight", "Type", "Price", "Expenses", "Sale", "KG/Mund Rate"],
-    ]
-    for purchase in results:
-        products.append([
-            purchase.Manufacturing_Product_Name,
-        
-            purchase.Manufacture_Balles,
-            purchase.Manufacture_Weight,
-            purchase.Weight,
-            purchase.Manufacturing_Purchase_Type,
-            purchase.Total_Purchase_Price,
-            purchase.Manufacturing_Expense,
-            purchase.Total_Sale_Amount,
-
-            purchase.Per_Kg_Or_Mund_Price,
-        ])
-
-    summary = [
-        ["Total Purchase", "{:.2f}".format(Grand_Total_Purchase)],
-        ["Total Expense", "{:.2f}".format(Grand_Total_Expense)],
-        ["Total Sale", "{:.2f}".format(Grand_Total_Sale)],
-        ["Profit/Loss", "{:.2f}".format(Grand_Total_Profit_and_Lose)]
-    ]
-
-    # Define table style
-    table_style = TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
-        ('GRID', (0, 0), (-1, -1), 1, colors.black),
-    ])
-
-    # Content for the PDF
-    content = []
-
-    # Company logo and details
-    company_logo = Image(company_logo_path, width=100, height=100)
-    content.append(company_logo)
-    content.append(Paragraph(company_info.name, title_style))
-    content.append(Paragraph(company_info.Head_Office, paragraph_style))
-    content.append(Paragraph(company_info.phone, paragraph_style))
-    content.append(Paragraph(company_info.email, paragraph_style))
-    content.append(Spacer(1, 12))
-
-    # Report title and date
-    content.append(Paragraph(f"Report for {request.user}", heading_style))
-    content.append(Paragraph(f"Date: {datetime.now().strftime('%d/%m/%Y')}", paragraph_style))
-    content.append(Spacer(1, 12))
-
-    # Products table
-    col_widths = [100, 60, 80, 80, 100, 60, 70, 60, 70]  # Adjust column widths for better responsiveness
-    items_table = Table(products, colWidths=col_widths, hAlign='LEFT')
-    items_table.setStyle(table_style)
-    content.append(items_table)
-    content.append(Spacer(1, 24))
-
-    # Summary table
-    summary_table = Table(summary, colWidths=[200, 100], hAlign='LEFT')
-    summary_table.setStyle(table_style)
-    content.append(summary_table)
-    content.append(Spacer(1, 24))
-
-    # Footer
-    content.append(Paragraph("Powered by SoftApex Technologies", footer_style))
-
-    # Build PDF
-    pdf.build(content)
-
     return response
 @login_required
 def ClientProfile(request,pk):
@@ -1045,315 +785,59 @@ def client_search(request):
     client_data = [{'Whats_App_Number': client.Whats_App_Number, 'Full_Name': client.Full_Name} for client in clients]
     return JsonResponse({'clients': client_data})
 
+@login_required
 def CurrentSale(request, pk):
-    compydetail = CompanyDetail.objects.filter(user=request.user).first()
+    
     Invoice = Sale.objects.filter(user=request.user, Client_ID=pk).last()
-   
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = 'attachment; filename="SaleInvoice.pdf"'
 
-    # Create a PDF document in PORTRAIT mode with tight margins
-    pdf = SimpleDocTemplate(
-        response, 
-        pagesize=letter,  # Portrait orientation
-        rightMargin=20,
-        leftMargin=20,
-        topMargin=20,
-        bottomMargin=20
-    )
+    context = {
+        'company_name': request.user.company_name,
+        'email': request.user.email,
+        'head_office': request.user.business_address,
+        'phone_number': request.user.phone_number,
+        'prepared_by':request.user.first_name,
+        'company_logo_path': request.build_absolute_uri(request.user.business_logo.url) if request.user.business_logo else '',
+        "Date": datetime.now().strftime("%d/%m/%Y"),
+        "Client_Name": Invoice.Client_Name,
+        "Client_ID": Invoice.Client_ID,
+        "client_address": Invoice.Shiping_Address,
+        "client_city": Invoice.Shipping_City,
+        "client_state": Invoice.Shiping_State,
+        "client_mobile": Invoice.Client_Phone_Number,
+        "Driver_Name": Invoice.Driver_Name,
+        "Driver_Contact": Invoice.Driver_Contact,
+        "Vehicle_number": Invoice.Vehicle_Number,
+        "Vehicle_Weight": Invoice.Vehicle_Weight,
+        "Vehicle_Weight_Unit": Invoice.VECHCLE_WEIGHT_Unit,
+        "Paid_Amount": Invoice.Paid_Amount,
+        "Remaining": Invoice.Remaining,
+        "payment_status": "Paid" if Invoice.Payment_Status else "Pending",
+        "Gst": Invoice.GST,
+        "Items": Invoice.Items_Or_Balles,
+        "Weight": Invoice.Weight,
+        "Weight_Unit": Invoice.Weight_Unit,
+        "Sale_Price": Invoice.Sale_Price,
+        "Total_Amount": Invoice.Total_Amount,
+        "Discount": Invoice.Discount,
+        "Final_Amount": Invoice.Final_Amount,
+        "invoice_number": f"{Invoice.Final_Amount}-{Invoice.id}",
+        "user": request.user,
+        "Sale_Production_Name":Invoice.Sale_Production_Name
+    }
 
-    # Define data for the invoice
-    company_logo_path = compydetail.logo
-    company_name = compydetail.name
-    company_email = compydetail.email
-    Head_Office = compydetail.Head_Office
-    Phone = compydetail.phone 
-    Date = datetime.now().strftime("%d/%m/%Y")
-    Client_Name = Invoice.Client_Name
-    Client_ID = Invoice.Client_ID
-    client_address = Invoice.Shiping_Address
-    client_city = Invoice.Shipping_City
-    client_mobile = Invoice.Client_Phone_Number
-    client_state = Invoice.Shiping_State
-    Driver_Name = Invoice.Driver_Name
-    Driver_Contact = Invoice.Driver_Contact
-    Vehicle_number = Invoice.Vehicle_Number
-    Vehicle_Weight = Invoice.Vehicle_Weight
-    Vehicle_Weight_Unit = Invoice.VECHCLE_WEIGHT_Unit
-    Paid_Amount = Invoice.Paid_Amount
-    Remaining = Invoice.Remaining
-    Gst = Invoice.GST
+    html_string = render_to_string('pdfs/current_sale_invoice.html', context)
+    pdf_file = HTML(string=html_string, base_url=request.build_absolute_uri()).write_pdf()
 
-    paymentstatus = "Pending"
-    if Invoice.Payment_Status == True:
-        paymentstatus = "Paid"
-
-    sale = [
-        ["Items", "Weight", "Unit", "Price", "Amount", "Discount", "Final"],
-        [str(Invoice.Items_Or_Balles), f"{Invoice.Weight:.1f}", Invoice.Weight_Unit, 
-         f"₹{Invoice.Sale_Price:.0f}", f"₹{Invoice.Total_Amount:.0f}", f"₹{Invoice.Discount:.0f}", f"₹{Invoice.Final_Amount:.0f}"]
-    ]
-
-    # Compact styles for single page
-    styles = getSampleStyleSheet()
-    
-    # Company name - smaller
-    company_name_style = ParagraphStyle(
-        'CompanyName',
-        parent=styles['Title'],
-        fontSize=18,
-        textColor=colors.HexColor('#1a365d'),
-        fontName='Helvetica-Bold',
-        alignment=0,
-        spaceAfter=2
-    )
-    
-    # Company info - compact
-    company_info_style = ParagraphStyle(
-        'CompanyInfo',
-        parent=styles['Normal'],
-        fontSize=9,
-        textColor=colors.HexColor('#4a5568'),
-        fontName='Helvetica',
-        alignment=0,
-        spaceBefore=1,
-        spaceAfter=1
-    )
-    
-    # Invoice title - smaller
-    invoice_title_style = ParagraphStyle(
-        'InvoiceTitle',
-        parent=styles['Heading1'],
-        fontSize=16,
-        textColor=colors.HexColor('#e53e3e'),
-        fontName='Helvetica-Bold',
-        alignment=2,
-        spaceBefore=0,
-        spaceAfter=3
-    )
-    
-    # Invoice info - compact
-    invoice_info_style = ParagraphStyle(
-        'InvoiceInfo',
-        parent=styles['Normal'],
-        fontSize=9,
-        textColor=colors.HexColor('#2d3748'),
-        fontName='Helvetica',
-        alignment=2,
-        spaceBefore=1,
-        spaceAfter=1
-    )
-    
-    # Section title - smaller
-    section_title_style = ParagraphStyle(
-        'SectionTitle',
-        parent=styles['Heading2'],
-        fontSize=10,
-        textColor=colors.white,
-        fontName='Helvetica-Bold',
-        alignment=1,
-        spaceBefore=0,
-        spaceAfter=0
-    )
-    
-    # Compact label style
-    label_style = ParagraphStyle(
-        'Label',
-        parent=styles['Normal'],
-        fontSize=8,
-        textColor=colors.HexColor('#2d3748'),
-        fontName='Helvetica-Bold',
-        alignment=0,
-        spaceBefore=1,
-        spaceAfter=1
-    )
-
-    # Create invoice content
-    content = []
-    
-    # Generate invoice number
-    invoice_number = random.randint(100000, 999999)
-
-    # COMPACT HEADER - Single row
-    try:
-        company_logo = Image(company_logo_path, width=50, height=50)
-    except:
-        company_logo = Paragraph("LOGO", company_name_style)
-
-    # Status color
-    status_color = 'green' if paymentstatus == 'Paid' else '#e53e3e'
-
-    # Ultra-compact header in single table
-    header_data = [
-        [company_logo, 
-         Paragraph(f"<b>{company_name}</b><br/>✉ {company_email}<br/>📍 {Head_Office}<br/>📞 {Phone}", 
-                  ParagraphStyle('CompanyCompact', parent=company_info_style, fontSize=8, leading=10)),
-         Paragraph(f"<b>SALES INVOICE</b><br/>Invoice #: {invoice_number}<br/>Date: {Date}<br/>Status: <font color='{status_color}'><b>{paymentstatus}</b></font>", 
-                  ParagraphStyle('InvoiceCompact', parent=invoice_info_style, fontSize=8, leading=10, alignment=2))
-        ]
-    ]
-
-    header_table = Table(header_data, colWidths=[60, 300, 200])
-    header_table.setStyle(TableStyle([
-        ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-        ('LEFTPADDING', (0, 0), (-1, -1), 5),
-        ('RIGHTPADDING', (0, 0), (-1, -1), 5),
-        ('TOPPADDING', (0, 0), (-1, -1), 5),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
-    ]))
-
-    content.append(header_table)
-    content.append(Spacer(1, 8))
-
-    # Thin separator
-    separator = Table([[""]],colWidths=[560])
-    separator.setStyle(TableStyle([
-        ('LINEBELOW', (0, 0), (-1, -1), 2, colors.HexColor('#3182ce')),
-        ('TOPPADDING', (0, 0), (-1, -1), 0),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 0),
-    ]))
-    content.append(separator)
-    content.append(Spacer(1, 10))
-
-    # COMPACT INFORMATION SECTION - Side by side in single table
-    info_data = [
-        # Headers
-        [Paragraph("CLIENT INFORMATION", 
-                  ParagraphStyle('SectionHeaderLeft', parent=section_title_style, alignment=0, fontSize=9)), 
-         "",
-         Paragraph("SHIPPING & DRIVER INFO", 
-                  ParagraphStyle('SectionHeaderRight', parent=section_title_style, alignment=0, fontSize=9))],
-        
-        # Data rows
-        [Paragraph(f"<b>ID:</b> {Client_ID}", label_style),
-         "",
-         Paragraph(f"<b>Driver:</b> {Driver_Name}", label_style)],
-        
-        [Paragraph(f"<b>Name:</b> {Client_Name}", label_style),
-         "",
-         Paragraph(f"<b>Contact:</b> {Driver_Contact}", label_style)],
-        
-        [Paragraph(f"<b>Phone:</b> {client_mobile}", label_style),
-         "",
-         Paragraph(f"<b>Vehicle:</b> {Vehicle_number}", label_style)],
-        
-        [Paragraph(f"<b>Address:</b> {client_address}", label_style),
-         "",
-         Paragraph(f"<b>Weight:</b> {Vehicle_Weight:.1f} {Vehicle_Weight_Unit}", label_style)],
-        
-        [Paragraph(f"<b>City:</b> {client_city}, {client_state}", label_style),
-         "",
-         Paragraph(f"<b>Vendor:</b> {request.user.username} | <b>GST:</b> {Gst}%", label_style)]
-    ]
-
-    info_table = Table(info_data, colWidths=[270, 20, 270])
-    info_table.setStyle(TableStyle([
-        # Header row backgrounds
-        ('BACKGROUND', (0, 0), (0, 0), colors.HexColor('#3182ce')),
-        ('BACKGROUND', (2, 0), (2, 0), colors.HexColor('#3182ce')),
-        ('TEXTCOLOR', (0, 0), (0, 0), colors.white),
-        ('TEXTCOLOR', (2, 0), (2, 0), colors.white),
-        
-        # Data rows background
-        ('BACKGROUND', (0, 1), (0, -1), colors.HexColor('#f7fafc')),
-        ('BACKGROUND', (2, 1), (2, -1), colors.HexColor('#f7fafc')),
-        
-        # Borders
-        ('BOX', (0, 0), (0, -1), 1, colors.HexColor('#cbd5e0')),
-        ('BOX', (2, 0), (2, -1), 1, colors.HexColor('#cbd5e0')),
-        
-        # Padding - very compact
-        ('LEFTPADDING', (0, 0), (-1, -1), 8),
-        ('RIGHTPADDING', (0, 0), (-1, -1), 8),
-        ('TOPPADDING', (0, 0), (-1, 0), 6),
-        ('BOTTOMPADDING', (0, 0), (-1, 0), 6),
-        ('TOPPADDING', (0, 1), (-1, -1), 4),
-        ('BOTTOMPADDING', (0, 1), (-1, -1), 4),
-        
-        ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-    ]))
-
-    content.append(info_table)
-    content.append(Spacer(1, 12))
-
-    # COMPACT ITEMS TABLE
-    items_table_style = TableStyle([
-        # Header
-        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#2d3748')),
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
-        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-        ('FONTSIZE', (0, 0), (-1, 0), 9),
-        ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
-        
-        # Data
-        ('BACKGROUND', (0, 1), (-1, -1), colors.white),
-        ('TEXTCOLOR', (0, 1), (-1, -1), colors.HexColor('#2d3748')),
-        ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
-        ('FONTSIZE', (0, 1), (-1, -1), 9),
-        ('ALIGN', (0, 1), (-1, -1), 'CENTER'),
-        ('ALIGN', (3, 1), (-1, -1), 'RIGHT'),  # Right align amounts
-        
-        # Compact padding
-        ('TOPPADDING', (0, 0), (-1, -1), 8),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
-        ('LEFTPADDING', (0, 0), (-1, -1), 6),
-        ('RIGHTPADDING', (0, 0), (-1, -1), 6),
-        
-        # Borders
-        ('BOX', (0, 0), (-1, -1), 1.5, colors.HexColor('#2d3748')),
-        ('INNERGRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#cbd5e0')),
-        
-        # Highlight final amount
-        ('BACKGROUND', (-1, 1), (-1, -1), colors.HexColor('#e6fffa')),
-        ('FONTNAME', (-1, 1), (-1, -1), 'Helvetica-Bold'),
-    ])
-
-    items_table = Table(sale, colWidths=[70, 70, 50, 80, 90, 80, 80])
-    items_table.setStyle(items_table_style)
-    content.append(items_table)
-    content.append(Spacer(1, 12))
-
-    # COMPACT PAYMENT SUMMARY - Inline style
-    payment_data = [
-        [Paragraph(f"<b>PAYMENT SUMMARY:</b> Paid: ₹{Paid_Amount:.0f} | Remaining: ₹{Remaining:.0f} | Status: <font color='{status_color}'><b>{paymentstatus}</b></font>", 
-                  ParagraphStyle('PaymentSummary', parent=label_style, fontSize=10, alignment=1, 
-                               textColor=colors.HexColor('#2d3748'), fontName='Helvetica-Bold'))]
-    ]
-
-    payment_table = Table(payment_data, colWidths=[560])
-    payment_table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor('#f0fff4')),
-        ('BOX', (0, 0), (-1, -1), 1, colors.HexColor('#38a169')),
-        ('LEFTPADDING', (0, 0), (-1, -1), 10),
-        ('RIGHTPADDING', (0, 0), (-1, -1), 10),
-        ('TOPPADDING', (0, 0), (-1, -1), 8),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
-    ]))
-
-    content.append(payment_table)
-    content.append(Spacer(1, 15))
-
-    # COMPACT FOOTER
-    footer = Paragraph(
-        "<b>Thank you for your business!</b> For queries, contact us at the above details.",
-        ParagraphStyle('Footer', parent=styles['Normal'], fontSize=9, 
-                      textColor=colors.HexColor('#718096'), alignment=1, fontName='Helvetica-Oblique')
-    )
-    content.append(footer)
-
-    # Build the PDF document
-    pdf.build(content)
+    response = HttpResponse(pdf_file, content_type='application/pdf')
+    response['Content-Disposition'] = 'inline; filename="SaleInvoice.pdf"'
     return response
- 
 
-import weasyprint
-from django.http import HttpResponse
-from django.template.loader import render_to_string
-from django.conf import settings
+
+
 @login_required
 def currentInvoice(request, pk):
     customerid = pk
-    compydetail = CompanyDetail.objects.first()
+  
     Date = datetime.now().strftime("%d/%m/%Y")
     invoice_number = random.randint(100000, 999999)
     client=Client.objects.filter(user=request.user,Whats_App_Number=pk).first()
@@ -1409,132 +893,58 @@ def ClientSearchAndPurchase(request,pk):
 @login_required
 def ClientReport(request, pk):
     query = request.GET.get('query')
-    query2=request.GET.get('query2')
-    fromdate=request.GET.get("fromdate")
-    todate=request.GET.get('todate')
-    Client_id=Client.objects.filter(user=request.user,Whats_App_Numbe=pk).first()
-    results = Sale.objects.filter(user=request.user,Client_ID=Client_id)
+    query2 = request.GET.get('query2')
+    fromdate = request.GET.get("fromdate")
+    todate = request.GET.get('todate')
+
+    client = Client.objects.filter(user=request.user, Whats_App_Numbe=pk).first()
+    if not client:
+        return HttpResponse("Client not found", status=404)
+
+    results = Sale.objects.filter(user=request.user, Client_ID=client)
     if query:
         results = results.filter(Sale_Production_Name__icontains=query)
     if query2:
         results = results.filter(Vehicle_Number__icontains=query2)
     if fromdate and todate:
-        results = results.filter(date__lte=todate, date__gte=fromdate)   
-     
-    
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = 'attachment; filename="ClientReport.pdf"'
+        results = results.filter(date__gte=fromdate, date__lte=todate)
 
-    # Create a PDF document
-    pdf = SimpleDocTemplate(response, pagesize=landscape(letter))
-
-    # Define data for the invoice
-    compydetail = CompanyDetail.objects.filter(user=request.user).first()
-    company_logo_path = compydetail.logo
-    company_name = compydetail.name
-    company_email = compydetail.email
-    Head_Office = compydetail.Head_Office
-    Phone = compydetail.phone 
-    Date = datetime.now().strftime("%d/%m/%Y")
-    client=Client.objects.get(user=request.user,Whats_App_Numbe=pk)
-    Client_Name = client.Full_Name
-    Client_ID=pk
-    client_city = client.City
-    client_mobile = client.Phone_Number
-    client_state = client.State
-    Total_Purchase_Amount=0
-    Total_Pending_Amount=0
-    Total_Paid_Amount=0
-    
-    for clientreport in results: 
-        Total_Purchase_Amount+=clientreport.Total_Amount
-        Total_Paid_Amount+=clientreport.Paid_Amount
-        Total_Pending_Amount+=clientreport.Remaining
-
-
-
-         
-         
-    
-    sale = [
-        ["Items/Balles", "Weight",  "Sale Price", "Total Amount", "Discount", "Final Amount","Pay Amount","Status"],]
-    for report in results:
-        paymentstatus="Pending"
-      
-        if report.Payment_Status==True:
-           paymentstatus="Paid"
-       
-        sale.append([str(report.Items_Or_Balles), str(report.Weight),  str(report.Sale_Price), str(report.Total_Amount), str(report.Discount), str(report.Final_Amount),str(report.Paid_Amount),str(paymentstatus)]
-    )
     
 
-    # Define styles
-    styles = getSampleStyleSheet()
-    title_style = styles['Title']
-    paragraph_style = styles['Normal']
+    Total_Purchase_Amount = sum(r.Total_Amount for r in results)
+    Total_Paid_Amount = sum(r.Paid_Amount for r in results)
+    Total_Pending_Amount = sum(r.Remaining for r in results)
 
-    # Define table style
-    table_style = TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.white),
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-        ('BACKGROUND', (0, 1), (-1, -1), colors.white),
-        ('GRID', (0, 0), (-1, -1), 1, colors.black)
-    ])
+    for sale in results:
+        sale.PaymentStatusDisplay = "Paid" if sale.Payment_Status else "Pending"
 
-    # Create invoice content
-    content = []
+    context = {
+        'company_name': request.user.company_name,
+        'email': request.user.email,
+        'head_office': request.user.business_address,
+        'phone_number': request.user.phone_number,
+        'prepared_by':request.user.first_name,
+        'company_logo_path': request.build_absolute_uri(request.user.business_logo.url) if request.user.business_logo else '',
+        'user': request.user,
+        "Date": datetime.now().strftime("%d/%m/%Y"),
+        "Client_Name": client.Full_Name,
+        "Client_ID": pk,
+        "client_city": client.City,
+        "client_mobile": client.Phone_Number,
+        "client_state": client.State,
+        "sales": results,
+        "Total_Purchase_Amount": Total_Purchase_Amount,
+        "Total_Paid_Amount": Total_Paid_Amount,
+        "Total_Pending_Amount": Total_Pending_Amount,
+        "request": request,  # to show authorized user name in template
+    }
 
-    # Company details and logo
-    company_logo = Image(company_logo_path, width=90, height=90)
+    html_string = render_to_string("pdfs/client_report.html", context)
 
-    # Header and Company Details
-    header_data = [
-        [company_logo, Paragraph("<b>{}</b>".format(company_name), title_style)],
-        ["", Paragraph("Email: {}".format(company_email), paragraph_style)],
-        ["", Paragraph("Head Office: {}".format(Head_Office), paragraph_style)],
-        ["", Paragraph("Contact No.: {}".format(Phone), paragraph_style)],
-    ]
+    pdf_file = HTML(string=html_string, base_url=request.build_absolute_uri()).write_pdf()
 
-    header_table = Table(header_data, colWidths=[100, 400])
-    content.append(header_table)
-    content.append(Spacer(1, 12))
-    invoice_number = random.randint(100000, 999999)
-    # Client and Driver details in parallel
-    client_driver_details = [
-        ["Report Number",str(invoice_number), "Client ID", str(Client_ID)],
-        ["Date", Date, " Client Name ", Client_Name ],
-        ["City", client_city, "State", client_state],
-        ["Phone Number", client_mobile, "Total Purchase Amount", str(Total_Purchase_Amount)], 
-        ["Total Paid Amount", str(Total_Paid_Amount), "Total Pending",  str(Total_Pending_Amount)],
-        ["Seller Name", request.user.first_name, "Vendor ", request.user.username]
-        
-    ]
-
-    details_data = [[Paragraph("<b>{}</b>".format(detail[0]), paragraph_style), Paragraph(detail[1], paragraph_style),
-                     Paragraph("<b>{}</b>".format(detail[2]), paragraph_style), Paragraph(detail[3], paragraph_style)] for detail in client_driver_details]
-    details_table = Table(details_data, colWidths=[150, 150, 150, 150])
-    details_table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (0, -1), colors.white),
-        ('TEXTCOLOR', (0, 0), (0, -1), colors.black),
-        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-        ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
-        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-        ('GRID', (0, 0), (-1, -1), 1, colors.black)
-    ]))
-
-    content.append(details_table)
-    content.append(Spacer(1, 12))
-
-    # Sale items table
-    items_table = Table(sale, colWidths=[70, 60, 90, 80, 80, 70, 80, 70])
-    items_table.setStyle(table_style)
-    content.append(items_table)
-
-    # Build the PDF document
-    pdf.build(content)
+    response = HttpResponse(pdf_file, content_type="application/pdf")
+    response['Content-Disposition'] = f'attachment; filename="ClientReport_{pk}.pdf"'
     return response
 @login_required
 def Client_export_to_excel(request,pk):
@@ -1568,126 +978,43 @@ def SaleManagement(request):
     else:
         return render(request,'SaleSearch.html',{'query':query,'query2':query2,'fromdate':fromdate,'todate':todate,'results':results} )
 @login_required
-def  SaleReport(request):
+def SaleReport(request):
     query = request.GET.get('query')
-    query2=request.GET.get('query2')
-    fromdate=request.GET.get("fromdate")
-    todate=request.GET.get('todate')
+    query2 = request.GET.get('query2')
+    fromdate = request.GET.get("fromdate")
+    todate = request.GET.get('todate')
     results = Sale.objects.filter(user=request.user)
+
     if query:
         results = results.filter(Client_Name__icontains=query)
     if query2:
         results = results.filter(Client_ID__icontains=query2)
     if fromdate and todate:
-        results = results.filter(date__lte=todate, date__gte=fromdate)   
-     
+        results = results.filter(date__lte=todate, date__gte=fromdate)
+
     
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = 'attachment; filename="ClientReport.pdf"'
 
-    # Create a PDF document
-    pdf = SimpleDocTemplate(response, pagesize=landscape(letter))
-
-    # Define data for the invoice
-    compydetail = CompanyDetail.objects.filter(user=request.user).first()
-    company_logo_path = compydetail.logo
-    company_name = compydetail.name
-    company_email = compydetail.email
-    Head_Office = compydetail.Head_Office
-    Phone = compydetail.phone 
-    Date = datetime.now().strftime("%d/%m/%Y")
-    Total_Purchase_Amount=0
-    Total_Pending_Amount=0
-    Total_Paid_Amount=0
-    
-    for salereport in results: 
-        Total_Purchase_Amount+=salereport.Total_Amount
-        Total_Paid_Amount+=salereport.Paid_Amount
-        Total_Pending_Amount+=salereport.Remaining
-
-
+    context = {
          
-         
-    
-    sale = [
-        ["Client","Items/Balles", "Weight",  "Sale Price", "Total Amount", "Discount", "Final Amount","Pay Amount","Status"],]
-    for report in results:
-        paymentstatus="Pending"
-      
-        if report.Payment_Status==True:
-           paymentstatus="Paid"
-       
-          
-           
-        sale.append([str(report.Client_Name),str(report.Items_Or_Balles), str(report.Weight),  str(report.Sale_Price), str(report.Total_Amount), str(report.Discount), str(report.Final_Amount),str(report.Paid_Amount),str(paymentstatus)]
-    )
-    
-
-    # Define styles
-    styles = getSampleStyleSheet()
-    title_style = styles['Title']
-    paragraph_style = styles['Normal']
-
-    # Define table style
-    table_style = TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.white),
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-        ('BACKGROUND', (0, 1), (-1, -1), colors.white),
-        ('GRID', (0, 0), (-1, -1), 1, colors.black)
-    ])
-
-    # Create invoice content
-    content = []
-
-    # Company details and logo
-    company_logo = Image(company_logo_path, width=90, height=90)
-
-    # Header and Company Details
-    header_data = [
-        [company_logo, Paragraph("<b>{}</b>".format(company_name), title_style)],
-        ["", Paragraph("{}".format(company_email), paragraph_style)],
-        ["", Paragraph("{}".format(Head_Office), paragraph_style)],
-        ["", Paragraph("{}".format(Phone), paragraph_style)],
-    ]
-
-    header_table = Table(header_data, colWidths=[100, 400])
-    content.append(header_table)
-    content.append(Spacer(1, 12))
-    invoice_number = random.randint(100000, 999999)
-    # Client and Driver details in parallel
-    client_driver_details = [
-        ["Report Number",str(invoice_number), "Date", Date,],
-        ["Email", request.user.email, "Total Purchase Amount", str(Total_Purchase_Amount)], 
-        ["Total Paid Amount", str(Total_Paid_Amount), "Total Pending",  str(Total_Pending_Amount)],
-        ["Seller Name", request.user.first_name, "Vendor ", request.user.username]
+        'company_name': request.user.company_name,
+        'email': request.user.email,
+        'head_office': request.user.business_address,
+        'phone_number': request.user.phone_number,
+        'prepared_by':request.user.first_name,
         
-    ]
+        'company_logo_path': request.build_absolute_uri(request.user.business_logo.url) if request.user.business_logo else '',
+        'Date': datetime.now().strftime("%d/%m/%Y"),
+        'sales': results,
+        'Total_Purchase_Amount': sum(r.Total_Amount for r in results),
+        'Total_Paid_Amount': sum(r.Paid_Amount for r in results),
+        'Total_Pending_Amount': sum(r.Remaining for r in results),
+    }
 
-    details_data = [[Paragraph("<b>{}</b>".format(detail[0]), paragraph_style), Paragraph(detail[1], paragraph_style),
-                     Paragraph("<b>{}</b>".format(detail[2]), paragraph_style), Paragraph(detail[3], paragraph_style)] for detail in client_driver_details]
-    details_table = Table(details_data, colWidths=[220, 150, 150, 150])
-    details_table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (0, -1), colors.white),
-        ('TEXTCOLOR', (0, 0), (0, -1), colors.black),
-        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-        ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
-        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-        ('GRID', (0, 0), (-1, -1), 1, colors.black)
-    ]))
+    html_string = render_to_string('pdfs/sale_report.html', context)
+    pdf_file = HTML(string=html_string, base_url=request.build_absolute_uri()).write_pdf()
 
-    content.append(details_table)
-    content.append(Spacer(1, 12))
-
-    # Sale items table
-    items_table = Table(sale, colWidths=[70, 60, 90, 80, 80, 70, 80, 70])
-    items_table.setStyle(table_style)
-    content.append(items_table)
-
-    # Build the PDF document
-    pdf.build(content)
+    response = HttpResponse(pdf_file, content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="ClientSaleReport.pdf"'
     return response
 @login_required
 def VendorSale_export_to_excel(request):
@@ -1774,114 +1101,45 @@ def currentPaymentInPdf(request,pk,id):
 @login_required
 def paymentInSlip(request, pk,id):
     Invoice = Sale.objects.get(user=request.user, Client_ID=pk,id=id)
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = 'attachment; filename="ClientPaidSlip.pdf"'
+    context = {
+        'company_name': request.user.company_name,
+        'email': request.user.email,
+        'head_office': request.user.business_address,
+        'phone_number': request.user.phone_number,
+        'prepared_by':request.user.first_name,
+        'company_logo_path': request.build_absolute_uri(request.user.business_logo.url) if request.user.business_logo else '',
+        "Date": datetime.now().strftime("%d/%m/%Y"),
+        "Client_Name": Invoice.Client_Name,
+        "Client_ID": Invoice.Client_ID,
+        "client_address": Invoice.Shiping_Address,
+        "client_city": Invoice.Shipping_City,
+        "client_state": Invoice.Shiping_State,
+        "client_mobile": Invoice.Client_Phone_Number,
+        "Driver_Name": Invoice.Driver_Name,
+        "Driver_Contact": Invoice.Driver_Contact,
+        "Vehicle_number": Invoice.Vehicle_Number,
+        "Vehicle_Weight": Invoice.Vehicle_Weight,
+        "Vehicle_Weight_Unit": Invoice.VECHCLE_WEIGHT_Unit,
+        "Paid_Amount": Invoice.Paid_Amount,
+        "Remaining": Invoice.Remaining,
+        "payment_status": "Paid" if Invoice.Payment_Status else "Pending",
+        "Gst": Invoice.GST,
+        "Items": Invoice.Items_Or_Balles,
+        "Weight": Invoice.Weight,
+        "Weight_Unit": Invoice.Weight_Unit,
+        "Sale_Price": Invoice.Sale_Price,
+        "Total_Amount": Invoice.Total_Amount,
+        "Discount": Invoice.Discount,
+        "Final_Amount": Invoice.Final_Amount,
+        "invoice_number": f"{Invoice.Final_Amount}-{Invoice.id}",
+        "user": request.user,
+    }
 
-    # Create a PDF document
-    pdf = SimpleDocTemplate(response, pagesize=landscape(letter))
+    html_string = render_to_string('pdfs/current_sale_invoice.html', context)
+    pdf_file = HTML(string=html_string, base_url=request.build_absolute_uri()).write_pdf()
 
-    # Define data for the invoice
-    compydetail = CompanyDetail.objects.filter(user=request.user).first()
-    company_logo_path = compydetail.logo
-    company_name = compydetail.name
-    company_email = compydetail.email
-    Head_Office = compydetail.Head_Office
-    Phone = compydetail.phone 
-    Date = datetime.now().strftime("%d/%m/%Y")
-    Client_Name = Invoice.Client_Name
-    Client_ID=Invoice.Client_ID
-    client_address = Invoice.Shiping_Address
-    client_city = Invoice.Shipping_City
-    client_mobile = Invoice.Client_Phone_Number
-    client_state = Invoice.Shiping_State
-    Driver_Name = Invoice.Driver_Name
-    Driver_Contact = Invoice.Driver_Contact
-    Vehicle_number = Invoice.Vehicle_Number
-    Vehicle_Weight = Invoice.Vehicle_Weight
-    Vehicle_Weight_Unit = Invoice.VECHCLE_WEIGHT_Unit
-    Paid_Amount=Invoice.Paid_Amount
-    Remaining=Invoice.Remaining
-
-
-    paymentstatus="Pending"
-    if Invoice.Payment_Status==True:
-        paymentstatus="Paid"
-
-    sale = [
-        ["Items/Balles", "Weight", "Unit", "Sale Price", "Total Amount", "Discount", "Final Amount"],
-        [str(Invoice.Items_Or_Balles), str(Invoice.Weight), Invoice.Weight_Unit, str(Invoice.Sale_Price), str(Invoice.Total_Amount), str(Invoice.Discount), str(Invoice.Final_Amount)]
-    ]
-
-    # Define styles
-    styles = getSampleStyleSheet()
-    title_style = styles['Title']
-    paragraph_style = styles['Normal']
-
-    # Define table style
-    table_style = TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.white),
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-        ('BACKGROUND', (0, 1), (-1, -1), colors.white),
-        ('GRID', (0, 0), (-1, -1), 1, colors.black)
-    ])
-
-    # Create invoice content
-    content = []
-
-    # Company details and logo
-    company_logo = Image(company_logo_path, width=100, height=100)
-
-    # Header and Company Details
-    header_data = [
-        [company_logo, Paragraph("<b>{}</b>".format(company_name), title_style)],
-        ["", Paragraph("Email: {}".format(company_email), paragraph_style)],
-        ["", Paragraph("Head Office: {}".format(Head_Office), paragraph_style)],
-        ["", Paragraph("Contact No.: {}".format(Phone), paragraph_style)],
-    ]
-
-    header_table = Table(header_data, colWidths=[100, 400])
-    content.append(header_table)
-    content.append(Spacer(1, 12))
-    invoice_number = random.randint(100000, 999999)
-    # Client and Driver details in parallel
-    client_driver_details = [
-        ["Invoice Number",str(invoice_number), "Client ID", str(Client_ID)],
-        ["Date", Date, "Driver Name", Driver_Name],
-        ["Client Name", Client_Name, "Driver Contact", Driver_Contact],
-        ["Paid Amount", str(Paid_Amount), "Pending Amount", str(Remaining)],
-        ["Phone Number", client_mobile, "Vehicle Number", Vehicle_number],
-        ["Shipping Address", client_address, "Vehicle Weight", str(Vehicle_Weight)],
-        ["Shipping City", client_city, "Vehicle Weight Unit", Vehicle_Weight_Unit],
-        ["Shipping State", client_state, "Payment Status", paymentstatus],
-        ["Seller Name", request.user.first_name, "Vendor ", request.user.username],
-        
-    ]
-
-    details_data = [[Paragraph("<b>{}</b>".format(detail[0]), paragraph_style), Paragraph(detail[1], paragraph_style),
-                     Paragraph("<b>{}</b>".format(detail[2]), paragraph_style), Paragraph(detail[3], paragraph_style)] for detail in client_driver_details]
-    details_table = Table(details_data, colWidths=[150, 150, 150, 150])
-    details_table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (0, -1), colors.white),
-        ('TEXTCOLOR', (0, 0), (0, -1), colors.black),
-        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-        ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
-        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-        ('GRID', (0, 0), (-1, -1), 1, colors.black)
-    ]))
-
-    content.append(details_table)
-    content.append(Spacer(1, 12))
-
-    # Sale items table
-    items_table = Table(sale, colWidths=[90, 90, 100, 50, 70, 100, 100, 60])
-    items_table.setStyle(table_style)
-    content.append(items_table)
-
-    # Build the PDF document
-    pdf.build(content)
+    response = HttpResponse(pdf_file, content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="SaleInvoice.pdf"'
     return response
 @login_required
 def add_expense(request):
@@ -1892,168 +1150,114 @@ def add_expense(request):
 
     if request.method == 'POST':
         production_name = request.POST.get('name')
-        if production_name==None:
-            messages.warning(request,"Please Select Bunkar Name")
+        if not production_name:
+            messages.warning(request, "Please Select Bunkar Name")
             return redirect("add_expense")
-        description = request.POST.get('description')
-        category = request.POST.get('category')
-        if category==None:
-            messages.warning(request,"Please Select Expense Category")
-            return redirect("add_expense")
-        harvesting_type = request.POST.get('harvesting-type')
-        if category=='Harvesting':
-                if harvesting_type==None:
-                    messages.warning(request,"Please Select Harvesting Type")
-                    return redirect("HarvestingExpense")
-       
-        fuel_price = request.POST.get('fuel-price')
-        total_Fuel = request.POST.get('total-fuel')
-        Total_Acer = request.POST.get('total-acre')
-        Price_Per_Acer = request.POST.get('harvest-price-per-acre')
-        amount = request.POST.get('amount')
-        
-        payment_status = request.POST.get('payment_status')
-        if payment_status==None:
-            messages.warning(request,"Please Select Payment Status")
-            return redirect("add_expense")
-        Paid_amount = request.POST.get('paid_amount')
 
-        if not Paid_amount:  # Check if the value is empty or None
-            Paid_amount = Decimal('0.0')
-        else:
-            Paid_amount = Decimal(Paid_amount)
-        # Handling Remaining Amount
-        print(Paid_amount)
-        Remaining = request.POST.get('remaining_amount')
-        if not Remaining:  # Check if the value is empty or None
+        category = request.POST.get('category')
+        if not category:
+            messages.warning(request, "Please Select Expense Category")
+            return redirect("add_expense")
+
+        harvesting_type = request.POST.get('harvesting-type')
+
+        amount = Decimal(request.POST.get('amount') or '0.0')
+        payment_status = request.POST.get('payment_status')
+        if not payment_status:
+            messages.warning(request, "Please Select Payment Status")
+            return redirect("add_expense")
+
+        if payment_status == "PAID":
+            Paid_amount = amount
             Remaining = Decimal('0.0')
         else:
-            Remaining = Decimal(Remaining)
-        bill = request.FILES['expensebill']
+            Paid_amount = Decimal(request.POST.get('paid_amount') or '0.0')
+            Remaining = amount - Paid_amount
+
+        # Additional fields
+        description = request.POST.get('description')
+        fuel_price = Decimal(request.POST.get('fuel-price') or '0.0')
+        total_fuel = Decimal(request.POST.get('total-fuel') or '0.0')
+        total_acre = Decimal(request.POST.get('total-acre') or '0.0')
+        price_per_acre = Decimal(request.POST.get('harvest-price-per-acre') or '0.0')
         notes = request.POST.get('notes')
-        profile_instance= get_object_or_404(Profile, user=request.user)
-        manufaccture_instance=Manufacturing.objects.filter(user=request.user,Manufacturing_Product_Name=production_name)
- 
-        if category=="Harvesting":
-            if harvesting_type=="Fuel":
-                 manufaccture_instance.update(Harvesting_Cost=F("Harvesting_Cost")+amount,Manufacturing_Expense=F("Manufacturing_Expense")+amount,Harvest_Type=harvesting_type,Total_Fuel=F("Total_Fuel")+total_Fuel,Fuel_Price=F("Fuel_Price")+fuel_price)
-                 query=Expense.objects.create(user=request.user,userprofile=profile_instance,Production_Name=production_name,description=description,category=category,amount=amount,Bill_Proof=bill,notes=notes,Payment_Status=payment_status,Paid_Amount=Paid_amount,Remaining_Amount=Remaining)
-                 query.save()
-                 Profile.objects.filter(user=request.user).update(
-                 Total_Expense=F("Total_Expense")+amount
-        )
-                 messages.warning(request,"Please Download Your Expense Bill PDF")
-                 return redirect('expensebill')
-            if harvesting_type=="Without Fuel":
-                 if Total_Acer or Price_Per_Acer==None:
-                   messages.warning(request,"Please Fill All The Fields Related To  Harvesting Without Fuel")
-                   return redirect("HarvestingExpense")
-                 manufaccture_instance.update(Harvesting_Cost=F("Harvesting_Cost")+amount,Manufacturing_Expense=F("Manufacturing_Expense")+amount,Harvest_Type=harvesting_type,Total_Harvest_Acer=F("Total_Harvest_Acer")+Total_Acer,Harvest_Acer_Cost=F("Harvest_Acer_Cost")+Price_Per_Acer)
-                 query=Expense.objects.create(user=request.user,userprofile=profile_instance,Production_Name=production_name,description=description,category=category,amount=amount,Bill_Proof=bill,notes=notes,Payment_Status=payment_status,Paid_Amount=Paid_amount,Remaining_Amount=Remaining)
-                 query.save()
-                 Profile.objects.filter(user=request.user).update(
-                Total_Expense=F("Total_Expense")+amount
-        )
-                 messages.warning(request,"Please Download Your Expense Bill PDF")
-                 return redirect('expensebill')
-           
-        elif  category=="Pressing":
-            
-            manufaccture_instance.update(Pressing_Cost=F("Pressing_Cost")+amount,Manufacturing_Expense=F("Manufacturing_Expense")+amount)
-            query=Expense.objects.create(user=request.user,userprofile=profile_instance,Production_Name=production_name,description=description,category=category,amount=amount,Bill_Proof=bill,notes=notes,)
-            query.save()
-            Profile.objects.filter(user=request.user).update(
-            Total_Expense=F("Total_Expense")+amount
-        )
-        elif  category=="Dumping":
-            manufaccture_instance.update(Dumping_Cost=F("Dumping_Cost")+amount,Manufacturing_Expense=F("Manufacturing_Expense")+amount)
-            query=Expense.objects.create(user=request.user,userprofile=profile_instance,Production_Name=production_name,description=description,category=category,amount=amount,Bill_Proof=bill,notes=notes,Payment_Status=payment_status,Paid_Amount=Paid_amount,Remaining_Amount=Remaining)
-            query.save()
-            Profile.objects.filter(user=request.user).update(
-            Total_Expense=F("Total_Expense")+amount
-        )
-            messages.warning(request,"Please Download Your Expense Bill PDF")
-            return redirect('expensebill')
-        elif  category=="Polythene":
-            manufaccture_instance.update(Polythene_Cost=F("Polythene_Cost")+amount,Manufacturing_Expense=F("Manufacturing_Expense")+amount)
-            query=Expense.objects.create(user=request.user,userprofile=profile_instance,Production_Name=production_name,description=description,category=category,amount=amount,Bill_Proof=bill,notes=notes,Payment_Status=payment_status,Paid_Amount=Paid_amount,Remaining_Amount=Remaining)
-            query.save()
-            Profile.objects.filter(user=request.user).update(
-            Total_Expense=F("Total_Expense")+amount
-        )
-            messages.warning(request,"Please Download Your Expense Bill PDF")
-            return redirect('expensebill')
-        elif  category=="Mud Cost":
-            manufaccture_instance.update(Mud_Cost=F("Mud_Cost")+amount,Manufacturing_Expense=F("Manufacturing_Expense")+amount)
-            query=Expense.objects.create(user=request.user,userprofile=profile_instance,Production_Name=production_name,description=description,category=category,amount=amount,Bill_Proof=bill,notes=notes,Payment_Status=payment_status,Paid_Amount=Paid_amount,Remaining_Amount=Remaining)
-            query.save()
-            Profile.objects.filter(user=request.user).update(
-            Total_Expense=F("Total_Expense")+amount
-        )
-            messages.warning(request,"Please Download Your Expense Bill PDF")
-            return redirect('expensebill')
-    
-                
+        bill = request.FILES.get('expensebill')
 
-        elif  category=="Balling Paper":
-            manufaccture_instance.update(Packing_Material=F("Packing_Material")+amount,Manufacturing_Expense=F("Manufacturing_Expense")+amount)
-            query=Expense.objects.create(user=request.user,userprofile=profile_instance,Production_Name=production_name,description=description,category=category,amount=amount,Bill_Proof=bill,notes=notes,Payment_Status=payment_status,Paid_Amount=Paid_amount,Remaining_Amount=Remaining)
-            query.save()
-            Profile.objects.filter(user=request.user).update(
-            Total_Expense=F("Total_Expense")+amount
-        )
-            messages.warning(request,"Please Download Your Expense Bill PDF")
-            return redirect('expensebill')
-        elif  category=="Stitch Paper":
-            manufaccture_instance.update(Packing_Material=F("Packing_Material")+amount,Manufacturing_Expense=F("Manufacturing_Expense")+amount)
-            query=Expense.objects.create(user=request.user,userprofile=profile_instance,Production_Name=production_name,description=description,category=category,amount=amount,Bill_Proof=bill,notes=notes,Payment_Status=payment_status,Paid_Amount=Paid_amount,Remaining_Amount=Remaining)
-            query.save()
-            Profile.objects.filter(user=request.user).update(
-            Total_Expense=F("Total_Expense")+amount
-        )
-            messages.warning(request,"Please Download Your Expense Bill PDF")
-            return redirect('expensebill')
-        elif  category=="Machine Depreciation":
-            manufaccture_instance.update(Machine_Depreciation=F("Machine_Depreciation")+amount,Manufacturing_Expense=F("Manufacturing_Expense")+amount)
-            query=Expense.objects.create(user=request.user,userprofile=profile_instance,Production_Name=production_name,description=description,category=category,amount=amount,Bill_Proof=bill,notes=notes,Payment_Status=payment_status,Paid_Amount=Paid_amount,Remaining_Amount=Remaining)
-            query.save()
-            Profile.objects.filter(user=request.user).update(
-            Total_Expense=F("Total_Expense")+amount
-        )
-            messages.warning(request,"Please Download Your Expense Bill PDF")
-            return redirect('expensebill')
-        elif  category=="Loading":
-            manufaccture_instance.update(Loading_Cost=F("Loading_Cost")+amount,Manufacturing_Expense=F("Manufacturing_Expense")+amount)
-            query=Expense.objects.create(user=request.user,userprofile=profile_instance,Production_Name=production_name,description=description,category=category,amount=amount,Bill_Proof=bill,notes=notes)
-            query.save()
-            Profile.objects.filter(user=request.user).update(
-            Total_Expense=F("Total_Expense")+amount
-        )
-            messages.warning(request,"Please Download Your Expense Bill PDF")
-            return redirect('expensebill')
-        elif  category=="Labour":
-            manufaccture_instance.update(Labour_Expense=F("Labour_Expense")+amount,Manufacturing_Expense=F("Manufacturing_Expense")+amount)
-            query=Expense.objects.create(user=request.user,userprofile=profile_instance,Production_Name=production_name,description=description,category=category,amount=amount,Bill_Proof=bill,notes=notes)
-            query.save()
-            Profile.objects.filter(user=request.user).update(
-            Total_Expense=F("Total_Expense")+amount
-        )
-            messages.warning(request,"Please Download Your Expense Bill PDF")
-            return redirect('expensebill')
-        else:
-            manufaccture_instance.update(Other_Expense=F("Other_Expense")+amount,Manufacturing_Expense=F("Manufacturing_Expense")+amount)
-            query=Expense.objects.create(user=request.user,userprofile=profile_instance,Production_Name=production_name,description=description,category=category,amount=amount,Bill_Proof=bill,notes=notes,Payment_Status=payment_status,Paid_Amount=Paid_amount,Remaining_Amount=Remaining)
-            query.save()
-            Profile.objects.filter(user=request.user).update(
-            Total_Expense=F("Total_Expense")+amount
+        profile_instance = get_object_or_404(Profile, user=request.user)
+        manufacture_qs = Manufacturing.objects.filter(user=request.user, Manufacturing_Product_Name=production_name)
+
+        # Handle Harvesting special cases
+        if category == "Harvesting":
+            if harvesting_type == "Fuel":
+                manufacture_qs.update(
+                    Harvesting_Cost=F("Harvesting_Cost") + amount,
+                    Manufacturing_Expense=F("Manufacturing_Expense") + amount,
+                    Harvest_Type=harvesting_type,
+                    Total_Fuel=F("Total_Fuel") + total_fuel,
+                    Fuel_Price=F("Fuel_Price") + fuel_price
+                )
+            elif harvesting_type == "Without Fuel":
+                if not total_acre or not price_per_acre:
+                    messages.warning(request, "Fill all fields for Harvesting Without Fuel")
+                    return redirect("HarvestingExpense")
+                manufacture_qs.update(
+                    Harvesting_Cost=F("Harvesting_Cost") + amount,
+                    Manufacturing_Expense=F("Manufacturing_Expense") + amount,
+                    Harvest_Type=harvesting_type,
+                    Total_Harvest_Acer=F("Total_Harvest_Acer") + total_acre,
+                    Harvest_Acer_Cost=F("Harvest_Acer_Cost") + price_per_acre
+                )
+
+        # Update Manufacturing based on category
+        category_updates = {
+            "Pressing": "Pressing_Cost",
+            "Dumping": "Dumping_Cost",
+            "Polythene": "Polythene_Cost",
+            "Mud Cost": "Mud_Cost",
+            "Balling Paper": "Packing_Material",
+            "Stitch Paper": "Packing_Material",
+            "Machine Depreciation": "Machine_Depreciation",
+            "Loading": "Loading_Cost",
+            "Labour": "Labour_Expense"
+        }
+
+        cost_field = category_updates.get(category, "Other_Expense")
+
+        manufacture_qs.update(**{
+            cost_field: F(cost_field) + amount,
+            "Manufacturing_Expense": F("Manufacturing_Expense") + amount
+        })
+
+        # Save Expense
+        Expense.objects.create(
+            user=request.user,
+            userprofile=profile_instance,
+            Production_Name=production_name,
+            description=description,
+            category=category,
+            amount=amount,
+            Bill_Proof=bill,
+            notes=notes,
+            Payment_Status=payment_status,
+            Paid_Amount=Paid_amount,
+            Remaining_Amount=Remaining
         )
 
-            messages.warning(request,"Please Download Your Expense Bill PDF")
-            return redirect('expensebill')
-    if request.htmx:
-        return render(request,'components/expense_form.html',{'totalBalance':totalBalance,'productions':productions,'compydetail':compydetail})
-    else:
-        return render(request, 'expense_form.html',{'totalBalance':totalBalance,'productions':productions,'compydetail':compydetail})
+        # Update Profile total
+        Profile.objects.filter(user=request.user).update(
+            Total_Expense=F("Total_Expense") + amount
+        )
+
+        messages.success(request, "Expense Added Successfully. Download Your Expense Bill PDF")
+        return redirect('expensebill')
+
+    template = 'components/expense_form.html' if request.htmx else 'expense_form.html'
+    return render(request, template, {
+        'totalBalance': totalBalance,
+        'productions': productions,
+        'compydetail': compydetail
+    })
+
 @login_required
 def expenseManagement(request):
     fromdate = request.GET.get("fromdate")
@@ -2088,226 +1292,76 @@ def expensebill(request):
     return render(request,"expensebill.html") 
 @login_required
 def generate_expense_report(request):
-    # Fetch data from the database
-    results  = Expense.objects.filter(user=request.user)
-    fromdate=request.GET.get("fromdate")
-    todate=request.GET.get('todate')
+    
+    expenses = Expense.objects.filter(user=request.user).order_by('date')
+    fromdate = request.GET.get("fromdate")
+    todate = request.GET.get("todate")
+
     if fromdate and todate:
-        results = results.filter(date__lte=todate, date__gte=fromdate)   
-    # Calculate totals
-    total_amount = Decimal(0.00)
-    for expense in results:
-        total_amount += expense.amount
+        expenses = expenses.filter(date__gte=fromdate, date__lte=todate)
 
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = 'attachment;filename="ExpenseReport.pdf"'
+   
+     
 
-    # Create a PDF document
-    pdf = SimpleDocTemplate(response, pagesize=letter)
+    total_amount = sum(exp.amount for exp in expenses)
+    total_paid = sum(exp.Paid_Amount or 0 for exp in expenses)
+    total_remaining = sum(exp.Remaining_Amount or 0 for exp in expenses)
     
-    # Fetch company details (assuming there's only one company)
-    try:
-        company_detail = CompanyDetail.objects.get()
-    except CompanyDetail.DoesNotExist:
-        company_detail = None
 
-    # Default values if no company details found
-    if company_detail:
-        company_name = company_detail.name
-        company_email = company_detail.email
-        head_office = company_detail.Head_Office
-        phone_number = company_detail.phone
-        company_logo_path = company_detail.logo  # Adjust with actual attribute name for logo URL
-    else:
-        company_name = "Your Company Name"
-        company_email = "company@example.com"
-        head_office = "1234 Main St, Anytown, AN"
-        phone_number = "(123) 456-7890"
-        company_logo_path = "media/default_logo.png"  # Replace with default logo path
+    context = {
+        'company_name': request.user.company_name,
+        'company_email': request.user.email,
+        'head_office': request.user.business_address,
+        'phone_number': request.user.phone_number,
+        'prepared_by':request.user.first_name,
+        'total_amount': total_amount,
+        'total_paid': total_paid,
+        'total_remaining': total_remaining,
+        'company_logo_path': request.build_absolute_uri(request.user.business_logo.url) if request.user.business_logo else '',
+        'date': datetime.now().strftime("%d/%m/%Y"),
+        'expenses': expenses,
+        'total_amount': total_amount,
+        'fromdate': fromdate,
+        'todate': todate,
+    }
 
-    date = datetime.now().strftime("%d/%m/%Y")
+    # Render HTML template
+    html_string = render_to_string('pdfs/expense_report.html', context)
 
-    # Define styles
-    styles = getSampleStyleSheet()
-    title_style = styles['Title']
-    heading_style = styles['Heading1']
-    paragraph_style = styles['Normal']
-    footer_style = ParagraphStyle('footer', fontSize=10, alignment=1, textColor=colors.grey)
+    # Generate PDF
+    pdf_file = HTML(string=html_string, base_url=request.build_absolute_uri()).write_pdf()
 
-    # Create report content
-    content = []
-
-    # Company logo and details
-    if company_logo_path:
-        try:
-            company_logo = Image(company_logo_path, width=100, height=100)
-        except Exception as e:
-            print(f"Failed to load company logo: {str(e)}")
-            company_logo = None
-    else:
-        company_logo = None
-
-    if company_logo:
-        content.append(company_logo)
-    
-    content.append(Paragraph(company_name, title_style))
-    content.append(Paragraph(head_office, paragraph_style))
-    content.append(Paragraph(phone_number, paragraph_style))
-    content.append(Paragraph(company_email, paragraph_style))
-    content.append(Spacer(1, 20))
-
-    # Report title and summary
-    content.append(Paragraph("Expense Report", heading_style))
-    content.append(Paragraph("Report Date: {}".format(date), paragraph_style))
-    content.append(Spacer(1, 20))
-
-    # Expenses table
-    data = [
-        ["Description","Category", "Amount", "Date"]
-    ]
-    for expns in results:
-        data.append([expns.description,expns.category, "{:.2f}".format(expns.amount), expns.date.strftime("%d/%m/%Y")])
-
-    col_widths = [200,150, 100, 100]  # Adjust column widths
-    table_style = TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
-        ('GRID', (0, 0), (-1, -1), 1, colors.black),
-        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.whitesmoke, colors.lightgrey]),
-    ])
-    
-    expenses_table = Table(data, colWidths=col_widths)
-    expenses_table.setStyle(table_style)
-    content.append(expenses_table)
-    content.append(Spacer(1, 20))
-
-    # Summary table
-    summary = [
-        ["Total Amount", "{:.2f}".format(total_amount)]
-    ]
-    summary_table_style = TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.white),
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
-        ('GRID', (0, 0), (-1, -1), 1, colors.black),
-    ])
-    summary_table = Table(summary, colWidths=[150, 100])
-    summary_table.setStyle(summary_table_style)
-    content.append(summary_table)
-    content.append(Spacer(1, 20))
-
-    # Footer
-    content.append(Paragraph("", footer_style))
-
-    # Build the PDF document
-    pdf.build(content)
+    response = HttpResponse(pdf_file, content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="ExpenseReport.pdf"'
     return response
 @login_required
 def ExpenseSlip(request):
-    # Fetch data from the database
-    expenses = Expense.objects.filter(user=request.user).last()
-    
+    # Get the latest expense for this user
+    expense = Expense.objects.filter(user=request.user).last()
 
+    # Context for the template
+    context = {
+        'company_name': request.user.company_name,
+        'company_email': request.user.email,
+        'head_office': request.user.business_address,
+        'phone_number': request.user.phone_number,
+        'prepared_by':request.user.first_name,
+        'company_logo_path': request.build_absolute_uri(request.user.business_logo.url) if request.user.business_logo else '',
+        'date': datetime.now().strftime("%d/%m/%Y"),
+        'expense': expense,
+    }
 
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = 'attachment;filename="ExpenseReport.pdf"'
+    # Render the HTML template to a string
+    html_string = render_to_string('pdfs/expensebillslip.html', context)
 
-    # Create a PDF document
-    pdf = SimpleDocTemplate(response, pagesize=letter)
-    
-    # Fetch company details (assuming there's only one company)
-    try:
-        company_detail = CompanyDetail.objects.filter(user=request.user).first()
-    except CompanyDetail.DoesNotExist:
-        company_detail = None
+    # Generate PDF
+    pdf_file = HTML(string=html_string, base_url=request.build_absolute_uri()).write_pdf()
 
-    # Default values if no company details found
-    if company_detail:
-        company_name = company_detail.name
-        company_email = company_detail.email
-        head_office = company_detail.Head_Office
-        phone_number = company_detail.phone
-        company_logo_path = company_detail.logo  # Adjust with actual attribute name for logo URL
-    else:
-        company_name = "Your Company Name"
-        company_email = "company@example.com"
-        head_office = "1234 Main St, Anytown, AN"
-        phone_number = "(123) 456-7890"
-        company_logo_path = "media/default_logo.png"  # Replace with default logo path
-
-    date = datetime.now().strftime("%d/%m/%Y")
-
-    # Define styles
-    styles = getSampleStyleSheet()
-    title_style = styles['Title']
-    heading_style = styles['Heading1']
-    paragraph_style = styles['Normal']
-    footer_style = ParagraphStyle('footer', fontSize=10, alignment=1, textColor=colors.grey)
-
-    # Create report content
-    content = []
-
-    # Company logo and details
-    if company_logo_path:
-        try:
-            company_logo = Image(company_logo_path, width=100, height=100)
-        except Exception as e:
-            print(f"Failed to load company logo: {str(e)}")
-            company_logo = None
-    else:
-        company_logo = None
-
-    if company_logo:
-        content.append(company_logo)
-    
-    content.append(Paragraph(company_name, title_style))
-    content.append(Paragraph(head_office, paragraph_style))
-    content.append(Paragraph(phone_number, paragraph_style))
-    content.append(Paragraph(company_email, paragraph_style))
-    content.append(Spacer(1, 20))
-
-    # Report title and summary
-    content.append(Paragraph("Expense Bill", heading_style))
-    content.append(Spacer(1, 20))
-
-    # Expenses table
-    data = [
-        ["Bunkar","Category", "Amount", "Date"]
-    ]
-     
-    data.append([expenses.Production_Name,expenses.category, "{:.2f}".format(expenses.amount), expenses.date.strftime("%d/%m/%Y")])
-
-    col_widths = [200,150, 100, 100]  # Adjust column widths
-    table_style = TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
-        ('GRID', (0, 0), (-1, -1), 1, colors.black),
-        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.whitesmoke, colors.lightgrey]),
-    ])
-    
-    expenses_table = Table(data, colWidths=col_widths)
-    expenses_table.setStyle(table_style)
-    content.append(expenses_table)
-    content.append(Spacer(1, 20))
-
-    
-    # Footer
-    content.append(Paragraph("", footer_style))
-
-    # Build the PDF document
-    pdf.build(content)
+    # Return response
+    response = HttpResponse(pdf_file, content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="ExpenseReport.pdf"'
     return response
+
 @login_required
 def expense_Excel(request):
     # Query the database
@@ -2652,120 +1706,41 @@ def SaleReturnManagement(request):
     else:
         return render(request,'SaleReturnmanagement.html',{'query':query,'query2':query2,'fromdate':fromdate,'todate':todate,'results':results} )
 @login_required
-def  SaleReturnReport(request):
+def SaleReturnReport(request):
     query = request.GET.get('query')
-    query2=request.GET.get('query2')
-    fromdate=request.GET.get("fromdate")
-    todate=request.GET.get('todate')
+    query2 = request.GET.get('query2')
+    fromdate = request.GET.get("fromdate")
+    todate = request.GET.get("todate")
+
     results = Sale_Return.objects.filter(user=request.user)
     if query:
         results = results.filter(Client_Name__icontains=query)
     if query2:
         results = results.filter(Client_ID__icontains=query2)
     if fromdate and todate:
-        results = results.filter(date__lte=todate, date__gte=fromdate)   
-     
-    
-    
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = 'attachment; filename="ClientReport.pdf"'
+        results = results.filter(date__lte=todate, date__gte=fromdate)
 
-    # Create a PDF document
-    pdf = SimpleDocTemplate(response, pagesize=landscape(letter))
-
-    # Define data for the invoice
     compydetail = CompanyDetail.objects.filter(user=request.user).first()
-    company_logo_path = compydetail.logo
-    company_name = compydetail.name
-    company_email = compydetail.email
-    Head_Office = compydetail.Head_Office
-    Phone = compydetail.phone 
-    Date = datetime.now().strftime("%d/%m/%Y")
-    Total_Return_Amount=0
-    
-    for salereport in results: 
-        Total_Return_Amount+=salereport.Return_To_Customer_Amount
-         
+    Total_Return_Amount = sum(r.Return_To_Customer_Amount for r in results)
 
+    context = {
+        'company_name': request.user.company_name,
+        'email': request.user.email,
+        'head_office': request.user.business_address,
+        'phone_number': request.user.phone_number,
+        'prepared_by':request.user.first_name,
+        'company_logo_path': request.build_absolute_uri(request.user.business_logo.url) if request.user.business_logo else '',
+        "Date": datetime.now().strftime("%d/%m/%Y"),
+        "Total_Return_Amount": Total_Return_Amount,
+        "sale_returns": results,
+        "user": request.user,
+    }
 
-         
-         
-    
-    sale = [
-        ["Client","Production","Items/Balles", "Weight",  "Return Amount"],]
-    for report in results:
-        
-       
-          
-           
-        sale.append([str(report.Client_Name),str(report.Sale_Production_Name),str(report.Items_Or_Balles), str(report.Weight),  str(report.Return_To_Customer_Amount),]
-    )
-    
+    html_string = render_to_string('pdfs/sale_return_report.html', context)
+    pdf_file = HTML(string=html_string, base_url=request.build_absolute_uri()).write_pdf()
 
-    # Define styles
-    styles = getSampleStyleSheet()
-    title_style = styles['Title']
-    paragraph_style = styles['Normal']
-
-    # Define table style
-    table_style = TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.white),
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-        ('BACKGROUND', (0, 1), (-1, -1), colors.white),
-        ('GRID', (0, 0), (-1, -1), 1, colors.black)
-    ])
-
-    # Create invoice content
-    content = []
-
-    # Company details and logo
-    company_logo = Image(company_logo_path, width=90, height=90)
-
-    # Header and Company Details
-    header_data = [
-        [company_logo, Paragraph("<b>{}</b>".format(company_name), title_style)],
-        ["", Paragraph("{}".format(company_email), paragraph_style)],
-        ["", Paragraph("{}".format(Head_Office), paragraph_style)],
-        ["", Paragraph("{}".format(Phone), paragraph_style)],
-    ]
-
-    header_table = Table(header_data, colWidths=[100, 400])
-    content.append(header_table)
-    content.append(Spacer(1, 12))
-    invoice_number = random.randint(100000, 999999)
-    # Client and Driver details in parallel
-    client_driver_details = [
-        ["Report Number",str(invoice_number), "Date", Date,],
-        ["Email", request.user.email, "Total Return", str(Total_Return_Amount)], 
-        ["Seller Name",request.user.first_name, "Vendor ", request.user.username]
-        
-    ]
-
-    details_data = [[Paragraph("<b>{}</b>".format(detail[0]), paragraph_style), Paragraph(detail[1], paragraph_style),
-                     Paragraph("<b>{}</b>".format(detail[2]), paragraph_style), Paragraph(detail[3], paragraph_style)] for detail in client_driver_details]
-    details_table = Table(details_data, colWidths=[220, 150, 150, 150])
-    details_table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (0, -1), colors.white),
-        ('TEXTCOLOR', (0, 0), (0, -1), colors.black),
-        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-        ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
-        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-        ('GRID', (0, 0), (-1, -1), 1, colors.black)
-    ]))
-
-    content.append(details_table)
-    content.append(Spacer(1, 12))
-
-    # Sale items table
-    items_table = Table(sale, colWidths=[120, 60, 90, 80, 80, 70, 80, 70])
-    items_table.setStyle(table_style)
-    content.append(items_table)
-
-    # Build the PDF document
-    pdf.build(content)
+    response = HttpResponse(pdf_file, content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="SaleReturnReport.pdf"'
     return response
 @login_required
 def VendorSaleReturn_export_to_excel(request):
@@ -3117,7 +2092,7 @@ def add_loading_labour(request):
         )
         
         messages.success(request, "Loading Labour data added successfully!")
-        return redirect('AddDailyProduction')  # Redirect to a list view or another view
+        return redirect('add_expense')  # Redirect to a list view or another view
     if request.htmx:
         return render(request,"components/add_loading_labour.html")
     else:
@@ -3202,126 +2177,38 @@ def search1(request):
         return render(request, 'ProductionLabourRecord.html',{'fromdate':fromdate,'todate':todate,'results':results})
 @login_required
 def generate_Production_Labour_report(request):
-    # Fetch data from the database
-    results  = LoadingLabourRecord.objects.filter(user=request.user)
-    fromdate=request.GET.get("fromdate")
-    todate=request.GET.get('todate')
+    results = ProducctionLabourRecord.objects.filter(user=request.user)
+    fromdate = request.GET.get("fromdate")
+    todate = request.GET.get('todate')
     if fromdate and todate:
-        results = results.filter(date__lte=todate, date__gte=fromdate)   
-    # Calculate totals
-    total_amount = Decimal(0.00)
-    for expense in results:
-        total_amount += expense.Total_Amount
+        results = results.filter(date__lte=todate, date__gte=fromdate)
+     
+ 
+    total_amount = sum([record.Total_Amount for record in results])
+    paid=sum([record.Paid_Amount for record in results])
+    pending=sum([record.Remaining for record in results])
 
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = 'attachment;filename="Production_Labour_Expense_Report.pdf"'
+     
 
-    # Create a PDF document
-    pdf = SimpleDocTemplate(response, pagesize=landscape(letter))
-    
-    # Fetch company details (assuming there's only one company)
-    try:
-        company_detail = CompanyDetail.objects.filter(user=request.user).first()
-    except CompanyDetail.DoesNotExist:
-        company_detail = None
+    context = {
+        'company_name': request.user.company_name,
+        'email': request.user.email,
+        'head_office': request.user.business_address,
+        'phone_number': request.user.phone_number,
+        'prepared_by':request.user.first_name,
+        'company_logo_path': request.build_absolute_uri(request.user.business_logo.url) if request.user.business_logo else '',
+        "date": datetime.now().strftime("%d/%m/%Y"),
+        "records": results,
+        "total_amount": total_amount,
+        "paid":paid,
+        "pending":pending
+    }
 
-    # Default values if no company details found
-    if company_detail:
-        company_name = company_detail.name
-        company_email = company_detail.email
-        head_office = company_detail.Head_Office
-        phone_number = company_detail.phone
-        company_logo_path = company_detail.logo  # Adjust with actual attribute name for logo URL
-    else:
-        company_name = "Your Company Name"
-        company_email = "company@example.com"
-        head_office = "1234 Main St, Anytown, AN"
-        phone_number = "(123) 456-7890"
-        company_logo_path = "media/default_logo.png"  # Replace with default logo path
+    html_string = render_to_string("pdfs/production_labour_report.html", context)
+    pdf_file = HTML(string=html_string, base_url=request.build_absolute_uri()).write_pdf()
 
-    date = datetime.now().strftime("%d/%m/%Y")
-
-    # Define styles
-    styles = getSampleStyleSheet()
-    title_style = styles['Title']
-    heading_style = styles['Heading1']
-    paragraph_style = styles['Normal']
-    footer_style = ParagraphStyle('footer', fontSize=10, alignment=1, textColor=colors.grey)
-
-    # Create report content
-    content = []
-
-    # Company logo and details
-    if company_logo_path:
-        try:
-            company_logo = Image(company_logo_path, width=100, height=100)
-        except Exception as e:
-            print(f"Failed to load company logo: {str(e)}")
-            company_logo = None
-    else:
-        company_logo = None
-
-    if company_logo:
-        content.append(company_logo)
-    
-    content.append(Paragraph(company_name, title_style))
-    content.append(Paragraph(head_office, paragraph_style))
-    content.append(Paragraph(phone_number, paragraph_style))
-    content.append(Paragraph(company_email, paragraph_style))
-    content.append(Spacer(1, 20))
-
-    # Report title and summary
-    content.append(Paragraph("Production Labour Record", heading_style))
-    content.append(Paragraph("Report Date: {}".format(date), paragraph_style))
-    content.append(Spacer(1, 20))
-
-    # Expenses table
-    data = [
-        ["Leader","Bunkar","Bales", "Bale Price", "Total","Status","Date"]
-    ]
-    for expns in results:
-        data.append([expns.Team_Leader,expns.Bankar,"{:.2f}".format(expns.Bales), "{:.2f}".format(expns.Per_Bale_Price), "{:.2f}".format(expns.Total_Amount), expns.Payment_Status ,expns.date.strftime("%d/%m/%Y")])
-
-    col_widths = [100,130, 100, 90,90,90,100]  # Adjust column widths
-    table_style = TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
-        ('GRID', (0, 0), (-1, -1), 1, colors.black),
-        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.whitesmoke, colors.lightgrey]),
-    ])
-    
-    expenses_table = Table(data, colWidths=col_widths)
-    expenses_table.setStyle(table_style)
-    content.append(expenses_table)
-    content.append(Spacer(1, 20))
-
-    # Summary table
-    summary = [
-        ["Total Amount", "{:.2f}".format(total_amount)]
-    ]
-    summary_table_style = TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.white),
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
-        ('GRID', (0, 0), (-1, -1), 1, colors.black),
-    ])
-    summary_table = Table(summary, colWidths=[150, 100])
-    summary_table.setStyle(summary_table_style)
-    content.append(summary_table)
-    content.append(Spacer(1, 20))
-
-    # Footer
-    content.append(Paragraph("", footer_style))
-
-    # Build the PDF document
-    pdf.build(content)
+    response = HttpResponse(pdf_file, content_type="application/pdf")
+    response["Content-Disposition"] = "attachment; filename=ProductionLabourReport.pdf"
     return response
 @login_required
 def Production_Labour_Excel(request):
@@ -3354,126 +2241,40 @@ def search2(request):
         return render(request, 'LoadingLabourRecord.html',{'fromdate':fromdate,'todate':todate,'results':results})
 @login_required
 def generate_Loading_Labour_report(request):
-    # Fetch data from the database
-    results  = LoadingLabourRecord.objects.filter(user=request.user)
-    fromdate=request.GET.get("fromdate")
-    todate=request.GET.get('todate')
+    results2 = LoadingLabourRecord.objects.filter(user=request.user)
+    fromdate = request.GET.get("fromdate")
+    todate = request.GET.get('todate')
     if fromdate and todate:
-        results = results.filter(date__lte=todate, date__gte=fromdate)   
-    # Calculate totals
-    total_amount = Decimal(0.00)
-    for expense in results:
-        total_amount += expense.Total_Amount
+        results = results.filter(date__lte=todate, date__gte=fromdate)
+     
+ 
+    total_amount = sum([record.Total_Amount for record in results2])
+    paid=sum([record.Paid_Amount for record in results2])
+    pending=sum([record.Remaining for record in results2])
 
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = 'attachment;filename="Loading_Labour_Expense_Report.pdf"'
+     
 
-    # Create a PDF document
-    pdf = SimpleDocTemplate(response, pagesize=landscape(letter))
-    
-    # Fetch company details (assuming there's only one company)
-    try:
-        company_detail = CompanyDetail.objects.filter(user=request.user).first()
-    except CompanyDetail.DoesNotExist:
-        company_detail = None
+    context = {
+        'company_name': request.user.company_name,
+        'email': request.user.email,
+        'head_office': request.user.business_address,
+        'phone_number': request.user.phone_number,
+        'prepared_by':request.user.first_name,
+        'company_logo_path': request.build_absolute_uri(request.user.business_logo.url) if request.user.business_logo else '',
+        "date": datetime.now().strftime("%d/%m/%Y"),
+        "records": results2,
+        "key_for_loading":True,
+        "total_amount": total_amount,
+        "paid":paid,
+        "pending":pending,
+        
+    }
 
-    # Default values if no company details found
-    if company_detail:
-        company_name = company_detail.name
-        company_email = company_detail.email
-        head_office = company_detail.Head_Office
-        phone_number = company_detail.phone
-        company_logo_path = company_detail.logo  # Adjust with actual attribute name for logo URL
-    else:
-        company_name = "Your Company Name"
-        company_email = "company@example.com"
-        head_office = "1234 Main St, Anytown, AN"
-        phone_number = "(123) 456-7890"
-        company_logo_path = "media/default_logo.png"  # Replace with default logo path
+    html_string = render_to_string("pdfs/production_labour_report.html", context)
+    pdf_file = HTML(string=html_string, base_url=request.build_absolute_uri()).write_pdf()
 
-    date = datetime.now().strftime("%d/%m/%Y")
-
-    # Define styles
-    styles = getSampleStyleSheet()
-    title_style = styles['Title']
-    heading_style = styles['Heading1']
-    paragraph_style = styles['Normal']
-    footer_style = ParagraphStyle('footer', fontSize=10, alignment=1, textColor=colors.grey)
-
-    # Create report content
-    content = []
-
-    # Company logo and details
-    if company_logo_path:
-        try:
-            company_logo = Image(company_logo_path, width=100, height=100)
-        except Exception as e:
-            print(f"Failed to load company logo: {str(e)}")
-            company_logo = None
-    else:
-        company_logo = None
-
-    if company_logo:
-        content.append(company_logo)
-    
-    content.append(Paragraph(company_name, title_style))
-    content.append(Paragraph(head_office, paragraph_style))
-    content.append(Paragraph(phone_number, paragraph_style))
-    content.append(Paragraph(company_email, paragraph_style))
-    content.append(Spacer(1, 20))
-
-    # Report title and summary
-    content.append(Paragraph("Loading Labour Record", heading_style))
-    content.append(Paragraph("Report Date: {}".format(date), paragraph_style))
-    content.append(Spacer(1, 20))
-
-    # Expenses table
-    data = [
-        ["Leader","Bunkar","Bales", "Bale Price", "Total","Status","Date"]
-    ]
-    for expns in results:
-        data.append([expns.Team_Leader,expns.Bankar,"{:.2f}".format(expns.Bales), "{:.2f}".format(expns.Per_Bale_Price), "{:.2f}".format(expns.Total_Amount), expns.Payment_Status ,expns.date.strftime("%d/%m/%Y")])
-
-    col_widths = [100,130, 100, 90,90,90,100]  # Adjust column widths
-    table_style = TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
-        ('GRID', (0, 0), (-1, -1), 1, colors.black),
-        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.whitesmoke, colors.lightgrey]),
-    ])
-    
-    expenses_table = Table(data, colWidths=col_widths)
-    expenses_table.setStyle(table_style)
-    content.append(expenses_table)
-    content.append(Spacer(1, 20))
-
-    # Summary table
-    summary = [
-        ["Total Amount", "{:.2f}".format(total_amount)]
-    ]
-    summary_table_style = TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.white),
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
-        ('GRID', (0, 0), (-1, -1), 1, colors.black),
-    ])
-    summary_table = Table(summary, colWidths=[150, 100])
-    summary_table.setStyle(summary_table_style)
-    content.append(summary_table)
-    content.append(Spacer(1, 20))
-
-    # Footer
-    content.append(Paragraph("", footer_style))
-
-    # Build the PDF document
-    pdf.build(content)
+    response = HttpResponse(pdf_file, content_type="application/pdf")
+    response["Content-Disposition"] = "attachment; filename=ProductionLabourReport.pdf"
     return response
 @login_required
 def Loading_Labour_Excel(request):

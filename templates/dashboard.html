@@ -75,7 +75,7 @@
                     <div class="flex justify-center">
                         <div class="">
                             <img class="hidden h-24 w-24 rounded-full sm:block object-cover mr-2 border-4 border-green-400"
-                                src="{{request.user.profile.profilepic.url}}" alt="">
+                                src="{{request.user.business_logo.url}}" alt="">
                             <p class="font-bold text-base  text-white pt-2 text-center w-24">{{request.user.first_name}}</p>
                         </div>
                     </div>
@@ -244,77 +244,7 @@
                                 </div>
                                 
                             </li>
-                             <li class="relative px-2 py-1" x-data="{ Open : false  }">
-                                <div class="inline-flex items-center justify-between w-full text-base font-semibold transition-colors duration-150 text-gray-500  hover:text-yellow-400 cursor-pointer"
-                                    x-on:click="Open = !Open">
-                                    <span
-                                        class="inline-flex items-center  text-sm font-semibold text-white hover:text-green-400">
-                                         
-                                        <span class="ml-4"> <i class="fas fa-shopping-cart h-6 w-6"></i>Production
-                                             </span>
-                                    </span>
-                                    <svg xmlns="http://www.w3.org/2000/svg" x-show="!Open"
-                                        class="ml-1  text-white w-4 h-4" fill="none" viewBox="0 0 24 24"
-                                        stroke="currentColor" style="display: none;">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M15 19l-7-7 7-7" />
-                                    </svg>
-
-                                    <svg xmlns="http://www.w3.org/2000/svg" x-show="Open"
-                                        class="ml-1  text-white w-4 h-4" fill="none" viewBox="0 0 24 24"
-                                        stroke="currentColor" style="display: none;">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M19 9l-7 7-7-7" />
-                                    </svg>
-                                </div>
-
-                                <div x-show.transition="Open" style="display:none;">
-                                    <ul x-transition:enter="transition-all ease-in-out duration-300"
-                                        x-transition:enter-start="opacity-25 max-h-0"
-                                        x-transition:enter-end="opacity-100 max-h-xl"
-                                        x-transition:leave="transition-all ease-in-out duration-300"
-                                        x-transition:leave-start="opacity-100 max-h-xl"
-                                        x-transition:leave-end="opacity-0 max-h-0"
-                                        class="p-2 mt-2 space-y-2 overflow-hidden text-sm font-medium  rounded-md shadow-inner  bg-green-400"
-                                        aria-label="submenu">
-
-                                        <li class="px-2 py-1 text-white transition-colors duration-150">
-                                            <div class="px-1 hover:text-gray-800 hover:bg-gray-100 rounded-md">
-                                                <div class="flex items-center">
-                                                    
-                                                    <a href="/AddDailyProduction/"  
-                                                        class="w-full ml-2  text-sm font-semibold text-white hover:text-gray-800" ><i class="fas fa-file-invoice-dollar h-6 w-6"></i>
-                                                        Add Daily Production
-                                                        </a>
-                                                </div>
-                                            </div>
-                                        </li>
-                                    </ul>
-                                </div>
-                                <div x-show.transition="Open" style="display:none;">
-                                    <ul x-transition:enter="transition-all ease-in-out duration-300"
-                                        x-transition:enter-start="opacity-25 max-h-0"
-                                        x-transition:enter-end="opacity-100 max-h-xl"
-                                        x-transition:leave="transition-all ease-in-out duration-300"
-                                        x-transition:leave-start="opacity-100 max-h-xl"
-                                        x-transition:leave-end="opacity-0 max-h-0"
-                                        class="p-2 mt-2 space-y-2 overflow-hidden text-sm font-medium  rounded-md shadow-inner  bg-green-400"
-                                        aria-label="submenu">
-
-                                        <li class="px-2 py-1 text-white transition-colors duration-150">
-                                            <div class="px-1 hover:text-gray-800 hover:bg-gray-100 rounded-md">
-                                                <div class="flex items-center">
-                                                     
-                                                    <a href="" hx-get="{% url 'Purchase_Search_and_manage' %}" hx-push-url="{% url 'Purchase_Search_and_manage' %}"  hx-target="#change"
-                                                        class="w-full ml-2  text-sm font-semibold text-white hover:text-gray-800">  <i class="fas fa-search h-6 w-6"></i> Search & Manage Production
-                                                        </a>
-                                                </div>
-                                            </div>
-                                        </li>
-                                    </ul>
-                                </div>
-                                
-                            </li>
+                            
                             <li class="relative px-2 py-1" x-data="{ Open : false  }">
                                 <div class="inline-flex items-center justify-between w-full text-base font-semibold transition-colors duration-150 text-gray-500  hover:text-yellow-400 cursor-pointer"
                                     x-on:click="Open = !Open">

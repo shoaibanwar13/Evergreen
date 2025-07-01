@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Manufacture Purchase Report</title>
+  <style>
+    @page {
+      size: A4;
+      margin: 1cm;
+      @top-center {
+        content: "Manufacture Purchase Report";
+        font-size: 10px;
+        color: #666;
+      }
+      @bottom-center {
+        content: "Page " counter(page) " of " counter(pages);
+        font-size: 10px;
+        color: #666;
+      }
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Arial', 'Helvetica', sans-serif;
+      font-size: 11px;
+      line-height: 1.4;
+      color: #000;
+      background: #fff;
+    }
+    
+    .container {
+      width: 100%;
+      max-width: none;
+    }
+    
+    /* Header Section */
+    .header {
+      width: 100%;
+      border-bottom: 3px solid #16a34a;
+      padding-bottom: 15px;
+      margin-bottom: 20px;
+      page-break-inside: avoid;
+    }
+    
+    .header-content {
+      display: table;
+      width: 100%;
+    }
+    
+    .logo-section {
+      display: table-cell;
+      vertical-align: middle;
+      width: 30%;
+    }
+    
+    .logo {
+      height: 60px;
+      width: auto;
+    }
+    
+    .company-info {
+      display: table-cell;
+      vertical-align: middle;
+      text-align: right;
+      width: 70%;
+    }
+    
+    .company-name {
+      font-size: 18px;
+      font-weight: bold;
+      color: #16a34a;
+      margin-bottom: 5px;
+    }
+    
+    .company-details {
+      font-size: 10px;
+      color: #333;
+      line-height: 1.3;
+    }
+    
+    /* Title Section */
+    .report-title {
+      text-align: center;
+      margin: 25px 0;
+      page-break-inside: avoid;
+    }
+    
+    .report-title h1 {
+      font-size: 24px;
+      font-weight: bold;
+      color: #16a34a;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    /* Meta Information */
+    .report-meta {
+      background-color: #f8f9fa;
+      border: 1px solid #16a34a;
+      border-left: 4px solid #16a34a;
+      padding: 12px;
+      margin-bottom: 20px;
+      page-break-inside: avoid;
+    }
+    
+    .meta-row {
+      display: table;
+      width: 100%;
+      margin-bottom: 5px;
+    }
+    
+    .meta-row:last-child {
+      margin-bottom: 0;
+    }
+    
+    .meta-label {
+      display: table-cell;
+      font-weight: bold;
+      color: #16a34a;
+      width: 80px;
+    }
+    
+    .meta-value {
+      display: table-cell;
+      color: #000;
+    }
+    
+    /* Table Styles */
+    .data-table {
+      width: 100%;
+      margin-bottom: 25px;
+      page-break-inside: auto;
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 9px;
+    }
+    
+    th {
+      background-color: #16a34a;
+      color: #fff;
+      padding: 8px 4px;
+      text-align: center;
+      font-weight: bold;
+      font-size: 8px;
+      text-transform: uppercase;
+      border: 1px solid #fff;
+      page-break-inside: avoid;
+    }
+    
+    td {
+      padding: 6px 4px;
+      text-align: center;
+      border: 1px solid #ddd;
+      color: #000;
+      vertical-align: middle;
+    }
+    
+    tbody tr:nth-child(even) {
+      background-color: #f8f9fa;
+    }
+    
+    tbody tr:nth-child(odd) {
+      background-color: #fff;
+    }
+    
+    /* Prevent table rows from breaking across pages */
+    tbody tr {
+      page-break-inside: avoid;
+    }
+    
+    /* Summary Section */
+    .summary-section {
+      margin-top: 30px;
+      page-break-inside: avoid;
+    }
+    
+    .summary-container {
+      display: table;
+      width: 100%;
+    }
+    
+    .summary-left {
+      display: table-cell;
+      width: 50%;
+      vertical-align: top;
+      padding-right: 15px;
+    }
+    
+    .summary-right {
+      display: table-cell;
+      width: 50%;
+      vertical-align: top;
+      padding-left: 15px;
+    }
+    
+    .summary-card {
+      border: 2px solid #16a34a;
+      background-color: #fff;
+      page-break-inside: avoid;
+    }
+    
+    .summary-header {
+      background-color: #16a34a;
+      color: #fff;
+      padding: 10px;
+      font-weight: bold;
+      font-size: 12px;
+      text-align: center;
+      text-transform: uppercase;
+    }
+    
+    .summary-content {
+      padding: 0;
+    }
+    
+    .summary-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    
+    .summary-table td {
+      padding: 8px 12px;
+      border-bottom: 1px solid #eee;
+      font-size: 10px;
+    }
+    
+    .summary-table td:first-child {
+      font-weight: bold;
+      color: #333;
+      background-color: #f8f9fa;
+      width: 60%;
+    }
+    
+    .summary-table td:last-child {
+      text-align: right;
+      font-weight: bold;
+      color: #000;
+      width: 40%;
+    }
+    
+    .summary-table tr:last-child td {
+      border-bottom: none;
+      background-color: #16a34a;
+      color: #fff;
+      font-size: 11px;
+      font-weight: bold;
+    }
+    
+    .summary-table tr:last-child td:first-child {
+      background-color: #16a34a;
+    }
+    
+    /* Divider */
+    .divider {
+      height: 2px;
+      background-color: #16a34a;
+      margin: 25px 0;
+      page-break-inside: avoid;
+    }
+    
+    /* Footer */
+    .footer {
+      margin-top: 30px;
+      text-align: center;
+      border-top: 1px solid #ddd;
+      padding-top: 15px;
+      page-break-inside: avoid;
+    }
+    
+    .footer-text {
+      font-size: 10px;
+      color: #666;
+      font-weight: bold;
+    }
+    
+    /* Print-specific styles */
+    .page-break {
+      page-break-before: always;
+    }
+    
+    .no-break {
+      page-break-inside: avoid;
+    }
+    
+    /* Responsive adjustments for smaller content */
+    @media print {
+      body {
+        font-size: 10px;
+      }
+      
+      table {
+        font-size: 8px;
+      }
+      
+      th {
+        font-size: 7px;
+        padding: 6px 3px;
+      }
+      
+      td {
+        padding: 5px 3px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="header no-break">
+      <div class="header-content">
+        <div class="logo-section">
+          <img src="{{ company_logo_path }}" alt="Company Logo" class="logo">
+        </div>
+        <div class="company-info">
+          <div class="company-name">{{ company_name }}</div>
+          <div class="company-details">
+            {{ head_Office }}<br>
+            Phone: {{ phone_number }}<br>
+            Email: {{ email }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Report Title -->
+    <div class="report-title no-break">
+      <h1>Manufacture Purchase Report</h1>
+    </div>
+
+    <!-- Report Meta Information -->
+    <div class="report-meta no-break">
+      <div class="meta-row">
+        <div class="meta-label">User:</div>
+        <div class="meta-value">{{ user.username }}</div>
+      </div>
+      <div class="meta-row">
+        <div class="meta-label">Date:</div>
+        <div class="meta-value">{{ date }}</div>
+      </div>
+    </div>
+
+    <!-- Data Table -->
+    <div class="data-table">
+      <table>
+        <thead>
+          <tr>
+            <th>Bunkar</th>
+            <th>Balles</th>
+            <th>Weight</th>
+            <th>Total Weight</th>
+            <th>Type</th>
+            <th>Price</th>
+            <th>Expenses</th>
+            <th>Sale</th>
+            <th>KG/Mund Rate</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in results %}
+          <tr>
+            <td>{{ item.Manufacturing_Product_Name }}</td>
+            <td>{{ item.Manufacture_Balles }}</td>
+            <td>{{ item.Manufacture_Weight }}</td>
+            <td>{{ item.Weight }}</td>
+            <td>{{ item.Manufacturing_Purchase_Type }}</td>
+            <td>{{ item.Total_Purchase_Price }}</td>
+            <td>{{ item.Manufacturing_Expense }}</td>
+            <td>{{ item.Total_Sale_Amount }}</td>
+            <td>{{ item.Per_Kg_Or_Mund_Price }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Divider -->
+    <div class="divider"></div>
+
+    <!-- Summary Section -->
+    <div class="summary-section no-break">
+      <div class="summary-container">
+        <div class="summary-left">
+          <div class="summary-card">
+            <div class="summary-header">Financial Summary</div>
+            <div class="summary-content">
+              <table class="summary-table">
+                <tr>
+                  <td>Total Purchase</td>
+                  <td>{{ Grand_Total_Purchase }}</td>
+                </tr>
+                <tr>
+                  <td>Total Expenses</td>
+                  <td>{{ Grand_Total_Expense }}</td>
+                </tr>
+                <tr>
+                  <td>Total Sales</td>
+                  <td>{{ Grand_Total_Sale }}</td>
+                </tr>
+                <tr>
+                  <td>Net Profit/Loss</td>
+                  <td>{{ Grand_Total_Profit_and_Lose }}</td>
+                </tr>
+              </table>
+            </div>
+          </div>
+        </div>
+        
+        <div class="summary-right">
+          <div class="summary-card">
+            <div class="summary-header">Report Information</div>
+            <div class="summary-content">
+              <table class="summary-table">
+                <tr>
+                  <td>Total Records</td>
+                  <td>{{ results|length }}</td>
+                </tr>
+                <tr>
+                  <td>Report Status</td>
+                  <td>Complete</td>
+                </tr>
+                <tr>
+                  <td>Generated By</td>
+                  <td>{{ user.username }}</td>
+                </tr>
+                <tr>
+                  <td>Quality Check</td>
+                  <td>Verified</td>
+                </tr>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer no-break">
+      <div class="footer-text">
+        Powered by SoftApex Technologies
+      </div>
+    </div>
+  </div>
+</body>
+</html>

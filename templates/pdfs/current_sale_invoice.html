@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sale Invoice</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    @page { size: A4; margin: 1cm; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #fafaf9;
+      color: #1a1a1a;
+      padding: 10px;
+    }
+    .invoice-container {
+      max-width: 700px; margin: 0 auto; background: #fff;
+      border-radius: 8px; border: 1px solid #e5e7eb; overflow: hidden;
+    }
+    .invoice-header {
+      background: linear-gradient(135deg, #6b8e23 0%, #556b2f 100%);
+      color: white; padding: 20px 20px 15px;
+    }
+    .header-content {
+      display: flex; justify-content: space-between; align-items: flex-start;
+    }
+    .logo-section { display: flex; align-items: center; gap: 10px; }
+    .logo {
+      width: 50px; height: 50px; background: rgba(255,255,255,0.15);
+      border-radius: 10px; display: flex; align-items: center; justify-content: center;
+    }
+    .company-info h1 { font-size: 20px; font-weight: 700; }
+    .company-info p { font-size: 12px; }
+    .invoice-meta { text-align: right; }
+    .invoice-title { font-size: 26px; font-weight: 400; margin-bottom: 8px; }
+    .meta-item {
+      display: flex; justify-content: space-between;
+      margin-bottom: 4px; min-width: 180px; font-size: 12px;
+    }
+    .invoice-body { padding: 20px; }
+    .billing-section {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 16px; margin-bottom: 15px;
+    }
+    .bill-card {
+      border: 1px solid #f0f4e8; border-left: 4px solid #6b8e23;
+      border-radius: 8px; padding: 12px; font-size: 12px;
+    }
+    .card-title {
+      font-size: 12px; font-weight: 700; margin-bottom: 8px;
+      color: #3e4d20;
+    }
+    .card-title::before {
+      content: ''; width: 6px; height: 6px; background: #6b8e23;
+      border-radius: 50%; display: inline-block; margin-right: 4px;
+    }
+    .vehicle-section {
+      border: 1px solid #f0f4e8; border-left: 4px solid #6b8e23;
+      border-radius: 8px; padding: 12px; font-size: 12px;
+      margin-bottom: 15px;
+    }
+    .vehicle-title {
+      font-size: 12px; font-weight: 700; margin-bottom: 8px;
+      color: #3e4d20;
+    }
+    .vehicle-info {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .vehicle-item {
+      display: flex; justify-content: space-between;
+    }
+    .vehicle-label { color: #6b7280; }
+    .vehicle-value { font-weight: 600; }
+    .payment-status {
+      display: inline-block; padding: 4px 8px;
+      border-radius: 12px; font-size: 10px; margin-top: 8px; font-weight: 600;
+    }
+    .status-paid {
+      background: #f0f4e8; color: #3e4d20; border: 1px solid #d9e2c7;
+    }
+    .status-pending {
+      background: #fef2f2; color: #dc2626; border: 1px solid #fecaca;
+    }
+    .items-table {
+      width: 100%; border-collapse: collapse; font-size: 12px;
+      margin-bottom: 15px;
+    }
+    .table-header { background: #3e4d20; color: white; }
+    .table-header th {
+      padding: 8px 10px; text-align: left;
+    }
+    .table-row td {
+      padding: 8px 10px; border-bottom: 1px solid #e5e7eb;
+    }
+    .totals-section {
+      border: 1px solid #f0f4e8; padding: 12px; border-radius: 8px; font-size: 12px;
+    }
+    .total-row {
+      display: flex; justify-content: space-between; padding: 4px 0;
+    }
+    .total-row.grand-total {
+      font-size: 14px; font-weight: 700; border-top: 2px solid #6b8e23;
+      margin-top: 6px; padding-top: 6px;
+    }
+    .total-row.grand-total .total-amount { color: #556b2f; }
+    .footer {
+      text-align: center; padding: 20px; font-size: 10px; color: #6b7280;
+    }
+    .footer-divider {
+      width: 50px; height: 2px; background: #6b8e23; margin: 0 auto 10px;
+    }
+    @media print {
+      body { background: white; padding: 0; }
+      .invoice-container { border: none; box-shadow: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="invoice-container">
+    <!-- Header -->
+    <div class="invoice-header">
+      <div class="header-content">
+        <div class="logo-section">
+          <div class="logo">
+            {% if company_logo_path %}
+              <img src="{{ company_logo_path }}" alt="Logo" style="width: 40px; height: auto;">
+            {% else %}
+              <div style="color: white; font-weight: bold;">{{ company_name|slice:":2"|upper }}</div>
+            {% endif %}
+          </div>
+          <div class="company-info">
+            <h1>{{ company_name }}</h1>
+            <p>{{ head_office }}</p>
+          </div>
+        </div>
+        <div class="invoice-meta">
+          <div class="invoice-title">INVOICE</div>
+          <div class="meta-item"><span>Invoice #</span><span>{{ invoice_number }}</span></div>
+          <div class="meta-item"><span>Date</span><span>{{ Date }}</span></div>
+          <div class="meta-item"><span>Prepared By</span><span>{{ prepared_by }}</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Body -->
+    <div class="invoice-body">
+      <!-- Billing -->
+      <div class="billing-section">
+        <div class="bill-card">
+          <div class="card-title">Bill To</div>
+          <div>
+            <strong>{{ Client_Name }}</strong><br/>
+            ID: {{ Client_ID }}<br/>
+            {{ client_address }}<br/>
+            {{ client_city }}, {{ client_state }}<br/>
+            Phone: {{ client_mobile }}
+          </div>
+        </div>
+        <div class="bill-card">
+          <div class="card-title">Payment Info</div>
+          <div>
+            <strong>Paid:</strong> {{ Paid_Amount }}<br/>
+            <strong>Remaining:</strong> {{ Remaining }}<br/>
+            <strong>GST:</strong> {{ Gst }}%<br/>
+            {% if payment_status == "Paid" %}
+              <span class="payment-status status-paid">✓ Paid</span>
+            {% else %}
+              <span class="payment-status status-pending">⏱ Pending</span>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Driver & Vehicle -->
+      <div class="vehicle-section">
+        <div class="vehicle-title">Driver & Vehicle Info</div>
+        <div class="vehicle-info">
+          <div class="vehicle-item"><span class="vehicle-label">Driver Name:</span><span class="vehicle-value">{{ Driver_Name }}</span></div>
+          <div class="vehicle-item"><span class="vehicle-label">Driver Contact:</span><span class="vehicle-value">{{ Driver_Contact }}</span></div>
+          <div class="vehicle-item"><span class="vehicle-label">Vehicle Number:</span><span class="vehicle-value">{{ Vehicle_number }}</span></div>
+          <div class="vehicle-item"><span class="vehicle-label">Vehicle Weight:</span><span class="vehicle-value">{{ Vehicle_Weight }} {{ Vehicle_Weight_Unit }}</span></div>
+        </div>
+      </div>
+
+      <!-- Items -->
+      <table class="items-table">
+        <thead class="table-header">
+          <tr><th>Bunkar</th><th>Weight</th><th>Items</th><th>Rate</th><th>Subtotal</th></tr>
+        </thead>
+        <tbody>
+          <tr class="table-row">
+            <td>{{ Sale_Production_Name }}</td>
+            <td>{{ Weight }} {{ Weight_Unit }}</td>
+            <td>{{ Items }}</td>
+            <td>{{ Sale_Price }}</td>
+            <td>{{ Total_Amount }}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Totals -->
+      <div class="totals-section">
+        <div class="total-row"><span>Subtotal</span><span>{{ Total_Amount }}</span></div>
+        <div class="total-row"><span>Discount</span><span>{{ Discount }}%</span></div>
+        <div class="total-row"><span>GST</span><span>{{ Gst }}%</span></div>
+        <div class="total-row grand-total"><span>Grand Total</span><span class="total-amount">{{ Final_Amount }}</span></div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+      <div class="footer-divider"></div>
+      <p><strong>{{ head_office }}</strong><br/>Phone: {{ phone_number }} | Email: {{ email }}<br/>Thank you for your business with <strong>{{ company_name }}</strong>!</p>
+    </div>
+  </div>
+</body>
+</html>

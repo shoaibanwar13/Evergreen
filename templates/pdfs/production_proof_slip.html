@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Production Proof Slip</title>
+  <style>
+    @page {
+      size: A4;
+      margin: 2cm 1.5cm;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      font-family: 'Times New Roman', serif;
+      font-size: 11px;
+      line-height: 1.4;
+      color: #000;
+      background: #fff;
+      position: relative;
+    }
+
+    * {
+      box-sizing: border-box;
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+
+    body::before {
+      content: "PROOF OF RECORD";
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) rotate(-45deg);
+      font-size: 72px;
+      color: rgba(45, 80, 22, 0.08);
+      font-weight: bold;
+      letter-spacing: 8px;
+      z-index: -1;
+    }
+
+    .document-container {
+      border: 3px solid #2d5016;
+      border-radius: 8px;
+      padding: 25px 25px 40px 25px;
+      background: #fff;
+      position: relative;
+      min-height: 90vh;
+    }
+
+    .seal-corner {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(135deg, #2d5016, #4a6b2a);
+      border: 3px solid #fff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 8px;
+      font-weight: bold;
+      text-align: center;
+      line-height: 1.2;
+      z-index: 1;
+    }
+
+    .security-strip {
+      position: absolute;
+      right: -25px;
+      top: 0;
+      bottom: 0;
+      width: 20px;
+      background: repeating-linear-gradient(
+        45deg,
+        #2d5016,
+        #2d5016 5px,
+        #4a6b2a 5px,
+        #4a6b2a 10px
+      );
+    }
+
+    .document-id {
+      position: absolute;
+      bottom: 10px;
+      right: 15px;
+      font-size: 8px;
+      color: #999;
+      font-family: 'Courier New', monospace;
+    }
+
+    .header {
+      border-bottom: 4px double #2d5016;
+      padding: 60px 20px 20px; /* Top padding to make space for seal */
+      margin-bottom: 25px;
+      position: relative;
+      text-align: center;
+    }
+
+    .header-content {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .logo-section {
+      margin-right: 20px;
+    }
+
+    .logo {
+      height: 75px;
+      border: 2px solid #2d5016;
+      border-radius: 6px;
+      padding: 5px;
+    }
+
+    .company-info {
+      text-align: center;
+    }
+
+    .company-name {
+      font-size: 22px;
+      font-weight: bold;
+      color: #2d5016;
+      margin-bottom: 5px;
+      text-transform: uppercase;
+    }
+
+    .company-details {
+      font-size: 11px;
+      color: #333;
+      line-height: 1.5;
+    }
+
+    .document-title {
+      text-align: center;
+      margin: 20px 0;
+      position: relative;
+    }
+
+    .document-title::before,
+    .document-title::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      width: 100px;
+      height: 2px;
+      background: #2d5016;
+    }
+
+    .document-title::before {
+      left: calc(50% - 200px);
+    }
+
+    .document-title::after {
+      right: calc(50% - 200px);
+    }
+
+    .title-main {
+      font-size: 20px;
+      font-weight: bold;
+      color: #2d5016;
+      text-transform: uppercase;
+    }
+
+    .title-sub {
+      font-size: 12px;
+      color: #666;
+      font-style: italic;
+    }
+
+    .reference-box {
+      background: #f8f9fa;
+      border: 2px solid #2d5016;
+      border-left: 8px solid #2d5016;
+      padding: 12px;
+      margin-bottom: 20px;
+    }
+
+    .ref-number {
+      font-weight: bold;
+      color: #2d5016;
+      font-size: 12px;
+    }
+
+    .ref-date {
+      font-size: 10px;
+      color: #666;
+    }
+
+    .details-section {
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .details-title {
+      font-size: 12px;
+      font-weight: bold;
+      color: #2d5016;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      border-bottom: 1px solid #2d5016;
+    }
+
+    .details-grid {
+      display: table;
+      width: 100%;
+    }
+
+    .detail-row {
+      display: table-row;
+    }
+
+    .detail-label {
+      display: table-cell;
+      font-weight: bold;
+      width: 35%;
+      padding: 6px 10px 6px 0;
+    }
+
+    .detail-value {
+      display: table-cell;
+      padding: 6px 0;
+    }
+
+    .production-section {
+      margin: 20px 0;
+    }
+
+    .section-title {
+      font-size: 14px;
+      font-weight: bold;
+      color: #2d5016;
+      text-align: center;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 10px;
+    }
+
+    th {
+      background: #2d5016;
+      color: #fff;
+      padding: 8px;
+      text-align: center;
+    }
+
+    td {
+      padding: 8px;
+      text-align: center;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .verification-section {
+      margin-top: 20px;
+      padding: 15px;
+      border: 2px dashed #2d5016;
+      border-radius: 6px;
+    }
+
+    .signature-area {
+      display: table;
+      width: 100%;
+      margin-top: 15px;
+    }
+
+    .signature-box {
+      display: table-cell;
+      text-align: center;
+      width: 33.33%;
+    }
+
+    .signature-line {
+      border-bottom: 2px solid #2d5016;
+      height: 40px;
+      margin-bottom: 8px;
+    }
+
+    .signature-label {
+      font-size: 9px;
+      font-weight: bold;
+    }
+
+    .footer {
+      margin-top: 20px;
+      text-align: center;
+      font-size: 9px;
+      color: #666;
+    }
+
+    @media print {
+      html, body {
+        overflow: hidden;
+      }
+      .seal-corner {
+        width: 60px;
+        height: 60px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="document-container">
+    <div class="seal-corner">OFFICIAL<br>RECORD</div>
+    <div class="security-strip"></div>
+    <div class="document-id">DOC-ID: {{Date}}-PROD</div>
+
+    <div class="header">
+      <div class="header-content">
+        <div class="logo-section">
+          <img src="{{company_logo_path}}" alt="Company Logo" class="logo" />
+        </div>
+        <div class="company-info">
+          <div class="company-name">{{company_name}}</div>
+          <div class="company-details">
+            {{head_office}}<br />
+            Phone: {{phone_number}}<br />
+            Email: {{email}}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="document-title">
+      <div class="title-main">Production Proof Slip</div>
+      <div class="title-sub">Official Record of Daily Production</div>
+    </div>
+
+    <div class="reference-box">
+      <div class="ref-number">Reference No: PROD-{{Date}}</div>
+      <div class="ref-date">Document Generated: {{Date}} | Status: VERIFIED</div>
+    </div>
+
+    <div class="details-section">
+      <div class="details-title">Production Information</div>
+      <div class="details-grid">
+        <div class="detail-row">
+          <div class="detail-label">Production Date:</div>
+          <div class="detail-value">{{date}}</div>
+        </div>
+        <div class="detail-row">
+          <div class="detail-label">Production City:</div>
+          <div class="detail-value">{{ProductionCity}}</div>
+        </div>
+        <div class="detail-row">
+          <div class="detail-label">Production Place:</div>
+          <div class="detail-value">{{ProductionPlace}}</div>
+        </div>
+        <div class="detail-row">
+          <div class="detail-label">Document Status:</div>
+          <div class="detail-value">OFFICIALLY VERIFIED ✓</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="production-section">
+      <div class="section-title">Production Record Details</div>
+      <table>
+        <thead>
+          <tr>
+            <th>Product Name</th>
+            <th>Items/Balles</th>
+            <th>Production Team</th>
+            <th>Total Expense</th>
+            <th>Record Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>{{purchase.Puroduction_Product_Name}}</td>
+            <td>{{purchase.Total_Production_Item}}</td>
+            <td>{{purchase.Production_Team_Name}}</td>
+            <td>PKR {{purchase.Total_Expense_Amount}}</td>
+            <td>{{purchase.date}}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="verification-section">
+      <div class="section-title">Document Verification & Authorization</div>
+      <div class="signature-area">
+        <div class="signature-box">
+          <div class="signature-line"></div>
+          <div class="signature-label">Production Manager</div>
+        </div>
+        <div class="signature-box">
+          <div class="signature-line"></div>
+          <div class="signature-label">Quality Controller</div>
+        </div>
+        <div class="signature-box">
+          <div class="signature-line"></div>
+          <div class="signature-label">Authorized Officer</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">
+      Official Document - Proof of Production Record<br />
+      This document is legally valid | Generated by SoftApex Technologies
+    </div>
+  </div>
+</body>
+</html>
