@@ -767,7 +767,7 @@ def SaleGenerate(request):
         )
         
 
-        return redirect("currentInvoice",pk=Client_ID)
+        return redirect("CurrentSale",pk=Client_ID)
     data=Client.objects.filter(user=request.user)
     Products=Manufacturing.objects.filter(user=request.user,Out_Of_Stock=False).all()
     if request.htmx:
@@ -866,7 +866,7 @@ def currentInvoice(request, pk):
 
     # Return response to open in new tab
     response = HttpResponse(pdf_file, content_type='application/pdf')
-    response['Content-Disposition'] = f'attachment; filename="Invoice_{invoice_number}.pdf"'
+    response['Content-Disposition'] = f'inline; filename="Invoice_{invoice_number}.pdf"'
     return response
      
 
