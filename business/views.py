@@ -787,8 +787,8 @@ def client_search(request):
 
 @login_required
 def CurrentSale(request, pk):
-    
-    Invoice = Sale.objects.filter(user=request.user, Client_ID=pk).last()
+    client=Client.objects.filter(user=request.user,Whats_App_Number=pk).first()
+    Invoice = Sale.objects.filter(user=request.user, Client_ID=client).last()
 
     context = {
         'company_name': request.user.company_name,
