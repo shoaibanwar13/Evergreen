@@ -767,7 +767,7 @@ def SaleGenerate(request):
         )
         
 
-        return redirect("CurrentSale",pk=Client_ID)
+        return redirect("currentInvoice",pk=Client_ID)
     data=Client.objects.filter(user=request.user)
     Products=Manufacturing.objects.filter(user=request.user,Out_Of_Stock=False).all()
     if request.htmx:
@@ -787,8 +787,8 @@ def client_search(request):
 
 @login_required
 def CurrentSale(request, pk):
-    client=Client.objects.filter(user=request.user,Whats_App_Number=pk).first()
-    Invoice = Sale.objects.filter(user=request.user, Client_ID=client).last()
+    
+    Invoice = Sale.objects.filter(user=request.user, Client_ID=pk).last()
 
     context = {
         'company_name': request.user.company_name,
@@ -836,37 +836,53 @@ def CurrentSale(request, pk):
 
 @login_required
 def currentInvoice(request, pk):
-    customerid = pk
+    
   
-    Date = datetime.now().strftime("%d/%m/%Y")
-    invoice_number = random.randint(100000, 999999)
+   
     client=Client.objects.filter(user=request.user,Whats_App_Number=pk).first()
     
      
     Invoice = Sale.objects.filter(user=request.user,Client_ID=client).last()
-    print(Invoice)
-    html_string = render_to_string(
-        'CurrentsalePDF.html',
-        {
-            'customerid': customerid,
-            'invoice_number': invoice_number,
-            'logo':request.build_absolute_uri(request.user.business_logo.url),
-            'Invoice': Invoice,
-            'Date': Date,
-            'Head_Office':request.user.business_address,
-            "phone":request.user.phone_number,
-            "email":request.user.email,
-            "company":request.user.company_name
-            }
-    )
+    context = {
+        'company_name': request.user.company_name,
+        'email': request.user.email,
+        'head_office': request.user.business_address,
+        'phone_number': request.user.phone_number,
+        'prepared_by':request.user.first_name,
+        'company_logo_path': request.build_absolute_uri(request.user.business_logo.url) if request.user.business_logo else '',
+        "Date": datetime.now().strftime("%d/%m/%Y"),
+        "Client_Name": Invoice.Client_Name,
+        "Client_ID": Invoice.Client_ID,
+        "client_address": Invoice.Shiping_Address,
+        "client_city": Invoice.Shipping_City,
+        "client_state": Invoice.Shiping_State,
+        "client_mobile": Invoice.Client_Phone_Number,
+        "Driver_Name": Invoice.Driver_Name,
+        "Driver_Contact": Invoice.Driver_Contact,
+        "Vehicle_number": Invoice.Vehicle_Number,
+        "Vehicle_Weight": Invoice.Vehicle_Weight,
+        "Vehicle_Weight_Unit": Invoice.VECHCLE_WEIGHT_Unit,
+        "Paid_Amount": Invoice.Paid_Amount,
+        "Remaining": Invoice.Remaining,
+        "payment_status": "Paid" if Invoice.Payment_Status else "Pending",
+        "Gst": Invoice.GST,
+        "Items": Invoice.Items_Or_Balles,
+        "Weight": Invoice.Weight,
+        "Weight_Unit": Invoice.Weight_Unit,
+        "Sale_Price": Invoice.Sale_Price,
+        "Total_Amount": Invoice.Total_Amount,
+        "Discount": Invoice.Discount,
+        "Final_Amount": Invoice.Final_Amount,
+        "invoice_number": f"{Invoice.Final_Amount}-{Invoice.id}",
+        "user": request.user,
+        "Sale_Production_Name":Invoice.Sale_Production_Name
+    }
 
-    # Generate PDF from HTML
-    pdf_file = weasyprint.HTML(string=html_string).write_pdf(
-    )
+    html_string = render_to_string('pdfs/current_sale_invoice.html', context)
+    pdf_file = HTML(string=html_string, base_url=request.build_absolute_uri()).write_pdf()
 
-    # Return response to open in new tab
     response = HttpResponse(pdf_file, content_type='application/pdf')
-    response['Content-Disposition'] = f'inline; filename="Invoice_{invoice_number}.pdf"'
+    response['Content-Disposition'] = 'inline; filename="SaleInvoice.pdf"'
     return response
      
 
