@@ -2888,7 +2888,7 @@ def ManufactureCredit(request,bunkar):
 
 
 def Invocing(request):
-    return render(request,"Invoice.html")
+    return render(request,"invoice.html")
 
  
 from django.views.decorators.http import require_http_methods
