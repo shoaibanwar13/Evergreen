@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'business',
     'django_htmx',
+    'Authentication'
 ]
 
 GRAPPELLI_ADMIN_TITLE = "SoftApex Technologis"
