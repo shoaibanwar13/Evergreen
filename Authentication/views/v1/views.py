@@ -95,7 +95,7 @@ class VerifyOTPView(APIView):
             user = otp_record.user
             user.is_active = True
             user.save()
-            otp_record.delete()  # Delete only after we're done
+            otp_record.delete()   
             send_email_to_user(
                 subject='Welcome To Evergreen',
                 context=context,
