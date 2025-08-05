@@ -245,3 +245,13 @@ BSECURE_CLIENT_SECRET = "ntYYHorOeDCOQe4xve5AElOF+kiVeBMqgc5n05/BlvI="
 BSECURE_STORE_ID = "ST-0031110573"  # Replace with actual
 BSECURE_API_BASE_URL = "https://api.bsecure.pk/v1"
 
+ACCOUNT_SIGNUP_FIELDS = ['email', 'username']  # or adjust based on your form
+
+ACCOUNT_SIGNUP_FIELDS_CONFIG = {
+    'username': {
+        'required': True
+    },
+    'email': {
+        'required': True
+    }
+}
