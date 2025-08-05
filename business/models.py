@@ -1,6 +1,7 @@
 from django.db import models
 
 from django.utils import timezone
+from django.conf import settings
 from datetime import datetime
 from django.utils.crypto import get_random_string
 from django.contrib.auth.models import AbstractUser
@@ -14,8 +15,8 @@ from django.contrib.auth.models import BaseUserManager
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.core.validators import RegexValidator
 from django.db import models
-
-
+# from django.contrib.auth import get_user_model
+# User = get_user_model()  # This causes circular import - User is defined below
 class CustomUserManager(BaseUserManager):
     """
     Custom user manager for User model
@@ -88,7 +89,7 @@ class User(AbstractUser):
 
 class CompanyDetail(models.Model):
     name=models.CharField(max_length=100)
-    user=models.OneToOneField(User, on_delete=models.CASCADE,null=True,blank=True)
+    user=models.OneToOneField("business.User", on_delete=models.CASCADE,null=True,blank=True)
     logo=models.ImageField(upload_to="Company Logo")
     Head_Office=models.CharField(max_length=1000)
     email=models.CharField(max_length=100)
@@ -99,7 +100,7 @@ class CompanyDetail(models.Model):
     def __str__(self):
         return self.name
 class Profile(models.Model):
-    user=models.OneToOneField(User, on_delete=models.CASCADE)
+    user=models.OneToOneField("business.User", on_delete=models.CASCADE)
     bio=models.TextField(null=True)
     profilepic=models.ImageField(upload_to='profilepic/',default="media/img/logo1.png" ,null=True,blank=True)
     email=models.CharField(max_length=200,null=True,blank=True)
@@ -119,7 +120,7 @@ class Profile(models.Model):
 
         return  f"{self.user.username}"
 class Manufacturing(models.Model):
-    user=models.ForeignKey(User,related_name="Product",on_delete=models.CASCADE)
+    user=models.ForeignKey("business.User",related_name="Product",on_delete=models.CASCADE)
     userprofile = models.ForeignKey(Profile,blank=True, null=True, on_delete=models.CASCADE)
     Manufacturing_Product_Name=models.CharField(max_length=200,primary_key=True)
     PER_ACER = ' PER_ACER'
@@ -204,7 +205,7 @@ class Manufacturing(models.Model):
 
 
 class DailyProduction(models.Model):
-    user=models.ForeignKey(User,related_name="Productions",on_delete=models.CASCADE)
+    user=models.ForeignKey("business.User",related_name="Productions",on_delete=models.CASCADE)
     userprofile  = models.ForeignKey(Profile,blank=True, null=True, on_delete=models.CASCADE)
     Puroduction_Product_Name=models.CharField(max_length=200)
     date=models.DateField(default=timezone.now)
@@ -225,7 +226,7 @@ def generate_unique_client_code():
         if not Client.objects.filter(Whats_App_Numbe=client_code).exists():
             return client_code
 class Client(models.Model):
-    user=models.ManyToManyField(User,related_name="Customeer")
+    user=models.ManyToManyField("business.User",related_name="Customeer")
     userprofile  = models.ForeignKey(Profile,blank=True, null=True, on_delete=models.CASCADE)
     profilepic=models.ImageField(upload_to='clientpic/', null=True,blank=True,default="media/Company Logo/logo1.png")
     Full_Name=models.CharField(max_length=200)
@@ -252,7 +253,7 @@ class Client(models.Model):
         super().save(*args, **kwargs)
 
 class  Sale(models.Model):
-    user=models.ForeignKey(User,related_name="Sale",on_delete=models.CASCADE)
+    user=models.ForeignKey("business.User",related_name="Sale",on_delete=models.CASCADE)
     userprofile  = models.ForeignKey(Profile,blank=True, null=True, on_delete=models.CASCADE)
     Client_ID=models.ForeignKey(Client,related_name="Client_ID",on_delete=models.CASCADE,null=True)
     Sale_Production_Name=models.CharField(max_length=500)
@@ -313,7 +314,7 @@ class  Sale(models.Model):
  
 
 class Expense(models.Model):
-    user=models.ForeignKey(User,related_name="Expenses",on_delete=models.CASCADE)
+    user=models.ForeignKey("business.User",related_name="Expenses",on_delete=models.CASCADE)
     userprofile  = models.ForeignKey(Profile,blank=True, null=True, on_delete=models.CASCADE)
     Production_Name=models.CharField(max_length=100, null=True)
     CATEGORY_CHOICES = [
@@ -360,7 +361,7 @@ class Expense(models.Model):
 
 class PaymentOut(models.Model):
     userprofile  = models.ForeignKey(Profile,blank=True, null=True, on_delete=models.CASCADE)
-    user=models.ForeignKey(User,related_name="Transaction",on_delete=models.CASCADE)
+    user=models.ForeignKey("business.User",related_name="Transaction",on_delete=models.CASCADE)
     
     CATEGORY_CHOICES = [
         ('Profit', 'Profit'),
@@ -384,7 +385,7 @@ class PaymentOut(models.Model):
     def __str__(self):
         return f"{self.description} - {self.amount}"
 class Sale_Return(models.Model):
-    user=models.ForeignKey(User,related_name="Return",on_delete=models.CASCADE)
+    user=models.ForeignKey("business.User",related_name="Return",on_delete=models.CASCADE)
     userprofile  = models.ForeignKey(Profile,blank=True, null=True, on_delete=models.CASCADE)
     Client_ID=models.ForeignKey(Client,related_name="Customer",on_delete=models.CASCADE,null=True)
     Client_Name=models.CharField(max_length=500)
@@ -402,7 +403,7 @@ class Sale_Return(models.Model):
     def __str__(self):
         return f"{self.Client_Name} - {self.Return_To_Customer_Amount}"
 class Production_Labour(models.Model):
-    user=models.ForeignKey(User,related_name="ProductionLabour",on_delete=models.CASCADE)
+    user=models.ForeignKey("business.User",related_name="ProductionLabour",on_delete=models.CASCADE)
     userprofile  = models.ForeignKey(Profile,blank=True, null=True, on_delete=models.CASCADE)
     Team_Leader=models.CharField(max_length=500)
     Credit=models.DecimalField(max_digits=20,decimal_places=2,default=0)
@@ -415,7 +416,7 @@ class Production_Labour(models.Model):
     def __str__(self):
         return f"{self.Team_Leader}"
 class Loading_Labour(models.Model):
-    user=models.ForeignKey(User,related_name="LoadingLabour",on_delete=models.CASCADE)
+    user=models.ForeignKey("business.User",related_name="LoadingLabour",on_delete=models.CASCADE)
     userprofile  = models.ForeignKey(Profile,blank=True, null=True, on_delete=models.CASCADE)
     Team_Leader=models.CharField(max_length=500)
     Credit=models.DecimalField(max_digits=20,decimal_places=2,default=0)
@@ -428,7 +429,7 @@ class Loading_Labour(models.Model):
     def __str__(self):
         return f"{self.Team_Leader}"
 class ProducctionLabourRecord(models.Model):
-    user=models.ForeignKey(User,related_name="ProductionRecord",on_delete=models.CASCADE)
+    user=models.ForeignKey("business.User",related_name="ProductionRecord",on_delete=models.CASCADE)
     userprofile  = models.ForeignKey(Profile,blank=True, null=True, on_delete=models.CASCADE)
     Team_Leader=models.CharField(max_length=500)
     Labour_Id=models.IntegerField(default=0)
@@ -456,7 +457,7 @@ class ProducctionLabourRecord(models.Model):
 
 
 class LoadingLabourRecord(models.Model):
-    user=models.ForeignKey(User,related_name="LoadingRecord",on_delete=models.CASCADE)
+    user=models.ForeignKey("business.User",related_name="LoadingRecord",on_delete=models.CASCADE)
     userprofile  = models.ForeignKey(Profile,blank=True, null=True, on_delete=models.CASCADE)
     Team_Leader=models.CharField(max_length=500)
     Labour_Id=models.IntegerField(default=0)
@@ -482,7 +483,7 @@ class LoadingLabourRecord(models.Model):
     def __str__(self):
         return f"{self.Team_Leader}-{self.Bales}"
 class Loading_Labour_Advance_Payment(models.Model):
-    user=models.ForeignKey(User,related_name="LoadingLabourAdvance",on_delete=models.CASCADE)
+    user=models.ForeignKey("business.User",related_name="LoadingLabourAdvance",on_delete=models.CASCADE)
     Team_Leader=models.CharField(max_length=500)
     Advance=models.DecimalField(max_digits=20,decimal_places=2,default=0)
     date=models.DateField(default=timezone.now)
@@ -491,7 +492,7 @@ class Loading_Labour_Advance_Payment(models.Model):
     def __str__(self):
         return f"{self.Team_Leader}-{self.Advance}"
 class Production_Labour_Advance_Payment(models.Model):
-    user=models.ForeignKey(User,related_name="ProductionLabourAdvance",on_delete=models.CASCADE)
+    user=models.ForeignKey("business.User",related_name="ProductionLabourAdvance",on_delete=models.CASCADE)
     Team_Leader=models.CharField(max_length=500)
     Advance=models.DecimalField(max_digits=20,decimal_places=2,default=0)
     date=models.DateField(default=timezone.now)
@@ -500,7 +501,15 @@ class Production_Labour_Advance_Payment(models.Model):
     def __str__(self):
         return f"{self.Team_Leader}-{self.Advance}"
 class OTPRecord(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='otp_records')
+    OTP_FOR_CHOICES = [
+        ('REGISTER', 'Register'),
+        ('FORGOT_PASSWORD', 'Forgot Password'),
+      
+    ]
+    
+ 
+    purpose = models.CharField(max_length=20, choices=OTP_FOR_CHOICES,default='REGISTER')
+    user = models.ForeignKey("business.User", on_delete=models.CASCADE, related_name='otp_records')
     otp_code = models.CharField(max_length=6)
     created_at = models.DateTimeField(auto_now_add=True)
     is_used = models.BooleanField(default=False)

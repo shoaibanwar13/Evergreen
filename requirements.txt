@@ -26,6 +26,7 @@ asgiref==3.4.1
 certifi==2021.5.30
 chardet==4.0.0
 defusedxml==0.7.1
- 
+djangorestframework-simplejwt
+djangorestframework
 # Below are other potential dependencies captured via pip freeze
  

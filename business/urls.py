@@ -2,6 +2,7 @@
 from django.urls import path
 from.views import *
 from django.contrib.auth import views
+from .api import DashboardAPIView, SalesAPIView, ManufacturingAPIView, ExpensesAPIView, ClientsAPIView
 urlpatterns = [
     path("",index,name="index"),
     path("Addclient/",Addclient,name="Addclient"),
@@ -95,19 +96,12 @@ urlpatterns = [
     path('password-reset/', password_reset_request_view, name='password_reset_request'),
     path('password-reset/verify/', password_reset_verify_view, name='password_reset_verify'),
     path('password-reset/new/', password_reset_new_password_view, name='password_reset_new_password'),
-
     
-    
-    
-    
-     
-    
-     
-    
-
-    
-  
-    
-    
+    # API endpoints
+    path('api/dashboard/', DashboardAPIView.as_view(), name='dashboard-api'),
+    path('api/sales/', SalesAPIView.as_view(), name='sales-api'),
+    path('api/manufacturing/', ManufacturingAPIView.as_view(), name='manufacturing-api'),
+    path('api/expenses/', ExpensesAPIView.as_view(), name='expenses-api'),
+    path('api/clients/', ClientsAPIView.as_view(), name='clients-api'),
 
 ]
